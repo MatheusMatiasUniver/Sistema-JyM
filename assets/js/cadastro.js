@@ -8,7 +8,7 @@ document.getElementById('cadastroForm').addEventListener('submit', async functio
   const response = await fetch('backend/registrar.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ nome, email, senha, nivel })
+    body: JSON.stringify({ nome, email, senha, nivel })    
   });
   const result = await response.json();
   if (result.status === 'sucesso') {
