@@ -1,4 +1,5 @@
 <?php
+
 session_start();
 include '../conexao.php';
 
@@ -7,27 +8,30 @@ if (!isset($_SESSION['usuario'])) {
     exit();
 }
 
-$id = $_POST['id'];
+$id = $_POST['id'] ?? '';
+$nome = $_POST['nome'] ?? '';
+$email = $_POST['email'] ?? '';
+$nivel = $_POST['nivel'] ?? '';
+$senha = $_POST['senha'] ?? ''; 
 
-// Verificar permissão
+$sql = "UPDATE Usuario SET nome=?, email=?, nivelAcesso=? WHERE idUsuario=?";
+$params = [$nome, $email, $nivel, $id];
+
+if (!empty($senha)) {
+    $senhaHash = password_hash($senha, PASSWORD_DEFAULT); 
+    $sql = "UPDATE Usuario SET nome=?, email=?, senha=?, nivelAcesso=? WHERE idUsuario=?";
+    $params = [$nome, $email, $senhaHash, $nivel, $id]; 
+}
+
 if ($_SESSION['usuario']['nivel'] != 'Administrador' && $_SESSION['usuario']['id'] != $id) {
     echo "<script>alert('Permissão negada. Apenas administradores podem editar outros usuários.'); window.history.back();</script>";
     exit();
 }
 
-$nome = $_POST['nome'];
-$email = $_POST['email'];
-$nivel = $_POST['nivel'];
-$senha = $_POST['senha'];
 
-// Atualizar dados
-if (!empty($senha)) {
-    $stmt = $pdo->prepare("UPDATE Usuario SET nome=?, email=?, senha=?, nivelAcesso=? WHERE idUsuario=?");
-    $stmt->execute([$nome, $email, $senha, $nivel, $id]);
-} else {
-    $stmt = $pdo->prepare("UPDATE Usuario SET nome=?, email=?, nivelAcesso=? WHERE idUsuario=?");
-    $stmt->execute([$nome, $email, $nivel, $id]);
-}
+$stmt = $pdo->prepare($sql);
+$stmt->execute($params);
 
 header('Location: ../../usuario.php');
+exit(); 
 ?>
