@@ -1,15 +1,37 @@
 <?php
-// Configurações do banco
+
+function custom_error_handler($errno, $errstr, $errfile, $errline) {
+    if (!(error_reporting() & $errno)) {
+        return false;
+    }
+
+    $error_message = "[" . date("Y-m-d H:i:s") . "] ";
+    $error_message .= "ERROR " . $errno . ": " . $errstr . " in " . $errfile . " on line " . $errline . "\n";
+
+    error_log($error_message); 
+
+    if ($errno == E_USER_ERROR || $errno == E_RECOVERABLE_ERROR) {
+        if (!headers_sent()) { 
+            set_flash_message('danger', 'Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.');
+            header('Location: /'); 
+            exit();
+        } else {
+            echo "Um erro inesperado ocorreu. Por favor, tente novamente mais tarde.";
+        }
+    }
+    return true; 
+}
+
+set_error_handler("custom_error_handler");
+
 $host = 'localhost';
 $db = 'jym';
 $user = 'root';
 $pass = '';
 $charset = 'utf8mb4';
 
-// String de conexão
 $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
 
-// Opções de configuração do PDO
 $options = [
     PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
@@ -20,11 +42,9 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (PDOException $e) {
-    // Log detalhado do erro
     $errorMsg = "Erro de conexão DB - " . date('Y-m-d H:i:s') . " - " . $e->getMessage();
     error_log($errorMsg);
     
-    // Verifica se é uma requisição AJAX
     $isAjax = !empty($_SERVER['HTTP_X_REQUESTED_WITH']) && 
               strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest';
     
@@ -38,7 +58,6 @@ try {
         ]);
         exit();
     } else {
-        // Para páginas web normais
         die("Sistema temporariamente indisponível. Tente novamente em alguns minutos.");
     }
 }
