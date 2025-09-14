@@ -13,7 +13,6 @@ use Illuminate\Support\Facades\Log;
 class ClienteController extends Controller
 {
     protected $clienteService;
-
     protected $middleware = ['auth'];
 
     public function __construct(ClienteService $clienteService)
@@ -40,17 +39,18 @@ class ClienteController extends Controller
     }
 
     /**
-     * Armazena um novo cliente no banco de dados.
+     * Armazena um novo cliente no banco de dados e redireciona para a tela de captura de rosto.
      * @param StoreClienteRequest $request
      */
     public function store(StoreClienteRequest $request)
     {
         try {
             $data = $request->validated();
-                        
+            
             $cliente = $this->clienteService->createCliente($data, Auth::id(), $request->file('foto'));
-
-            return redirect()->route('clientes.index')->with('success', 'Cliente ' . $cliente->nome . ' cadastrado com sucesso!');
+            
+            return redirect()->route('clientes.capturarRosto', ['cliente' => $cliente->idCliente])
+                             ->with('success', 'Cliente ' . $cliente->nome . ' cadastrado com sucesso! Agora, capture o rosto do cliente.');
 
         } catch (\Exception $e) {
             Log::error("Erro no ClienteController@store: " . $e->getMessage());
@@ -112,5 +112,14 @@ class ClienteController extends Controller
             Log::error("Erro no ClienteController@destroy: " . $e->getMessage());
             return back()->with('error', 'Erro ao excluir cliente: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Exibe a tela de captura de rosto para um cliente específico.
+     * Este método é acessado apos o cadastro bem sucedido de um cliente.
+     */
+    public function showFaceCapture(Cliente $cliente)
+    {
+        return view('clientes.capturar-rosto', compact('cliente'));
     }
 }

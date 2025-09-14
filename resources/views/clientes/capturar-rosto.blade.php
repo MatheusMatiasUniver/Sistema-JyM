@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reconhecimento Facial - Acesso à Academia</title>
+    <title>Capturar Rosto - {{ $cliente->nome }} (ID: {{ $cliente->idCliente }})</title>
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
@@ -14,26 +14,35 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
-            background-color: #eceff1;
-            color: #37474f;
+            padding: 30px;
+            background-color: #e0f7fa;
+            color: #263238;
             margin: 0;
             min-height: 100vh;
         }
         h1 {
-            color: #263238;
+            color: #00796b;
+            margin-bottom: 20px;
+        }
+        .cliente-info {
+            font-size: 1.4em;
             margin-bottom: 25px;
+            color: #004d40;
+            background-color: #b2dfdb;
+            padding: 10px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .container-face-recognition {
             position: relative;
             width: 640px;
             height: 480px;
-            margin-bottom: 25px;
-            border: 5px solid #455a64;
-            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 5px solid #00796b;
+            border-radius: 10px;
             overflow: hidden;
             background-color: #000;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
         }
         .container-face-recognition video,
         .container-face-recognition canvas {
@@ -47,13 +56,10 @@
         .controls {
             margin-top: 15px;
             display: flex;
-            flex-wrap: wrap;
             gap: 15px;
             justify-content: center;
-            width: 100%;
-            max-width: 640px;
         }
-        .controls button, .controls input[type="number"] {
+        .controls button {
             padding: 12px 25px;
             border: none;
             border-radius: 25px;
@@ -74,58 +80,65 @@
             box-shadow: none;
         }
         #startCameraButton {
-            background-color: #388e3c;
+            background-color: #4CAF50;
             color: white;
         }
         #startCameraButton:hover:not(:disabled) {
-            background-color: #2e7d32;
-        }
-        #authenticateButton {
-            background-color: #1976d2;
-            color: white;
-        }
-        #authenticateButton:hover:not(:disabled) {
-            background-color: #1565c0;
+            background-color: #45a049;
         }
         #registerFaceButton {
-            background-color: #fbc02d;
-            color: #263238;
+            background-color: #2196F3;
+            color: white;
         }
         #registerFaceButton:hover:not(:disabled) {
-            background-color: #f9a825;
-        }
-        #clientIdInput {
-            border: 2px solid #b0bec5;
-            width: 180px;
-            text-align: center;
-            background-color: white;
-            color: #37474f;
-        }
-        #clientIdInput::placeholder {
-            color: #78909c;
+            background-color: #1e88e5;
         }
         #results {
-            margin-top: 35px;
-            padding: 25px;
-            border-radius: 12px;
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
             background-color: #ffffff;
             color: #3f51b5;
-            font-size: 1.3em;
+            font-size: 1.2em;
             font-weight: bold;
             text-align: center;
             width: 100%;
             max-width: 640px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            line-height: 1.5;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .alert-error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 10px 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
         }
     </style>
 </head>
 <body>
-    <h1>Reconhecimento Facial para Acesso</h1>
+    @if(session('success'))
+        <div class="alert-success">{{ session('success') }}</div>
+    @endif
+    @if(session('error'))
+        <div class="alert-error">{{ session('error') }}</div>
+    @endif
+
+    <h1>Capturar Rosto do Cliente</h1>
+
+    <div class="cliente-info">
+        Cliente: <strong>{{ $cliente->nome }}</strong> (ID: {{ $cliente->idCliente }})
+    </div>
+
+    <input type="hidden" id="clientIdInput" value="{{ $cliente->idCliente }}">
 
     <div class="container-face-recognition">
         <video id="videoElement" width="640" height="480" autoplay muted></video>
@@ -134,12 +147,9 @@
 
     <div class="controls">
         <button id="startCameraButton" disabled>Iniciar Câmera</button>
-        <button id="authenticateButton" disabled>Autenticar Rosto</button>
-        <input type="number" id="clientIdInput" placeholder="ID do Cliente" min="1">
-        <button id="registerFaceButton" disabled>Cadastrar Rosto</button>
+        <button id="registerFaceButton" disabled>Registrar Rosto</button>
     </div>
 
-    <div id="results">Aguardando modelos e câmera...</div>
-
+    <div id="results">Aguardando...</div>
 </body>
 </html>

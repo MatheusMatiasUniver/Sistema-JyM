@@ -9,85 +9,107 @@ const authenticateButton = document.getElementById('authenticateButton');
 const registerFaceButton = document.getElementById('registerFaceButton');
 const clientIdInput = document.getElementById('clientIdInput');
 
-const context = canvas.getContext('2d');
+const context = canvas ? canvas.getContext('2d') : null;
 
 let lastDetectedDescriptor = null;
+let intervalId = null;
 
-const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-console.log('CSRF Token obtido:', csrfToken);
+const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+if (csrfToken) {
+    console.log('CSRF Token obtido:', csrfToken);
+} else {
+    console.error('CSRF token not found. Please ensure it is present in a meta tag.');
+}
 
 const MODEL_URL = '/models';
 let modelsLoaded = false;
 
-Promise.all([
-    faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
-    faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
-    faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
-]).then(() => {
-    console.log('Face-API models loaded successfully!');
-    modelsLoaded = true;
-    resultsDiv.innerText = 'Modelos carregados. Pronto para iniciar a câmera.';
-
-    if (startCameraButton) startCameraButton.disabled = false;
-}).catch(err => {
-    console.error('Erro ao carregar modelos do Face-API:', err);
-    resultsDiv.innerText = `Erro ao carregar modelos: ${err.message}`;
-});
+async function loadModels() {
+    if (modelsLoaded) return;
+    if (resultsDiv) resultsDiv.innerText = 'Carregando modelos de IA...';
+    try {
+        await Promise.all([
+            faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL),
+            faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
+            faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
+        ]);
+        console.log('Face-API models loaded successfully!');
+        modelsLoaded = true;
+        if (resultsDiv) resultsDiv.innerText = 'Modelos carregados. Pronto para iniciar a câmera.';
+        if (startCameraButton) startCameraButton.disabled = false;
+    } catch (err) {
+        console.error('Erro ao carregar modelos do Face-API:', err);
+        if (resultsDiv) resultsDiv.innerText = `Erro ao carregar modelos: ${err.message}`;
+    }
+}
 
 async function startVideo() {
-    if (!modelsLoaded) {
-        resultsDiv.innerText = 'Modelos do Face-API ainda não carregados. Por favor, aguarde.';
+    if (!video) {
+        console.error('Elemento de vídeo não encontrado na página.');
+        if (resultsDiv) resultsDiv.innerText = 'Erro: Elemento de vídeo não encontrado.';
         return;
     }
-    resultsDiv.innerText = 'Iniciando webcam...';
+    if (!modelsLoaded) {
+        if (resultsDiv) resultsDiv.innerText = 'Modelos do Face-API ainda não carregados. Por favor, aguarde.';
+        return;
+    }
+
+    if (resultsDiv) resultsDiv.innerText = 'Iniciando webcam...';
     try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
         video.srcObject = stream;
         video.onloadedmetadata = () => {
             video.play();
             console.log('Webcam iniciada.');
-            resultsDiv.innerText = 'Webcam iniciada. Detecção de rosto ativa.';
+            if (resultsDiv) resultsDiv.innerText = 'Webcam iniciada. Detecção de rosto ativa.';
             if (authenticateButton) authenticateButton.disabled = false;
             if (registerFaceButton) registerFaceButton.disabled = false;
+            startDetectionLoop();
         };
     } catch (err) {
         console.error('Erro ao acessar a webcam:', err);
-        resultsDiv.innerText = `Erro ao iniciar webcam: ${err.name} - ${err.message}. Verifique permissões e se a câmera não está em uso por outro aplicativo.`;
+        if (resultsDiv) resultsDiv.innerText = `Erro ao iniciar webcam: ${err.name} - ${err.message}. Verifique permissões e se a câmera não está em uso por outro aplicativo.`;
     }
 }
 
-video.addEventListener('play', () => {
+function startDetectionLoop() {
+    if (intervalId) clearInterval(intervalId);
+
+    if (!video || !canvas || !context) {
+        console.warn('Elementos de vídeo/canvas não encontrados. Detecção não pode ser iniciada.');
+        return;
+    }
+
     const displaySize = { width: video.width, height: video.height };
     faceapi.matchDimensions(canvas, displaySize);
 
-    setInterval(async () => {
+    intervalId = setInterval(async () => {
         if (modelsLoaded && !video.paused && !video.ended) {
             const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
                 .withFaceLandmarks()
                 .withFaceDescriptor();
-            
+
             context.clearRect(0, 0, canvas.width, canvas.height);
 
             if (detections) {
                 const resizedDetections = faceapi.resizeResults(detections, displaySize);
-                                
                 faceapi.draw.drawDetections(canvas, resizedDetections);
                 faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-                
+
                 lastDetectedDescriptor = detections.descriptor;
             } else {
                 lastDetectedDescriptor = null;
             }
         }
     }, 100);
-});
+}
 
 async function authenticateFace(descriptor) {
     if (!descriptor) {
-        resultsDiv.innerText = 'Nenhum rosto detectado para autenticar.';
+        if (resultsDiv) resultsDiv.innerHTML = '<span style="color: #dc3545;">Nenhum rosto detectado para autenticar.</span>';
         return;
     }
-    resultsDiv.innerText = 'Autenticando rosto...';
+    if (resultsDiv) resultsDiv.innerText = 'Autenticando rosto...';
     try {
         const response = await fetch('/face/authenticate', {
             method: 'POST',
@@ -110,28 +132,37 @@ async function authenticateFace(descriptor) {
         console.log('Resposta da autenticação:', data);
 
         if (data.authenticated) {
-            resultsDiv.innerText = `Autenticado com sucesso como: ${data.user_name} (ID: ${data.client_id})`;
+            if (resultsDiv) {
+                resultsDiv.innerHTML = `<span style="color:#28a745;">&#10003; Autenticado com sucesso!</span><br>
+                                       Cliente: ${data.user_name} (ID: ${data.client_id})<br>
+                                       Status: ${data.status}`;
+                if (data.status === 'Ativo') {
+                    resultsDiv.innerHTML += '<br><span style="color:#28a745; font-size: 1.2em;">ACESSO LIBERADO!</span>';
+                } else {
+                    resultsDiv.innerHTML += '<br><span style="color:#dc3545; font-size: 1.2em;">ACESSO NEGADO! Status: ' + data.status + '</span>';
+                }
+            }
         } else {
-            resultsDiv.innerText = 'Rosto não reconhecido ou não encontrado.';
+            if (resultsDiv) resultsDiv.innerHTML = '<span style="color: #dc3545;">Rosto não reconhecido ou não encontrado.</span>';
         }
     } catch (error) {
         console.error('Erro durante a autenticação:', error);
-        resultsDiv.innerText = `Erro na autenticação: ${error.message}`;
+        if (resultsDiv) resultsDiv.innerHTML = `<span style="color: #dc3545;">Erro na autenticação: ${error.message}</span>`;
     }
 }
 
 async function registerFace(descriptor, clientId) {
     if (!descriptor) {
-        resultsDiv.innerText = 'Nenhum rosto detectado para registrar.';
+        if (resultsDiv) resultsDiv.innerHTML = '<span style="color: #dc3545;">Nenhum rosto detectado para registrar.</span>';
         return;
     }
-    if (!clientId || clientId.trim() === '') {
-        resultsDiv.innerText = 'Por favor, insira o ID do Cliente para registro.';
-        clientIdInput.focus();
+    if (!clientId || String(clientId).trim() === '') {
+        if (resultsDiv) resultsDiv.innerHTML = '<span style="color: #dc3545;">Por favor, insira o ID do Cliente para registro.</span>';
+        if (clientIdInput && clientIdInput.type === 'number') clientIdInput.focus();
         return;
     }
 
-    resultsDiv.innerText = `Registrando rosto para Cliente ID ${clientId}...`;
+    if (resultsDiv) resultsDiv.innerText = `Registrando rosto para Cliente ID ${clientId}...`;
 
     try {
         const response = await fetch('/face/register', {
@@ -156,17 +187,23 @@ async function registerFace(descriptor, clientId) {
         console.log('Resposta do registro:', data);
 
         if (data.success) {
-            resultsDiv.innerText = `Rosto registrado com sucesso para Cliente ID ${clientId}!`;
-            clientIdInput.value = '';
+            if (resultsDiv) resultsDiv.innerHTML = `<span style="color:#28a745;">&#10003; ${data.message}</span>`;
+            if (clientIdInput && clientIdInput.type === 'number') clientIdInput.value = '';
+            if (document.querySelector('input[type="hidden"][id="clientIdInput"]')) {
+                setTimeout(() => {
+                    window.location.href = '/dashboard';
+                }, 3000);
+            }
         } else {
-            resultsDiv.innerText = 'Falha no registro do rosto.';
+            if (resultsDiv) resultsDiv.innerHTML = `<span style="color: #dc3545;">${data.message || 'Falha no registro do rosto.'}</span>`;
         }
     } catch (error) {
         console.error('Erro durante o registro:', error);
-        resultsDiv.innerText = `Erro no registro: ${error.message}`;
+        if (resultsDiv) resultsDiv.innerHTML = `<span style="color: #dc3545;">Erro no registro: ${error.message}</span>`;
     }
 }
 
+document.addEventListener('DOMContentLoaded', loadModels);
 
 if (startCameraButton) {
     startCameraButton.addEventListener('click', startVideo);
@@ -180,7 +217,7 @@ if (authenticateButton) {
 
 if (registerFaceButton) {
     registerFaceButton.addEventListener('click', () => {
-        const clientId = clientIdInput ? clientIdInput.value : null;
-        registerFace(lastDetectedDescriptor, clientId);
+        const clientIdToRegister = clientIdInput ? clientIdInput.value : null;
+        registerFace(lastDetectedDescriptor, clientIdToRegister);
     });
 }

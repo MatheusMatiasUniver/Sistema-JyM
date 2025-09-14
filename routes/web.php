@@ -26,16 +26,17 @@ Route::middleware('auth')->group(function () {
     })->name('dashboard');
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
-
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
     Route::get('/reconhecimento', function () {
         return view('reconhecimento');
-    })->name('face.recognition.show');
+    })->name('reconhecimento');
 
     Route::post('/face/register', [FaceRecognitionController::class, 'register']);
     Route::post('/face/authenticate', [FaceRecognitionController::class, 'authenticate']);
+
+    Route::get('/clientes/{cliente}/capturar-rosto', [ClienteController::class, 'showFaceCapture'])->name('clientes.capturarRosto');
 
     // --- MÓDULOS DE GERENCIAMENTO ---
 

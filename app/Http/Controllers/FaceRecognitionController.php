@@ -10,8 +10,7 @@ use Illuminate\Support\Facades\Log;
 class FaceRecognitionController extends Controller
 {
     /**
-     * Salva um descritor facial para um cliente.
-     * Renomeado de 'store' para 'register' para corresponder à chamada JS.
+     * Salva ou atualiza um descritor facial para um cliente.
      */
     public function register(Request $request)
     {
@@ -22,16 +21,12 @@ class FaceRecognitionController extends Controller
 
         $cliente = Cliente::find($request->cliente_id);
 
-        if ($cliente->faceDescriptors()->exists()) {
-            return response()->json(['message' => 'Este cliente já possui um descritor facial registrado.'], 409);
-        }
+        $faceDescriptor = FaceDescriptor::firstOrNew(['cliente_id' => $request->cliente_id]);
 
-        $descriptor = new FaceDescriptor([
-            'descriptor' => json_encode($request->descriptor),
-        ]);
-        $cliente->faceDescriptors()->save($descriptor);
+        $faceDescriptor->descriptor = $request->descriptor;
+        $faceDescriptor->save();
 
-        return response()->json(['success' => true, 'message' => 'Descritor facial salvo com sucesso para o cliente ' . $cliente->nome . '.'], 200);
+        return response()->json(['success' => true, 'message' => 'Descritor facial salvo/atualizado com sucesso para o cliente ' . $cliente->nome . '.'], 200);
     }
 
     /**
@@ -51,20 +46,21 @@ class FaceRecognitionController extends Controller
 
         foreach ($clientes as $cliente) {
             foreach ($cliente->faceDescriptors as $storedFaceDescriptor) {
-                $storedDescriptorArray = json_decode($storedFaceDescriptor->descriptor, true);
+                $storedDescriptorArray = $storedFaceDescriptor->descriptor;
 
                 if (!is_array($storedDescriptorArray)) {
-                    Log::error("Descritor armazenado para cliente {$cliente->nome} (ID: {$cliente->idCliente}) não é um JSON válido ou não decodificou para um array.");
+                    Log::error("Descritor armazenado para cliente {$cliente->nome} (ID: {$cliente->idCliente}) não é um array válido.");
                     continue;
                 }
-                
+
                 if (count($inputDescriptor) !== count($storedDescriptorArray)) {
                     Log::warning("Tamanho do descritor de entrada ({count($inputDescriptor)}) não corresponde ao armazenado ({count($storedDescriptorArray)}) para cliente {$cliente->nome}.");
                     continue;
                 }
+
                 $distance = $this->calculateEuclideanDistance($inputDescriptor, $storedDescriptorArray);
-                
-                Log::info("Comparando cliente {$cliente->nome} (ID: {$cliente->idCliente}). Distância: {$distance}");
+
+                Log::info("Comparando cliente {$cliente->nome} (ID: {$cliente->idCliente}). Distância: {$distance}. Threshold: {$matchThreshold}");
 
                 if ($distance < $matchThreshold) {
                     return response()->json([
@@ -84,7 +80,6 @@ class FaceRecognitionController extends Controller
 
     /**
      * Calcula a distância euclidiana entre dois descritores.
-     * Assume que ambos os descritores são arrays numéricos de mesmo tamanho.
      */
     private function calculateEuclideanDistance(array $desc1, array $desc2): float
     {
