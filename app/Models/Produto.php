@@ -9,9 +9,8 @@ class Produto extends Model
 {
     use HasFactory;
 
-    protected $table = 'Produto'; // Nome da tabela no banco de dados
-    protected $primaryKey = 'idProduto'; // Chave primária da tabela
-    public $timestamps = false; // Desativa timestamps
+    protected $primaryKey = 'idProduto';
+    public $timestamps = false;
 
     protected $fillable = [
         'nome',
@@ -25,7 +24,6 @@ class Produto extends Model
     // --- Relacionamentos ---
     public function itensVenda()
     {
-        // Um Produto pode estar em muitos ItensVenda
         return $this->hasMany(ItemVenda::class, 'idProduto', 'idProduto');
     }
 }

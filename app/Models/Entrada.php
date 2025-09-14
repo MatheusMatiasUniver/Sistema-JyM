@@ -9,9 +9,8 @@ class Entrada extends Model
 {
     use HasFactory;
 
-    protected $table = 'Entrada'; // Nome da tabela no banco de dados
-    protected $primaryKey = 'idEntrada'; // Chave primária da tabela
-    public $timestamps = false; // Desativa timestamps
+    protected $primaryKey = 'idEntrada';
+    public $timestamps = false;
 
     protected $fillable = [
         'idCliente',
@@ -19,10 +18,12 @@ class Entrada extends Model
         'metodo',
     ];
 
-    // --- Relacionamentos ---
+    protected $casts = [
+        'dataHora' => 'datetime',
+    ];
+ 
     public function cliente()
     {
-        // Uma Entrada pertence a um Cliente
         return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente');
     }
 }

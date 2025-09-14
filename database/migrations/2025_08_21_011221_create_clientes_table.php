@@ -12,19 +12,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('clientes', function (Blueprint $table) {
-            $table->increments('idCliente');
+            $table->increments('idCliente'); // Use increments para chave primária auto-increment
             $table->string('nome', 100)->nullable(false);
-            $table->string('cpf', 14)->unique()->nullable(false);
+            $table->string('cpf', 14)->unique()->nullable(false); // CPF único
             $table->date('dataNascimento')->nullable(false);
             $table->enum('status', ['Ativo', 'Inativo'])->nullable(false);
-            $table->binary('foto')->nullable(); 
+            $table->string('foto', 255)->nullable();
+            $table->unsignedInteger('idUsuario')->nullable(); // Chave estrangeira para User
+            
+            // NENHUMA REFERÊNCIA A idPlano AQUI!
+            // NENHUMA CHAVE ESTRANGEIRA PARA idPlano AQUI!
 
-            $table->unsignedInteger('idUsuario')->nullable();
             $table->foreign('idUsuario')
                   ->references('idUsuario')
-                  ->on('users') 
+                  ->on('users')
                   ->onDelete('set null'); 
-            $table->index('cpf');
+                  
+            // Se você tiver outras chaves estrangeiras que não sejam para idPlano, mantenha-as.
+            // Mas a lógica é: crie a coluna ANTES de criar a FK.
+            // Exemplo: $table->unsignedInteger('alguma_coluna_id'); $table->foreign('alguma_coluna_id')->references('id')->on('outra_tabela');
         });
     }
 

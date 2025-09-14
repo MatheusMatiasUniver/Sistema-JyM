@@ -9,8 +9,7 @@ class ItemVenda extends Model
 {
     use HasFactory;
 
-    // A tabela no BD é 'ItensVenda' (CamelCase, singular), o que não segue o padrão plural snake_case do Laravel (itens_vendas)
-    protected $table = 'ItensVenda';
+    protected $table = 'itens_vendas';
     protected $primaryKey = 'idItem';
     public $timestamps = false;
 
@@ -21,16 +20,17 @@ class ItemVenda extends Model
         'precoUnitario',
     ];
 
-    // --- Relacionamentos ---
-    public function venda()
+    protected $casts = [
+        'precoUnitario' => 'decimal:2',
+    ];
+
+    public function vendaProduto()
     {
-        // Um ItemVenda pertence a uma VendaProduto
         return $this->belongsTo(VendaProduto::class, 'idVenda', 'idVenda');
     }
 
     public function produto()
     {
-        // Um ItemVenda pertence a um Produto
         return $this->belongsTo(Produto::class, 'idProduto', 'idProduto');
     }
 }

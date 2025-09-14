@@ -9,9 +9,9 @@ class VendaProduto extends Model
 {
     use HasFactory;
 
-    protected $table = 'VendaProduto'; // Nome da tabela no banco de dados
-    protected $primaryKey = 'idVenda'; // Chave primária da tabela
-    public $timestamps = false; // Desativa timestamps
+    protected $table = 'venda_produtos';
+    protected $primaryKey = 'idVenda';
+    public $timestamps = false;
 
     protected $fillable = [
         'idCliente',
@@ -20,16 +20,18 @@ class VendaProduto extends Model
         'tipoPagamento',
     ];
 
-    // --- Relacionamentos ---
+    protected $casts = [
+        'dataVenda' => 'datetime',
+        'valorTotal' => 'decimal:2',
+    ];
+
     public function cliente()
     {
-        // Uma VendaProduto pertence a um Cliente
         return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente');
     }
 
     public function itensVenda()
     {
-        // Uma VendaProduto tem muitos ItensVenda
         return $this->hasMany(ItemVenda::class, 'idVenda', 'idVenda');
     }
 }

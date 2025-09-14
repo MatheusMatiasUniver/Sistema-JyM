@@ -4,14 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\FaceDescriptor; 
 
 class Cliente extends Model
 {
     use HasFactory;
 
-    
-    protected $primaryKey = 'idCliente'; // Chave primária da tabela
-    public $timestamps = false; // Desativa timestamps
+    protected $table = 'clientes';
+    protected $primaryKey = 'idCliente';
+    public $timestamps = false;
 
     protected $fillable = [
         'nome',
@@ -19,31 +20,76 @@ class Cliente extends Model
         'dataNascimento',
         'status',
         'foto',
-        'idUsuario', // A chave estrangeira também deve ser fillable se for atribuída diretamente
+        'idUsuario',
+        'idPlano',
     ];
 
-    // --- Relacionamentos ---
+    protected $casts = [
+        'dataNascimento' => 'date',
+    ];
+
+    /**
+     * Um Cliente pertence a um Usuário (o usuário que o cadastrou).
+     */
     public function usuario()
     {
-        // Um Cliente pertence a um Usuário (o usuário que o cadastrou)
         return $this->belongsTo(User::class, 'idUsuario', 'idUsuario');
     }
 
+    /**
+     * Um Cliente tem muitas Mensalidades.
+     */
     public function mensalidades()
     {
-        // Um Cliente tem muitas Mensalidades
         return $this->hasMany(Mensalidade::class, 'idCliente', 'idCliente');
     }
 
+    /**
+     * Um Cliente tem muitas Entradas.
+     */
     public function entradas()
     {
-        // Um Cliente tem muitas Entradas
         return $this->hasMany(Entrada::class, 'idCliente', 'idCliente');
     }
 
-    public function vendas()
+    /**
+     * Um Cliente pode ter muitas Vendas de Produtos.
+     */
+    public function vendasProdutos()
     {
-        // Um Cliente pode ter muitas Vendas (VendaProduto)
         return $this->hasMany(VendaProduto::class, 'idCliente', 'idCliente');
+    }
+
+    /**
+     * Um Cliente pertence a um Plano de Assinatura.
+     */
+    public function plano()
+    {
+        return $this->belongsTo(PlanoAssinatura::class, 'idPlano', 'idPlano');
+    }
+
+    /**
+     * Acessor para verificar se o cliente está ativo.
+     */
+    public function getIsAtivoAttribute()
+    {
+        return $this->status === 'Ativo';
+    }
+
+    public function faceDescriptors()
+    {
+        return $this->hasMany(FaceDescriptor::class, 'cliente_id', 'idCliente');
+    }
+
+    /**
+     * Acessor para obter o CPF formatado.
+     */
+    public function getCpfFormatadoAttribute()
+    {
+        $cpf = preg_replace('/[^0-9]/', '', $this->cpf);
+        if (strlen($cpf) === 11) {
+            return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf);
+        }
+        return $this->cpf;
     }
 }

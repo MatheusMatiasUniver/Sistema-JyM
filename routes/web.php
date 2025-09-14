@@ -3,7 +3,12 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClienteController;
-use App\Http\Controllers\UserController; // <<< ADICIONE ESTA LINHA!
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\ProdutoController;
+use App\Http\Controllers\VendaController;
+use App\Http\Controllers\AcademiaController;
+use App\Http\Controllers\PlanoAssinaturaController;
+use App\Http\Controllers\FaceRecognitionController;
 
 /*
 |--------------------------------------------------------------------------
@@ -11,11 +16,10 @@ use App\Http\Controllers\UserController; // <<< ADICIONE ESTA LINHA!
 |--------------------------------------------------------------------------
 */
 
-// Rotas de Autenticação (públicas)
+
 Route::get('/', [AuthController::class, 'showLoginForm'])->name('login.show');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
-// Grupo de rotas protegidas por autenticação
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -23,17 +27,27 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
 
-    // Rotas de Registro (agora protegidas por 'auth' middleware e por lógica no Controller)
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
     Route::post('/register', [AuthController::class, 'register']);
 
-    // Rotas para o Módulo de Clientes
+    Route::get('/reconhecimento', function () {
+        return view('reconhecimento');
+    })->name('face.recognition.show');
+
+    Route::post('/face/register', [FaceRecognitionController::class, 'register']);
+    Route::post('/face/authenticate', [FaceRecognitionController::class, 'authenticate']);
+
+    // --- MÓDULOS DE GERENCIAMENTO ---
+
     Route::resource('clientes', ClienteController::class);
 
-    // --- Rotas para o Módulo de Gerenciamento de Usuários (NOVO) ---
+    Route::resource('produtos', ProdutoController::class);
+
+    Route::resource('vendas', VendaController::class);
+
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
-    // Futuramente, se precisar de edição/exclusão de usuários, pode adicionar mais rotas aqui:
-    // Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
-    // Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
-    // Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy');
+
+    Route::resource('academias', AcademiaController::class);
+
+    Route::resource('planos', PlanoAssinaturaController::class);
 });

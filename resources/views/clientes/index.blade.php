@@ -1,73 +1,93 @@
 @extends('layouts.app')
 
-@section('title', 'Clientes - Sistema JyM') 
+@section('title', 'Clientes - Sistema JyM')
 
 @section('content')
-    <div class="main">
-        <h1>Lista de Clientes</h1>
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Lista de Clientes</h1>
 
-        {{-- Mensagens de sucesso ou erro, se houverem --}}
-        @if(session('success'))
-            <div class="alert alert-success">
-                {{ session('success') }}
-            </div>
-        @endif
-        @if(session('error'))
-            <div class="alert alert-danger">
-                {{ session('error') }}
-            </div>
-        @endif
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Sucesso!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Erro!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
 
-        {{-- Botão para adicionar novo cliente --}}
-        <a href="{{ route('clientes.create') }}">
-            <button>Adicionar Novo Cliente</button>
+    <div class="mb-4">
+        <a href="{{ route('clientes.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Adicionar Novo Cliente
         </a>
+    </div>
 
-        {{-- Tabela de Clientes --}}
-        <table>
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <table class="min-w-full leading-normal">
             <thead>
                 <tr>
-                    <th>CPF</th>
-                    <th>Nome</th>
-                    <th>Email</th>
-                    <th>Telefone</th>
-                    <th>Data de Nascimento</th>
-                    <th>Plano</th>
-                    <th>Status</th> {{-- Adicionando a coluna de status --}}
-                    <th>Ações</th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        CPF
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Nome
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Email
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Status
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Plano
+                    </th>
+                    <th class="px-5 py-3 border-b-2 border-gray-200 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
+                        Ações
+                    </th>
                 </tr>
             </thead>
             <tbody>
-                {{-- Verifica se existem clientes para exibir --}}
-                @forelse($clientes as $cliente)
+                @forelse ($clientes as $cliente)
                     <tr>
-                        <td>{{ $cliente->cpf }}</td>
-                        <td>{{ $cliente->nome }}</td>
-                        <td>{{ $cliente->email }}</td>
-                        <td>{{ $cliente->telefone }}</td>
-                        <td>{{ $cliente->dataNascimento }}</td>
-                        <td>{{ $cliente->plano }}</td>
-                        <td>{{ $cliente->status }}</td> {{-- Exibindo o status --}}
-                        <td>
-                            {{-- Links para Editar e Excluir --}}
-                            <a href="{{ route('clientes.edit', $cliente->idCliente) }}">Editar</a> |
-                            <a href="{{ route('clientes.destroy', $cliente->idCliente) }}"
-                               onclick="event.preventDefault(); document.getElementById('delete-form-{{ $cliente->idCliente }}').submit();">Excluir</a>
-
-                            {{-- Formulário oculto para o método DELETE --}}
-                            <form id="delete-form-{{ $cliente->idCliente }}" action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" style="display: none;">
-                                @csrf
-                                @method('DELETE')
-                            </form>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ $cliente->cpfFormatado }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ $cliente->nome }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ $cliente->email }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <span class="relative inline-block px-3 py-1 font-semibold leading-tight {{ $cliente->status == 'Ativo' ? 'text-green-900' : 'text-red-900' }}">
+                                <span aria-hidden="true" class="absolute inset-0 opacity-50 rounded-full {{ $cliente->status == 'Ativo' ? 'bg-green-200' : 'bg-red-200' }}"></span>
+                                <span class="relative">{{ $cliente->status }}</span>
+                            </span>
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            {{ $cliente->plano->nome ?? 'N/A' }}
+                        </td>
+                        <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
+                            <div class="flex items-center space-x-3">
+                                <a href="{{ route('clientes.edit', $cliente->idCliente) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
+                                <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
+                                </form>
+                            </div>
                         </td>
                     </tr>
                 @empty
-                    {{-- Mensagem se não houver clientes --}}
                     <tr>
-                        <td colspan="8">Nenhum cliente cadastrado.</td>
+                        <td colspan="6" class="px-5 py-5 border-b border-gray-200 bg-white text-sm text-center">
+                            Nenhum cliente cadastrado.
+                        </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
     </div>
-@endsection 
+@endsection

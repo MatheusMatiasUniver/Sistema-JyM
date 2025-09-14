@@ -9,9 +9,9 @@ class PlanoAssinatura extends Model
 {
     use HasFactory;
 
-    protected $table = 'PlanoAssinatura'; // Nome da tabela no banco de dados
-    protected $primaryKey = 'idPlano'; // Chave primária da tabela
-    public $timestamps = false; // Desativa timestamps
+    protected $table = 'plano_assinaturas';
+    protected $primaryKey = 'idPlano';
+    public $timestamps = false;
 
     protected $fillable = [
         'nome',
@@ -21,10 +21,13 @@ class PlanoAssinatura extends Model
         'idAcademia',
     ];
 
-    // --- Relacionamentos ---
     public function academia()
     {
-        // Um PlanoAssinatura pertence a uma Academia
         return $this->belongsTo(Academia::class, 'idAcademia', 'idAcademia');
+    }
+
+    public function clientes()
+    {
+        return $this->hasMany(Cliente::class, 'idPlano', 'idPlano');
     }
 }

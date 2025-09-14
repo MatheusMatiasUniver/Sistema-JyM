@@ -9,7 +9,7 @@ class Mensalidade extends Model
 {
     use HasFactory;
 
-    protected $table = 'mensalidade';
+    protected $table = 'mensalidades';
     protected $primaryKey = 'idMensalidade';
     public $timestamps = false;
 
@@ -21,10 +21,30 @@ class Mensalidade extends Model
         'dataPagamento',
     ];
 
-    // --- Relacionamentos ---
+    protected $casts = [
+        'dataVencimento' => 'date',
+        'dataPagamento' => 'date',
+        'valor' => 'decimal:2',
+    ];
+
+    /**
+     * Uma Mensalidade pertence a um Cliente.
+     */
     public function cliente()
     {
-        // Uma Mensalidade pertence a um Cliente
         return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente');
+    }
+
+    public function getEstaVencidaAttribute()
+    {
+        if ($this->status === 'Pendente' && $this->dataVencimento && $this->dataVencimento->isPast()) {
+            return true;
+        }
+        return false;
+    }
+
+    public function getIsPagaAttribute()
+    {
+        return $this->status === 'Paga';
     }
 }

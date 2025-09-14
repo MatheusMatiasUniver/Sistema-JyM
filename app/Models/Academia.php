@@ -9,9 +9,9 @@ class Academia extends Model
 {
     use HasFactory;
 
-    protected $table = 'Academia'; // Nome da tabela no banco de dados
-    protected $primaryKey = 'idAcademia'; // Chave primária da tabela
-    public $timestamps = false; // Desativa timestamps
+    protected $table = 'academias';
+    protected $primaryKey = 'idAcademia';
+    public $timestamps = false;
 
     protected $fillable = [
         'nome',
@@ -21,11 +21,9 @@ class Academia extends Model
         'endereco',
         'responsavel',
     ];
-
-    // --- Relacionamentos ---
+    
     public function planosAssinatura()
     {
-        // Uma Academia tem muitos Planos de Assinatura
         return $this->hasMany(PlanoAssinatura::class, 'idAcademia', 'idAcademia');
     }
 }
