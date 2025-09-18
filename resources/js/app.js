@@ -1,5 +1,6 @@
 import './bootstrap';
 import * as faceapi from 'face-api.js';
+import { initVendasCreate } from './vendas-create';
 
 const video = document.getElementById('videoElement');
 const canvas = document.getElementById('overlayCanvas');
@@ -13,6 +14,10 @@ const context = canvas ? canvas.getContext('2d') : null;
 
 let lastDetectedDescriptor = null;
 let intervalId = null;
+
+if (document.querySelector('#produtos-data')) {
+    initVendasCreate();
+}
 
 const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
 if (csrfToken) {
