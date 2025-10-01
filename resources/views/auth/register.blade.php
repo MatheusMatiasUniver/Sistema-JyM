@@ -4,7 +4,7 @@
 
 @section('content')
     <div class="bg-white p-6 rounded-lg shadow-md max-w-lg mx-auto">
-        <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="logo mx-auto mb-4" style="width: 120px;">
+        <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="mx-auto mb-4" style="width: 120px;">
         <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Cadastro de Usuário</h2>
 
         <form id="cadastroForm" method="POST" action="{{ route('register') }}">

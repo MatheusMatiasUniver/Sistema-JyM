@@ -2,18 +2,20 @@
 
 @section('title', 'Registrar Nova Venda - Sistema JyM')
 
+@vite(['resources/css/app.css', 'resources/js/app.js'])
+
 @section('content')
     <!-- Elemento para passar dados para o JavaScript -->
     <div id="produtos-data" 
          data-produtos="{{ json_encode($produtos->keyBy('idProduto')) }}"
          data-product-index="{{ old('produtos') ? count(old('produtos')) : 0 }}"
-         style="display: none;">
+         class="hidden">
     </div>
 
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Registrar Nova Venda</h1>
 
     @if(session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div class="alert-error" role="alert">
             <strong class="font-bold">Erro!</strong>
             <span class="block sm:inline">{{ session('error') }}</span>
             @if($errors->any())
@@ -37,7 +39,7 @@
                     <option value="">Selecione um cliente</option>
                     @foreach($clientes as $cliente)
                         <option value="{{ $cliente->idCliente }}" {{ old('idCliente') == $cliente->idCliente ? 'selected' : '' }}>
-                            {{ $cliente->nome }} (CPF: {{ $cliente->cpf }})
+                            {{ $cliente->nome }} (CPF: {{ $cliente->cpfFormatado }})
                         </option>
                     @endforeach
                 </select>

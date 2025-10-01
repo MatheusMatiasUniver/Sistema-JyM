@@ -6,18 +6,18 @@
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Cadastrar Novo Produto</h1>
 
     @if(session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div class="alert-error" role="alert">
             <strong class="font-bold">Erro!</strong>
             <span class="block sm:inline">{{ session('error') }}</span>
         </div>
     @endif
 
-    <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto">
+    <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('produtos.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
             <div class="mb-4">
-                <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
+                <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome do Produto:</label>
                 <input type="text" id="nome" name="nome" value="{{ old('nome') }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
                 @error('nome')
@@ -36,7 +36,7 @@
 
             <div class="mb-4">
                 <label for="preco" class="block text-gray-700 text-sm font-bold mb-2">Preço:</label>
-                <input type="number" id="preco" name="preco" step="0.01" value="{{ old('preco') }}" required
+                <input type="number" step="0.01" id="preco" name="preco" value="{{ old('preco') }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('preco') border-red-500 @enderror">
                 @error('preco')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
@@ -53,7 +53,7 @@
             </div>
 
             <div class="mb-4">
-                <label for="descricao" class="block text-gray-700 text-sm font-bold mb-2">Descrição (Opcional):</label>
+                <label for="descricao" class="block text-gray-700 text-sm font-bold mb-2">Descrição:</label>
                 <textarea id="descricao" name="descricao" rows="3"
                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('descricao') border-red-500 @enderror">{{ old('descricao') }}</textarea>
                 @error('descricao')
@@ -62,7 +62,7 @@
             </div>
 
             <div class="mb-6">
-                <label for="imagem" class="block text-gray-700 text-sm font-bold mb-2">Imagem (Opcional):</label>
+                <label for="imagem" class="block text-gray-700 text-sm font-bold mb-2">Imagem do Produto (Opcional):</label>
                 <input type="file" id="imagem" name="imagem"
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('imagem') border-red-500 @enderror">
                 @error('imagem')

@@ -14,11 +14,10 @@ class PlanoAssinaturaController extends Controller
 {
     protected $planoAssinaturaService;
 
-    protected $middleware = ['auth', 'admin'];
-
     public function __construct(PlanoAssinaturaService $planoAssinaturaService)
     {
         $this->planoAssinaturaService = $planoAssinaturaService;
+        $this->middleware(['auth', 'admin']);
     }
 
     /**

@@ -3,46 +3,117 @@
 @section('title', 'Dashboard - Sistema JyM')
 
 @section('content')
-    <h1>Bem-vindo ao Sistema JyM, {{ Auth::user()->nome }}!</h1>
-    <p>Selecione uma opção no menu lateral para começar.</p>
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
 
-    <hr style="margin: 30px 0; border-top: 1px solid #ccc;">
+    {{-- Seção de Cards de Resumo Rápido --}}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+        {{-- Card: Acessos do Dia --}}
+        <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-semibold">Acessos Hoje</p>
+                <p class="text-3xl font-bold text-gray-800">{{ $acessosHoje }}</p>
+            </div>
+            <div class="text-blue-500 text-4xl">
+                <i class="fas fa-door-open"></i> {{-- Ícone de porta aberta (Font Awesome) --}}
+            </div>
+        </div>
 
-    <h2 style="color: #333; margin-bottom: 20px;">Ações Rápidas</h2>
-    <div style="display: flex; gap: 20px; flex-wrap: wrap;">
-        <a href="{{ route('reconhecimento') }}" target="_blank" style="text-decoration: none;">
-            <button style="
-                padding: 15px 30px;
-                font-size: 1.1em;
-                background-color: #6a1b9a; /* Deep purple */
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: bold;
-                transition: background-color 0.3s ease, transform 0.2s ease;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            ">
-                Abrir Tela de Acesso para Clientes
-            </button>
-        </a>
+        {{-- Card: Clientes Ativos --}}
+        <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-semibold">Clientes Ativos</p>
+                <p class="text-3xl font-bold text-gray-800">{{ $clientesAtivos }}</p>
+            </div>
+            <div class="text-green-500 text-4xl">
+                <i class="fas fa-users"></i> {{-- Ícone de usuários (Font Awesome) --}}
+            </div>
+        </div>
 
-        <a href="{{ route('clientes.create') }}" style="text-decoration: none;">
-            <button style="
-                padding: 15px 30px;
-                font-size: 1.1em;
-                background-color: #007bff; /* Blue */
-                color: white;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                font-weight: bold;
-                transition: background-color 0.3s ease, transform 0.2s ease;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-            ">
-                Cadastrar Novo Cliente
-            </button>
-        </a>
+        {{-- Card: Faturamento do Mês --}}
+        <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-semibold">Faturamento Mês</p>
+                <p class="text-3xl font-bold text-gray-800">R\$ {{ number_format($faturamentoMes, 2, ',', '.') }}</p>
+            </div>
+            <div class="text-purple-500 text-4xl">
+                <i class="fas fa-dollar-sign"></i> {{-- Ícone de dólar (Font Awesome) --}}
+            </div>
+        </div>
+    </div>
 
+    {{-- Seção de Listas (Mensalidades e Produtos) --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+        {{-- Card: Mensalidades Atrasadas --}}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-bold text-red-600 mb-4">Mensalidades Atrasadas ({{ $mensalidadesAtrasadas->count() }})</h2>
+            @if($mensalidadesAtrasadas->isEmpty())
+                <p class="text-gray-600">Nenhuma mensalidade atrasada. Bom trabalho!</p>
+            @else
+                <ul class="list-disc list-inside text-gray-700">
+                    @foreach($mensalidadesAtrasadas as $mensalidade)
+                        <li>
+                            {{ $mensalidade->cliente->nome ?? 'Cliente Removido' }} - Vencimento: {{ $mensalidade->dataVencimento->format('d/m/Y') }}
+                            <span class="text-red-500 font-semibold">(R\$ {{ number_format($mensalidade->valor, 2, ',', '.') }})</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+
+        {{-- Card: Mensalidades Próximas do Vencimento --}}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-bold text-yellow-600 mb-4">Mensalidades Próximas ({{ $mensalidadesProximas->count() }})</h2>
+            @if($mensalidadesProximas->isEmpty())
+                <p class="text-gray-600">Nenhuma mensalidade próxima do vencimento nos próximos 7 dias.</p>
+            @else
+                <ul class="list-disc list-inside text-gray-700">
+                    @foreach($mensalidadesProximas as $mensalidade)
+                        <li>
+                            {{ $mensalidade->cliente->nome ?? 'Cliente Removido' }} - Vence em: {{ $mensalidade->dataVencimento->format('d/m/Y') }}
+                            <span class="text-yellow-500 font-semibold">(R\$ {{ number_format($mensalidade->valor, 2, ',', '.') }})</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+    </div>
+
+    {{-- Seção de Vendas e Produtos --}}
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {{-- Card: Últimas 5 Vendas --}}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-bold text-gray-800 mb-4">Últimas Vendas</h2>
+            @if($ultimasVendas->isEmpty())
+                <p class="text-gray-600">Nenhuma venda recente.</p>
+            @else
+                <ul class="divide-y divide-gray-200">
+                    @foreach($ultimasVendas as $venda)
+                        <li class="py-3 flex justify-between items-center">
+                            <div>
+                                <p class="text-gray-800 font-semibold">Venda #{{ $venda->idVenda }} - {{ $venda->cliente->nome ?? 'Cliente Removido' }}</p>
+                                <p class="text-gray-600 text-sm">{{ $venda->dataVenda->format('d/m/Y H:i') }}</p>
+                            </div>
+                            <span class="text-green-600 font-bold">R\$ {{ number_format($venda->valorTotal, 2, ',', '.') }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
+
+        {{-- Card: Produtos com Baixo Estoque --}}
+        <div class="bg-white shadow-md rounded-lg p-6">
+            <h2 class="text-xl font-bold text-orange-600 mb-4">Produtos com Baixo Estoque ({{ $produtosBaixoEstoque->count() }})</h2>
+            @if($produtosBaixoEstoque->isEmpty())
+                <p class="text-gray-600">Todos os produtos estão com estoque adequado.</p>
+            @else
+                <ul class="list-disc list-inside text-gray-700">
+                    @foreach($produtosBaixoEstoque as $produto)
+                        <li>
+                            {{ $produto->nome }} - Estoque: <span class="text-orange-500 font-semibold">{{ $produto->estoque }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
     </div>
 @endsection

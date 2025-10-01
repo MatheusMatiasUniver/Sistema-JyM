@@ -6,13 +6,13 @@
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Detalhes da Venda #{{ $venda->idVenda }}</h1>
 
     @if(session('success'))
-        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div class="alert-success" role="alert">
             <strong class="font-bold">Sucesso!</strong>
             <span class="block sm:inline">{{ session('success') }}</span>
         </div>
     @endif
     @if(session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div class="alert-error" role="alert">
             <strong class="font-bold">Erro!</strong>
             <span class="block sm:inline">{{ session('error') }}</span>
         </div>
@@ -21,10 +21,10 @@
     <div class="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto">
         <div class="mb-4">
             <h2 class="text-xl font-semibold text-gray-800 mb-2">Informações da Venda</h2>
-            <p><strong>Cliente:</strong> {{ $venda->cliente ? $venda->cliente->nome : 'Cliente Removido' }} (CPF: {{ $venda->cliente ? $venda->cliente->cpf : 'N/A' }})</p>
-            <p><strong>Data da Venda:</strong> {{ $venda->dataVenda->format('d/m/Y H:i:s') }}</p>
-            <p><strong>Valor Total:</strong> R$ {{ number_format($venda->valorTotal, 2, ',', '.') }}</p>
-            <p><strong>Tipo de Pagamento:</strong> {{ $venda->tipoPagamento }}</p>
+            <p class="text-black"><strong>Cliente:</strong> {{ $venda->cliente ? $venda->cliente->nome : 'Cliente Removido' }} (CPF: {{ $venda->cliente ? $venda->cliente->cpfFormatado : 'N/A' }})</p>
+            <p class="text-black"><strong>Data da Venda:</strong> {{ $venda->dataVenda->format('d/m/Y H:i:s') }}</p>
+            <p class="text-black"><strong>Valor Total:</strong> R$ {{ number_format($venda->valorTotal, 2, ',', '.') }}</p>
+            <p class="text-black"><strong>Tipo de Pagamento:</strong> {{ $venda->tipoPagamento }}</p>
         </div>
 
         <div class="mb-6">

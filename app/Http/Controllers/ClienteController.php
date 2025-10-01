@@ -13,11 +13,11 @@ use Illuminate\Support\Facades\Log;
 class ClienteController extends Controller
 {
     protected $clienteService;
-    protected $middleware = ['auth'];
 
     public function __construct(ClienteService $clienteService)
     {
         $this->clienteService = $clienteService;
+        $this->middleware(['auth']);
     }
 
     /**

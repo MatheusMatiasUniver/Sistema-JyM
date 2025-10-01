@@ -1,0 +1,54 @@
+@layer base {
+  body {
+    @apply m-0 font-sans bg-primary-dark text-text-white flex;
+  }
+
+  h1, h2 {
+    @apply text-accent-blue;
+  }
+
+  table {
+    @apply w-full border-collapse mt-5 bg-white text-text-black;
+  }
+
+  table th, table td {
+    @apply p-2.5 border border-border-light text-left;
+  }
+
+  table th {
+    @apply bg-accent-blue text-text-black;
+  }
+}
+
+@layer components {
+  .sidebar-layout {
+    @apply w-[220px] bg-secondary-dark h-screen p-5 box-border fixed top-0 left-0;
+  }
+
+  .sidebar-logo {
+    @apply w-full mb-7.5;
+  }
+
+  .sidebar-nav-link {
+    @apply block text-text-white no-underline my-2.5 p-2.5 rounded transition-all duration-300 hover:bg-accent-blue hover:text-text-black;
+  }
+
+  .main-content-area {
+    @apply ml-[220px] p-7.5;
+  }
+
+  .btn-quick-action-purple {
+    @apply p-15px px-30px text-lg bg-accent-purple text-text-white border-none rounded-lg cursor-pointer font-bold transition-all duration-300 shadow-md;
+  }
+
+  .btn-quick-action-blue {
+    @apply p-15px px-30px text-lg bg-accent-blue-btn text-text-white border-none rounded-lg cursor-pointer font-bold transition-all duration-300 shadow-md hover:bg-accent-blue-btn-hover;
+  }
+
+  .alert-success {
+    @apply bg-success-bg border border-success-border text-success-text px-4 py-3 rounded relative mb-4;
+  }
+  .alert-error {
+    @apply bg-red-100 border border-error-text text-error-text px-4 py-3 rounded relative mb-4;
+  }
+}

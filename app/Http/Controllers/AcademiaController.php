@@ -13,11 +13,10 @@ class AcademiaController extends Controller
 {
     protected $academiaService;
 
-    protected $middleware = ['auth', 'admin'];
-
     public function __construct(AcademiaService $academiaService)
     {
         $this->academiaService = $academiaService;
+        $this->middleware(['auth', 'admin']);
     }
 
     /**

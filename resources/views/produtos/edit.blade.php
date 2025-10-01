@@ -3,22 +3,22 @@
 @section('title', 'Editar Produto - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Editar Produto</h1>
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Editar Produto: {{ $produto->nome }}</h1>
 
     @if(session('error'))
-        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+        <div class="alert-error" role="alert">
             <strong class="font-bold">Erro!</strong>
             <span class="block sm:inline">{{ session('error') }}</span>
         </div>
     @endif
 
-    <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto">
+    <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('produtos.update', $produto->idProduto) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
 
             <div class="mb-4">
-                <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
+                <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome do Produto:</label>
                 <input type="text" id="nome" name="nome" value="{{ old('nome', $produto->nome) }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
                 @error('nome')
@@ -37,7 +37,7 @@
 
             <div class="mb-4">
                 <label for="preco" class="block text-gray-700 text-sm font-bold mb-2">Preço:</label>
-                <input type="number" id="preco" name="preco" step="0.01" value="{{ old('preco', $produto->preco) }}" required
+                <input type="number" step="0.01" id="preco" name="preco" value="{{ old('preco', $produto->preco) }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('preco') border-red-500 @enderror">
                 @error('preco')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
@@ -54,7 +54,7 @@
             </div>
 
             <div class="mb-4">
-                <label for="descricao" class="block text-gray-700 text-sm font-bold mb-2">Descrição (Opcional):</label>
+                <label for="descricao" class="block text-gray-700 text-sm font-bold mb-2">Descrição:</label>
                 <textarea id="descricao" name="descricao" rows="3"
                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('descricao') border-red-500 @enderror">{{ old('descricao', $produto->descricao) }}</textarea>
                 @error('descricao')
@@ -63,23 +63,23 @@
             </div>
 
             <div class="mb-6">
-                <label for="imagem" class="block text-gray-700 text-sm font-bold mb-2">Nova Imagem (Opcional):</label>
+                <label for="imagem" class="block text-gray-700 text-sm font-bold mb-2">Imagem do Produto:</label>
+                @if ($produto->imagem)
+                    <div class="flex items-center space-x-4 mb-2">
+                        <img src="{{ asset('storage/' . $produto->imagem) }}" alt="{{ $produto->nome }}" class="w-24 h-24 object-cover rounded-md">
+                        <label class="inline-flex items-center">
+                            <input type="checkbox" name="remover_imagem" value="1" class="form-checkbox h-5 w-5 text-red-600">
+                            <span class="ml-2 text-gray-700">Remover imagem existente</span>
+                        </label>
+                    </div>
+                @else
+                    <p class="text-gray-600 mb-2">Nenhuma imagem cadastrada.</p>
+                @endif
                 <input type="file" id="imagem" name="imagem"
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('imagem') border-red-500 @enderror">
                 @error('imagem')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
-
-                @if($produto->imagem)
-                    <div class="mt-2">
-                        <p class="text-gray-600 text-sm">Imagem atual:</p>
-                        <img src="{{ Storage::url($produto->imagem) }}" alt="{{ $produto->nome }}" class="w-32 h-32 object-cover rounded mt-1">
-                        <div class="mt-2 flex items-center">
-                            <input type="checkbox" id="remover_imagem" name="remover_imagem" value="1" class="mr-2">
-                            <label for="remover_imagem" class="text-sm text-gray-700">Remover imagem atual</label>
-                        </div>
-                    </div>
-                @endif
             </div>
 
             <div class="flex items-center justify-between">

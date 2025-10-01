@@ -5,6 +5,19 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Editar Cliente: {{ $cliente->nome }}</h1>
 
+    @if(session('success'))
+        <div class="alert-success" role="alert">
+            <strong class="font-bold">Sucesso!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="alert-error" role="alert">
+            <strong class="font-bold">Erro!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('clientes.update', $cliente->idCliente) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -42,7 +55,7 @@
                 <label for="telefone" class="block text-gray-700 text-sm font-bold mb-2">Telefone:</label>
                 <input type="text" id="telefone" name="telefone" value="{{ old('telefone', $cliente->telefone) }}" maxlength="11"
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror"
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '');"> {{-- Bloqueia letras --}}
+                       oninput="this.value = this.value.replace(/[^0-9]/g, '');">
                 @error('telefone')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -50,7 +63,6 @@
 
             <div class="mb-4">
                 <label for="dataNascimento" class="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento:</label>
-                {{-- Formata a data para 'YYYY-MM-DD' para o input type="date" --}}
                 <input type="date" id="dataNascimento" name="dataNascimento" value="{{ old('dataNascimento', $cliente->dataNascimento ? $cliente->dataNascimento->format('Y-m-d') : '') }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('dataNascimento') border-red-500 @enderror">
                 @error('dataNascimento')

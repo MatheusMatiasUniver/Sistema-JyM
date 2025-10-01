@@ -21,9 +21,7 @@ Route::get('/', [AuthController::class, 'showLoginForm'])->name('login.show');
 Route::post('/login', [AuthController::class, 'login'])->name('login');
 
 Route::middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('dashboard');
-    })->name('dashboard');
+    Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
@@ -47,6 +45,9 @@ Route::middleware('auth')->group(function () {
     Route::resource('vendas', VendaController::class);
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
+    Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
+    Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
+    Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy'); 
 
     Route::resource('academias', AcademiaController::class);
 
