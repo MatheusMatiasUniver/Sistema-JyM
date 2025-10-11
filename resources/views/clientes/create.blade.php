@@ -4,21 +4,7 @@
 
 @section('content')
         <h1 class="text-3xl font-bold mb-6 text-accent-blue">Cadastrar Novo Cliente</h1>
-
-        @if(session('status'))
-            <div class="alert-success" role="alert">
-                <strong class="font-bold">Sucesso!</strong>
-                <span class="block sm:inline">{{ session('status') }}</span>
-            </div>
-        @endif
-
-        @if(session('error'))
-            <div class="alert-error" role="alert">
-                <strong class="font-bold">Erro!</strong>
-                <span class="block sm:inline">{{ session('error') }}</span>
-            </div>
-        @endif
-
+    
         <form action="{{ route('clientes.store') }}" method="POST" enctype="multipart/form-data">
             @csrf
 
@@ -105,7 +91,6 @@
                 @enderror
             </div>
 
-            {{-- button[type="submit"] já está estilizado via @layer base no components.css --}}
             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 Cadastrar Cliente
             </button>

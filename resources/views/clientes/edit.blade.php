@@ -5,19 +5,6 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Editar Cliente: {{ $cliente->nome }}</h1>
 
-    @if(session('success'))
-        <div class="alert-success" role="alert">
-            <strong class="font-bold">Sucesso!</strong>
-            <span class="block sm:inline">{{ session('success') }}</span>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert-error" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-        </div>
-    @endif
-
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('clientes.update', $cliente->idCliente) }}" method="POST" enctype="multipart/form-data">
             @csrf
@@ -127,5 +114,39 @@
                 </a>
             </div>
         </form>
+
+        <hr class="my-8 border-gray-300">
+
+        <h2 class="text-xl font-bold mb-4 text-gray-800">Informações do Plano</h2>
+        @if($cliente->plano)
+            <div class="mb-4">
+                <p class="text-gray-700">Plano Atual: <strong class="text-gray-900">{{ $cliente->plano->nome }}</strong></p>
+                <p class="text-gray-700">Valor: <strong class="text-gray-900">R\$ {{ number_format($cliente->plano->valor, 2, ',', '.') }}</strong></p>
+                <p class="text-gray-700">Duração: <strong class="text-gray-900">{{ $cliente->plano->duracaoDias }} dias</strong></p>
+
+                @php
+                    $proximoVencimentoExibicao = 'N/A';
+                    $ultimaMensalidadePaga = $cliente->mensalidades()->where('status', 'Paga')->latest('dataVencimento')->first();
+                    $classeCorVencimento = 'text-gray-500';
+
+                    if ($ultimaMensalidadePaga) {
+                        $dataVencimentoCalculada = \Carbon\Carbon::parse($ultimaMensalidadePaga->dataVencimento)->addDays($cliente->plano->duracaoDias ?? 0);
+                        if ($dataVencimentoCalculada->isPast()) {
+                            $classeCorVencimento = 'text-red-600';
+                        } elseif ($dataVencimentoCalculada->diffInDays(\Carbon\Carbon::now()) <= 7) {
+                            $classeCorVencimento = 'text-orange-600';
+                        } else {
+                            $classeCorVencimento = 'text-green-600';
+                        }
+                        $proximoVencimentoExibicao = $dataVencimentoCalculada->format('d/m/Y');
+                    }
+                @endphp
+                <p class="text-gray-700">Próximo vencimento: <strong class="{{ $classeCorVencimento }}">{{ $proximoVencimentoExibicao }}</strong></p>
+            </div>
+        @else
+            <p class="text-gray-600 mb-4">Este cliente não possui um plano de assinatura associado.</p>
+            <p class="text-gray-600">Atribua um plano utilizando o formulário acima.</p>
+        @endif
+
     </div>
 @endsection

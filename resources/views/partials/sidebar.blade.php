@@ -5,6 +5,7 @@
         <a href="{{ route('clientes.index') }}" class="sidebar-nav-link">Clientes</a>
         <a href="{{ route('produtos.index') }}" class="sidebar-nav-link">Produtos</a>
         <a href="{{ route('vendas.index') }}" class="sidebar-nav-link">Vendas</a>
+        <a href="{{ route('reconhecimento') }}" class="sidebar-nav-link" target="_blank" rel="noopener noreferrer">Acesso Clientes</a>
 
         @auth
             @if(Auth::user()->isAdministrador())

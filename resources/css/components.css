@@ -46,9 +46,23 @@
   }
 
   .alert-success {
-    @apply bg-success-bg border border-success-border text-success-text px-4 py-3 rounded relative mb-4;
+    @apply bg-success-bg border border-success-border text-success-text px-6 py-8 rounded relative mb-4;
   }
   .alert-error {
-    @apply bg-red-100 border border-error-text text-error-text px-4 py-3 rounded relative mb-4;
+    @apply bg-red-100 border border-error-text text-error-text px-6 py-8 rounded relative mb-4;
+  }
+  .alert-info {
+    @apply bg-blue-100 border border-blue-400 text-blue-700 px-6 py-8 rounded relative mb-4;
+  }
+
+  .alert-success .main-message,
+  .alert-error .main-message,
+  .alert-info .main-message {
+    @apply text-5xl md:text-6xl lg:text-7xl font-extrabold;
+  }
+  .alert-success .sub-message,
+  .alert-error .sub-message,
+  .alert-info .sub-message {
+    @apply text-2xl md:text-3xl lg:text-4xl font-semibold mt-4;
   }
 }

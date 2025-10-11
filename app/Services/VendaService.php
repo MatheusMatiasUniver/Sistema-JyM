@@ -26,7 +26,6 @@ class VendaService
             $totalVenda = 0;
             $itensVenda = [];
 
-            // 1. Verificar estoque e calcular total
             foreach ($data['produtos'] as $produtoData) {
                 $produto = Produto::find($produtoData['idProduto']);
 
@@ -38,7 +37,6 @@ class VendaService
                     throw new \Exception("Estoque insuficiente para o produto {$produto->nome}. Disponível: {$produto->estoque}, Solicitado: {$produtoData['quantidade']}.");
                 }
 
-                // Usar o preço unitário do produto no banco de dados para evitar manipulação de preço pelo cliente
                 $precoUnitario = $produto->preco;
                 $subtotal = $precoUnitario * $produtoData['quantidade'];
                 $totalVenda += $subtotal;
@@ -50,20 +48,16 @@ class VendaService
                 ];
             }
 
-            // 2. Criar a VendaProduto
             $venda = VendaProduto::create([
                 'idCliente' => $data['idCliente'],
-                'dataVenda' => now(), // Data e hora atual da venda
+                'dataVenda' => now(),
                 'valorTotal' => $totalVenda,
                 'tipoPagamento' => $data['tipoPagamento'],
             ]);
 
-            // 3. Adicionar ItensVenda e atualizar estoque
             foreach ($itensVenda as $itemData) {
-                // Associe o item de venda à venda recém-criada
                 $venda->itensVenda()->create($itemData);
 
-                // Atualizar estoque
                 Produto::where('idProduto', $itemData['idProduto'])
                        ->decrement('estoque', $itemData['quantidade']);
             }

@@ -1,39 +1,45 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Capturar Rosto - {{ $cliente->nome }} (ID: {{ $cliente->idCliente }})</title>
+@extends('layouts.app') {{-- Usa o layout principal do sistema --}}
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])    
-</head>
-<body>
-    @if(session('success'))
-        <div class="alert-success">{{ session('success') }}</div>
-    @endif
-    @if(session('error'))
-        <div class="alert-error">{{ session('error') }}</div>
-    @endif
+@section('title', 'Capturar Rosto - {{ $cliente->nome }} (ID: {{ $cliente->idCliente }})')
 
-    <h1>Capturar Rosto do Cliente</h1>
+@section('content')
+    <h1 class="text-3xl font-bold mb-6 text-gray-800">Capturar Rosto do Cliente</h1>
 
-    <div class="cliente-info">
+    <div class="cliente-info mb-4 text-lg text-gray-700">
         Cliente: <strong>{{ $cliente->nome }}</strong> (ID: {{ $cliente->idCliente }})
     </div>
 
     <input type="hidden" id="clientIdInput" value="{{ $cliente->idCliente }}">
 
-    <div class="container-face-recognition">
-        <video id="videoElement" width="640" height="480" autoplay muted></video>
-        <canvas id="overlayCanvas"></canvas>
+    {{-- Contêiner do vídeo, pode ter um tamanho mais moderado para a tela de funcionário --}}
+    <div class="relative w-full max-w-[640px] aspect-video mx-auto mb-6 border-4 border-gray-600 rounded-lg overflow-hidden bg-black shadow-xl">
+        <video id="videoElement" class="absolute top-0 left-0 w-full h-full object-cover transform scale-x-[-1]"></video>
+        <canvas id="overlayCanvas" class="absolute top-0 left-0 w-full h-full transform scale-x-[-1]" style="background-color: transparent;"></canvas>
     </div>
 
-    <div class="controls">
-        <button id="startCameraButton" disabled>Iniciar Câmera</button>
-        <button id="registerFaceButton" disabled>Registrar Rosto</button>
+    <div class="controls flex flex-wrap justify-center gap-4 mb-6">
+        <button id="startCameraButton" class="btn-quick-action-blue disabled:opacity-50 disabled:cursor-not-allowed">
+            Iniciar Câmera
+        </button>
+        <button id="registerFaceButton" disabled
+                class="bg-accent-blue-btn hover:bg-accent-blue-btn-hover text-text-white disabled:opacity-50 disabled:cursor-not-allowed
+                       font-bold py-2 px-4 rounded-lg shadow-md transition-all duration-300">
+            Cadastrar Rosto
+        </button>
     </div>
 
-    <div id="results">Aguardando...</div>
-</body>
-</html>
+    {{-- Div de resultados --}}
+    <div id="results" class="alert-info px-4 py-3 rounded relative min-h-[80px] flex items-center justify-center text-center shadow-md text-lg">
+        Aguardando modelos e câmera...
+    </div>
+
+    <div class="mt-6">
+        <a href="{{ route('clientes.edit', $cliente->idCliente) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            Voltar para Edição do Cliente
+        </a>
+    </div>
+@endsection
+
+@push('body_scripts')
+    @vite(['resources/js/app.js'])
+@endpush

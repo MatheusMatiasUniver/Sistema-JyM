@@ -5,9 +5,7 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Dashboard</h1>
 
-    {{-- Seção de Cards de Resumo Rápido --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-        {{-- Card: Acessos do Dia --}}
         <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm font-semibold">Acessos Hoje</p>
@@ -18,7 +16,6 @@
             </div>
         </div>
 
-        {{-- Card: Clientes Ativos --}}
         <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm font-semibold">Clientes Ativos</p>
@@ -29,7 +26,6 @@
             </div>
         </div>
 
-        {{-- Card: Faturamento do Mês --}}
         <div class="bg-white shadow-md rounded-lg p-6 flex items-center justify-between">
             <div>
                 <p class="text-gray-500 text-sm font-semibold">Faturamento Mês</p>
@@ -41,7 +37,6 @@
         </div>
     </div>
 
-    {{-- Seção de Listas (Mensalidades e Produtos) --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
         {{-- Card: Mensalidades Atrasadas --}}
         <div class="bg-white shadow-md rounded-lg p-6">
@@ -60,7 +55,6 @@
             @endif
         </div>
 
-        {{-- Card: Mensalidades Próximas do Vencimento --}}
         <div class="bg-white shadow-md rounded-lg p-6">
             <h2 class="text-xl font-bold text-yellow-600 mb-4">Mensalidades Próximas ({{ $mensalidadesProximas->count() }})</h2>
             @if($mensalidadesProximas->isEmpty())
@@ -78,9 +72,7 @@
         </div>
     </div>
 
-    {{-- Seção de Vendas e Produtos --}}
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {{-- Card: Últimas 5 Vendas --}}
         <div class="bg-white shadow-md rounded-lg p-6">
             <h2 class="text-xl font-bold text-gray-800 mb-4">Últimas Vendas</h2>
             @if($ultimasVendas->isEmpty())
@@ -100,7 +92,6 @@
             @endif
         </div>
 
-        {{-- Card: Produtos com Baixo Estoque --}}
         <div class="bg-white shadow-md rounded-lg p-6">
             <h2 class="text-xl font-bold text-orange-600 mb-4">Produtos com Baixo Estoque ({{ $produtosBaixoEstoque->count() }})</h2>
             @if($produtosBaixoEstoque->isEmpty())

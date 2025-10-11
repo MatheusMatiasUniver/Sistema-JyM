@@ -19,48 +19,38 @@ class MensalidadeSeeder extends Seeder
         $faker = Faker::create('pt_BR');
         $clientes = Cliente::all();
 
-        // Garante que existam clientes antes de tentar criar mensalidades para eles
         if ($clientes->isEmpty()) {
-            $this->call(ClienteSeeder::class); // Chama o ClienteSeeder se não houver clientes
-            $clientes = Cliente::all(); // Recarrega os clientes após o seeder
+            $this->call(ClienteSeeder::class);
+            $clientes = Cliente::all();
         }
 
         foreach ($clientes as $cliente) {
-            // --- Mensalidade Paga Antiga (para garantir histórico) ---
+            
             Mensalidade::create([
-                'idCliente' => $cliente->idCliente, // Usar idCliente conforme o Model
+                'idCliente' => $cliente->idCliente,
                 'dataVencimento' => $faker->dateTimeBetween('-3 months', '-2 months')->format('Y-m-d'),
                 'valor' => 89.90,
                 'status' => 'Paga',
                 'dataPagamento' => $faker->dateTimeBetween('-2 months', '-1 month')->format('Y-m-d'),
             ]);
-
-            // --- Mensalidade do Mês Atual (Pendente ou Paga) ---
+            
             $status = $faker->randomElement(['Pendente', 'Paga']);
-            // A data de vencimento pode ser no passado (vencida) ou no futuro
-            $dataVencimento = $faker->dateTimeBetween('-15 days', '+15 days'); // Retorna um objeto DateTime
+            $dataVencimento = $faker->dateTimeBetween('-15 days', '+15 days');
 
             $dataPagamento = null;
             if ($status === 'Paga') {
-                // A data de pagamento deve ser entre a data de vencimento ou a data atual (o que for maior)
-                // e a data atual, ou um pouco depois da data de vencimento se for um pagamento adiantado.
-
                 try {
-                    // Garante que o pagamento não seja depois de hoje (para 'Paga')
                     $maxPaymentDate = Carbon::now();
 
-                    // Se a data de vencimento for no futuro, a data de pagamento pode ser entre agora e a data de vencimento
-                    // Se a data de vencimento for no passado, a data de pagamento deve ser entre a data de vencimento e agora
-                    $startPaymentRange = Carbon::instance($dataVencimento)->subDays($faker->numberBetween(0, 5)); // Começa alguns dias antes do vencimento
-                    $startPaymentRange = $startPaymentRange->lessThan(Carbon::now()->subMonths(3)) ? Carbon::now()->subMonths(3) : $startPaymentRange; // Limita o início muito antigo
+                    $startPaymentRange = Carbon::instance($dataVencimento)->subDays($faker->numberBetween(0, 5));
+                    $startPaymentRange = $startPaymentRange->lessThan(Carbon::now()->subMonths(3)) ? Carbon::now()->subMonths(3) : $startPaymentRange;
 
                     $dataPagamento = $faker->dateTimeBetween(
-                        $startPaymentRange, // Início do período de pagamento
-                        $maxPaymentDate      // Fim do período de pagamento (hoje)
+                        $startPaymentRange,
+                        $maxPaymentDate
                     )->format('Y-m-d');
 
                 } catch (\InvalidArgumentException $e) {
-                    // Fallback se o intervalo for inválido (pode acontecer com datas muito passadas ou futuras extremas)
                     $dataPagamento = Carbon::instance($dataVencimento)->format('Y-m-d');
                     if (Carbon::parse($dataPagamento)->isFuture()) {
                         $dataPagamento = Carbon::now()->format('Y-m-d');
@@ -76,26 +66,23 @@ class MensalidadeSeeder extends Seeder
                 'dataPagamento' => $dataPagamento,
             ]);
 
-            // --- Mais algumas mensalidades aleatórias (Pendente ou Paga, futuras/passadas) ---
+            
             for ($i = 0; $i < $faker->numberBetween(0, 2); $i++) {
                 $statusRandom = $faker->randomElement(['Pendente', 'Paga']);
-                $dataVencimentoRandom = $faker->dateTimeBetween('-2 months', '+3 months'); // Retorna um objeto DateTime
+                $dataVencimentoRandom = $faker->dateTimeBetween('-2 months', '+3 months');
                 $dataPagamentoRandom = null;
 
                 if ($statusRandom === 'Paga') {
                     try {
-                        // Garante que a data de pagamento não seja no futuro para status 'Paga'
                         $startPaymentRangeRandom = Carbon::instance($dataVencimentoRandom);
                         if ($startPaymentRangeRandom->isFuture()) {
-                             $startPaymentRangeRandom = Carbon::now(); // Se o vencimento é futuro, pague a partir de hoje
+                             $startPaymentRangeRandom = Carbon::now();
                         }
-                        // Garante que o pagamento seja no passado ou hoje
                         $dataPagamentoRandom = $faker->dateTimeBetween(
-                            $startPaymentRangeRandom->subDays($faker->numberBetween(0, 10)), // Início (até 10 dias antes do vencimento)
-                            Carbon::now() // Fim (até a data atual)
+                            $startPaymentRangeRandom->subDays($faker->numberBetween(0, 10)),
+                            Carbon::now()
                         )->format('Y-m-d');
                     } catch (\InvalidArgumentException $e) {
-                        // Fallback
                         $dataPagamentoRandom = Carbon::now()->format('Y-m-d');
                     }
                 }

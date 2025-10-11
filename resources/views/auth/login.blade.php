@@ -8,7 +8,9 @@
 <body class="bg-primary-dark text-white flex justify-center items-center min-h-screen">
     <div class="bg-black/80 p-8 rounded-lg shadow-2xl w-[350px] text-center">
         <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="w-[120px] mb-5 mx-auto">
+
         <h2 class="mb-5 text-accent-blue text-2xl font-bold">Login</h2>
+        
         <form id="loginForm" method="POST" action="{{ route('login') }}">
             @csrf
 

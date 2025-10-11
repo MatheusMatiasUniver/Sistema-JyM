@@ -38,7 +38,7 @@ class UserSeeder extends Seeder
                 'nome' => $faker->name,
                 'usuario' => $faker->userName,
                 'email' => $faker->unique()->safeEmail,
-                'senha' => Hash::make('senha123'), // Senha para usuários de teste
+                'senha' => Hash::make('senha123'),
                 'nivelAcesso' => $faker->randomElement(['Administrador', 'Funcionário']),
             ]);
         }

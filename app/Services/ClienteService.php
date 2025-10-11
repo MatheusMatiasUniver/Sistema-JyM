@@ -10,8 +10,6 @@ use Illuminate\Support\Facades\Storage;
 class ClienteService
 {
     /**
-     * Cria um novo cliente no sistema.
-     *
      * @param array $data
      * @param int|null $idUsuario
      * @param \Illuminate\Http\UploadedFile|null $fotoFile
@@ -32,8 +30,11 @@ class ClienteService
             $cliente = Cliente::create([
                 'nome' => $data['nome'],
                 'cpf' => $data['cpf'],
+                'email' => $data['email'] ?? null,
+                'telefone' => $data['telefone'] ?? null, 
                 'dataNascimento' => $data['dataNascimento'],
                 'status' => $data['status'] ?? 'Ativo',
+                'idPlano' => $data['idPlano'] ?? null,
                 'foto' => $fotoPath,
                 'idUsuario' => $idUsuario,
             ]);
@@ -53,8 +54,6 @@ class ClienteService
     }
 
     /**
-     * Atualiza um cliente existente.
-     *
      * @param Cliente $cliente
      * @param array $data
      * @param \Illuminate\Http\UploadedFile|null $fotoFile
@@ -89,9 +88,9 @@ class ClienteService
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Erro ao atualizar cliente ID {$cliente->id}: " . $e->getMessage(), [
+            Log::error("Erro ao atualizar cliente ID {$cliente->idCliente}: " . $e->getMessage(), [
                 'data' => $data,
-                'cliente_id' => $cliente->id,
+                'cliente_id' => $cliente->idCliente,
                 'foto_uploaded' => (bool)$fotoFile
             ]);
             throw new \Exception("Falha ao atualizar cliente: " . $e->getMessage());
@@ -119,7 +118,7 @@ class ClienteService
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Erro ao excluir cliente ID {$cliente->id}: " . $e->getMessage(), ['cliente_id' => $cliente->id]);
+            Log::error("Erro ao excluir cliente ID {$cliente->idCliente}: " . $e->getMessage(), ['cliente_id' => $cliente->idCliente]);
             throw new \Exception("Falha ao excluir cliente: " . $e->getMessage());
         }
     }

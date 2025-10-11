@@ -36,7 +36,7 @@ class StoreProdutoRequest extends FormRequest
                 'required',
                 'string',
                 'max:100',
-                Rule::unique('Produto')->where(function ($query) {
+                Rule::unique('produtos')->where(function ($query) {
                     return $query->where('categoria', $this->categoria);
                 })
             ],
@@ -44,7 +44,7 @@ class StoreProdutoRequest extends FormRequest
                 'required',
                 'string',
                 'max:50',
-                Rule::unique('Produto')->where(function ($query) {
+                Rule::unique('produtos')->where(function ($query) {
                     return $query->where('nome', $this->nome);
                 })
             ],

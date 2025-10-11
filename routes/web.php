@@ -36,6 +36,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/clientes/{cliente}/capturar-rosto', [ClienteController::class, 'showFaceCapture'])->name('clientes.capturarRosto');
 
+    Route::post('/clientes/{cliente}/renovar', [ClienteController::class, 'renewPlan'])->name('clientes.renew');
+
+    Route::get('/face/kiosk-status', [FaceRecognitionController::class, 'getKioskStatus']);
+    Route::post('/face/set-kiosk-registering', [FaceRecognitionController::class, 'setKioskRegistering']);
+
     // --- MÓDULOS DE GERENCIAMENTO ---
 
     Route::resource('clientes', ClienteController::class);

@@ -5,19 +5,6 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Detalhes da Venda #{{ $venda->idVenda }}</h1>
 
-    @if(session('success'))
-        <div class="alert-success" role="alert">
-            <strong class="font-bold">Sucesso!</strong>
-            <span class="block sm:inline">{{ session('success') }}</span>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert-error" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-        </div>
-    @endif
-
     <div class="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto">
         <div class="mb-4">
             <h2 class="text-xl font-semibold text-gray-800 mb-2">Informações da Venda</h2>

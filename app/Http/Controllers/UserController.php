@@ -15,26 +15,17 @@ class UserController extends Controller
         $this->middleware(['auth', 'admin']);
     }
 
-    /**
-     * Exibe uma listagem de usuários.
-     */
     public function index()
     {
         $users = User::all();
         return view('users.index', compact('users'));
     }
 
-    /**
-     * Mostra o formulário para editar um usuário específico.
-     */
     public function edit(User $user)
     {
         return view('users.edit', compact('user'));
     }
 
-    /**
-     * Atualiza o usuário especificado no armazenamento.
-     */
     public function update(Request $request, User $user)
     {
         $request->validate([
@@ -59,12 +50,8 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Usuário ' . $user->nome . ' atualizado com sucesso!');
     }
 
-    /**
-     * Remove o usuário especificado do armazenamento.
-     */
     public function destroy(User $user)
     {
-        // Proteção extra: não permitir que um admin exclua a si mesmo
         if (Auth::id() === $user->idUsuario) {
             return back()->with('error', 'Você não pode excluir seu próprio usuário.');
         }

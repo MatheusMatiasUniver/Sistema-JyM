@@ -5,7 +5,6 @@
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 
 @section('content')
-    <!-- Elemento para passar dados para o JavaScript -->
     <div id="produtos-data" 
          data-produtos="{{ json_encode($produtos->keyBy('idProduto')) }}"
          data-product-index="{{ old('produtos') ? count(old('produtos')) : 0 }}"
@@ -14,18 +13,14 @@
 
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Registrar Nova Venda</h1>
 
-    @if(session('error'))
-        <div class="alert-error" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-            @if($errors->any())
-                <ul class="mt-2 list-disc list-inside text-sm">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            @endif
-        </div>
+    @if(session('error'))        
+        @if($errors->any())
+            <ul class="mt-2 list-disc list-inside text-sm">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        @endif
     @endif
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto">

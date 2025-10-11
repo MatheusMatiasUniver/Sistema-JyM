@@ -19,7 +19,7 @@ class EntradaSeeder extends Seeder
         $clientes = Cliente::all();
 
         if ($clientes->isEmpty()) {
-            $this->call(ClienteSeeder::class); // Garante que Clientes existam
+            $this->call(ClienteSeeder::class);
             $clientes = Cliente::all();
         }
 

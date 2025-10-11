@@ -105,7 +105,6 @@ export function initVendasCreate() {
             totalVendaSpan.textContent = 'R$ ' + total.toFixed(2).replace('.', ',');
         }
 
-        // Event listeners
         if (addProductBtn) {
             addProductBtn.addEventListener('click', function () {
                 produtosContainer.appendChild(createProductItem());
@@ -155,7 +154,6 @@ export function initVendasCreate() {
             });
         });
 
-        // Calcular total inicial
         calculateTotal();
     });
 }

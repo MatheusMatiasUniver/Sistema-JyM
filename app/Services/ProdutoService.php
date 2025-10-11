@@ -10,10 +10,8 @@ use Illuminate\Support\Facades\Storage;
 class ProdutoService
 {
     /**
-     * Cria um novo produto.
-     *
-     * @param array $data Dados do produto (nome, categoria, preco, estoque, descricao, imagem)
-     * @param \Illuminate\Http\UploadedFile|null $imagemFile Arquivo de imagem opcional
+     * @param array $data
+     * @param \Illuminate\Http\UploadedFile|null $imagemFile
      * @return Produto
      * @throws \Exception
      */
@@ -23,7 +21,6 @@ class ProdutoService
         try {
             $imagemPath = null;
             if ($imagemFile) {
-                // Armazena a imagem na pasta 'public/produtos_imagens'
                 $imagemPath = Storage::disk('public')->put('produtos_imagens', $imagemFile);
             }
 
@@ -50,11 +47,9 @@ class ProdutoService
     }
 
     /**
-     * Atualiza um produto existente.
-     *
-     * @param Produto $produto O model Produto a ser atualizado
-     * @param array $data Novos dados do produto
-     * @param \Illuminate\Http\UploadedFile|null $imagemFile Nova imagem opcional
+     * @param Produto $produto
+     * @param array $data
+     * @param \Illuminate\Http\UploadedFile|null $imagemFile
      * @return Produto
      * @throws \Exception
      */
@@ -66,13 +61,11 @@ class ProdutoService
             $imagePath = $oldImagePath;
 
             if ($imagemFile) {
-                // Exclui a imagem antiga se existir
                 if ($oldImagePath) {
                     Storage::disk('public')->delete($oldImagePath);
                 }
                 $imagePath = Storage::disk('public')->put('produtos_imagens', $imagemFile);
             } elseif (isset($data['remover_imagem']) && $data['remover_imagem']) {
-                // Remove a imagem se a opção for marcada
                 if ($oldImagePath) {
                     Storage::disk('public')->delete($oldImagePath);
                 }
@@ -96,17 +89,13 @@ class ProdutoService
     }
 
     /**
-     * Exclui um produto.
-     *
-     * @param Produto $produto O model Produto a ser excluído
-     * @return bool
+     * @param Produto $produto
      * @throws \Exception
      */
     public function deleteProduto(Produto $produto): bool
     {
         DB::beginTransaction();
         try {
-            // Exclui a imagem associada, se existir
             if ($produto->imagem) {
                 Storage::disk('public')->delete($produto->imagem);
             }
@@ -123,7 +112,6 @@ class ProdutoService
     }
 
     /**
-     * Obtém todos os produtos, opcionalmente paginados.
      * @param int|null $perPage
      * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
      */
@@ -136,7 +124,6 @@ class ProdutoService
     }
 
     /**
-     * Obtém um produto pelo ID.
      * @param int $id
      * @return Produto|null
      */

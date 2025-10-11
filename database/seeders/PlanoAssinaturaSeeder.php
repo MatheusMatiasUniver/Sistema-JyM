@@ -4,8 +4,8 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\PlanoAssinatura; // Importe o Model PlanoAssinatura
-use App\Models\Academia; // Importe o Model Academia para pegar o ID
+use App\Models\PlanoAssinatura;
+use App\Models\Academia;
 
 class PlanoAssinaturaSeeder extends Seeder
 {
@@ -14,22 +14,17 @@ class PlanoAssinaturaSeeder extends Seeder
      */
     public function run(): void
     {
-        // Encontre a primeira academia criada pelo AcademiaSeeder
         $academiaJyM = Academia::where('nome', 'Academia Teste JyM')->first();
         $academiaFitnessPro = Academia::where('nome', 'Academia Fitness Pro')->first();
 
-        // Se não encontrar, pode significar que o AcademiaSeeder não rodou ou o nome está diferente
         if (!$academiaJyM) {
             $this->command->warn('Academia "Academia Teste JyM" não encontrada para vincular planos.');
-            // Opcional: crie-a aqui se não for um problema de ordem de execução
             $academiaJyM = Academia::factory()->create(['nome' => 'Academia Teste JyM']);
         }
         if (!$academiaFitnessPro) {
             $this->command->warn('Academia "Academia Fitness Pro" não encontrada para vincular planos.');
             $academiaFitnessPro = Academia::factory()->create(['nome' => 'Academia Fitness Pro']);
         }
-
-        // Insere os planos de assinatura
         PlanoAssinatura::firstOrCreate(
             ['nome' => 'Plano Mensal Básico', 'idAcademia' => $academiaJyM->idAcademia ?? null],
             [

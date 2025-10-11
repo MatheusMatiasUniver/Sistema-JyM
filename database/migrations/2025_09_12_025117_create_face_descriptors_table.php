@@ -9,15 +9,13 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('face_descriptors', function (Blueprint $table) {
-            $table->id(); // ID primário para esta tabela
+            $table->id();
 
-            // Altere esta linha:
-            $table->unsignedInteger('cliente_id'); // Garante que o tipo seja UNSIGNED INT, como idCliente na tabela clientes
+            $table->unsignedInteger('cliente_id');
 
-            $table->json('descriptor'); // Armazena o array de descritores como JSON
+            $table->json('descriptor');
             $table->timestamps();
 
-            // Adicione esta linha para a chave estrangeira, referenciando o idCliente
             $table->foreign('cliente_id')
                   ->references('idCliente')
                   ->on('clientes')

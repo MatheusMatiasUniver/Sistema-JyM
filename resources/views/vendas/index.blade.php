@@ -4,19 +4,7 @@
 
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Histórico de Vendas</h1>
-
-    @if(session('success'))
-        <div class="alert-success" role="alert">
-            <strong class="font-bold">Sucesso!</strong>
-            <span class="block sm:inline">{{ session('success') }}</span>
-        </div>
-    @endif
-    @if(session('error'))
-        <div class="alert-error" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-        </div>
-    @endif
+   
     @if(session('info'))
         <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
             <strong class="font-bold">Info!</strong>

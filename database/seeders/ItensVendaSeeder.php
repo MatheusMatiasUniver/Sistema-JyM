@@ -21,11 +21,11 @@ class ItensVendaSeeder extends Seeder
         $produtos = Produto::all();
 
         if ($vendas->isEmpty()) {
-            $this->call(VendaProdutoSeeder::class); // Garante que Vendas existam
+            $this->call(VendaProdutoSeeder::class);
             $vendas = VendaProduto::all();
         }
         if ($produtos->isEmpty()) {
-            $this->call(ProdutoSeeder::class); // Garante que Produtos existam
+            $this->call(ProdutoSeeder::class);
             $produtos = Produto::all();
         }
 
@@ -44,7 +44,7 @@ class ItensVendaSeeder extends Seeder
                     'idVenda' => $venda->idVenda,
                     'idProduto' => $produto->idProduto,
                     'quantidade' => $quantidade,
-                    'precoUnitario' => $produto->preco, // Usa o preço do produto no momento da venda
+                    'precoUnitario' => $produto->preco,
                 ]);
             }
         }

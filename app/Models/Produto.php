@@ -21,7 +21,6 @@ class Produto extends Model
         'imagem',
     ];
 
-    // --- Relacionamentos ---
     public function itensVenda()
     {
         return $this->hasMany(ItemVenda::class, 'idProduto', 'idProduto');

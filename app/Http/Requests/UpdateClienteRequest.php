@@ -29,6 +29,7 @@ class UpdateClienteRequest extends FormRequest
                 'required',
                 'string',
                 'digits:11',
+                'regex:/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/',
                 Rule::unique('clientes', 'cpf')->ignore($clienteId, 'idCliente'),
             ],
             'email' => ['nullable', 'email', 'max:100'],

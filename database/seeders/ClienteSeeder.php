@@ -6,7 +6,7 @@ use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Cliente;
 use App\Models\User;
-use App\Models\PlanoAssinatura; // <-- NOVO: Importe o Model PlanoAssinatura
+use App\Models\PlanoAssinatura;
 use Faker\Factory as Faker;
 
 class ClienteSeeder extends Seeder
@@ -18,51 +18,49 @@ class ClienteSeeder extends Seeder
     {
         $faker = Faker::create('pt_BR');
         $users = User::all();
-        $planos = PlanoAssinatura::all(); // <-- NOVO: Obtenha todos os planos de assinatura
+        $planos = PlanoAssinatura::all();
 
-        // Garante que Usuários existam
         if ($users->isEmpty()) {
             $this->call(UserSeeder::class);
             $users = User::all();
         }
 
-        // Garante que Planos de Assinatura existam
         if ($planos->isEmpty()) {
-            $this->call(PlanoAssinaturaSeeder::class); // Garante que Planos existam
+            $this->call(PlanoAssinaturaSeeder::class);
             $planos = PlanoAssinatura::all();
-            if ($planos->isEmpty()) { // Se ainda estiver vazio, é um problema
+            if ($planos->isEmpty()) {
                 $this->command->warn('Nenhum plano de assinatura encontrado após executar PlanoAssinaturaSeeder. Clientes não terão plano vinculado.');
-                return; // Impede erro se não houver planos
+                return;
             }
         }
         
-        // Obtenha um ID de plano aleatório para usar na atribuição
         $randomPlanoId = $faker->randomElement($planos->pluck('idPlano')->toArray());
 
-        // Cliente padrão
         Cliente::create([
             'nome' => 'Ana Paula Silva',
             'cpf' => '11122233344',
             'dataNascimento' => '1990-01-15',
+            'email' => 'joao.silva@example.com', 
+            'telefone' => '11987654321',
             'status' => 'Ativo',
             'foto' => null,
             'idUsuario' => $users->where('nivelAcesso', 'Administrador')->first()->idUsuario ?? $users->first()->idUsuario,
-            'idPlano' => $randomPlanoId, // <-- NOVO: Atribui um plano ao cliente padrão
+            'idPlano' => $randomPlanoId,
         ]);
 
-        // 15 clientes aleatórios
         for ($i = 0; $i < 15; $i++) {
-            // Obtenha um ID de plano diferente para cada cliente aleatório, se desejar mais variação
             $randomPlanoIdForLoop = $faker->randomElement($planos->pluck('idPlano')->toArray());
 
             Cliente::create([
                 'nome' => $faker->name,
-                'cpf' => str_replace(['.', '-', ' '], '', $faker->unique()->cpf(false)), // Remove pontos, traços e espaços, e garante CPF único
+                'cpf' => str_replace(['.', '-', ' '], '', $faker->unique()->cpf(false)),
                 'dataNascimento' => $faker->dateTimeBetween('-30 years', '-18 years')->format('Y-m-d'),
+                'email' => fake()->unique()->safeEmail(), 
+                'telefone' => fake()->numerify('###########'), 
                 'status' => $faker->randomElement(['Ativo', 'Inativo']),
                 'foto' => null,
                 'idUsuario' => $faker->randomElement($users->pluck('idUsuario')->toArray()),
-                'idPlano' => $randomPlanoIdForLoop, // <-- NOVO: Atribui um plano aos clientes aleatórios
+                'idPlano' => $randomPlanoIdForLoop,
             ]);
         }
     }

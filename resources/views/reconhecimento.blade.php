@@ -1,145 +1,33 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reconhecimento Facial - Acesso à Academia</title>
+@extends('layouts.kiosk')
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+@section('title', 'Reconhecimento Facial - Acesso à Academia')
 
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-            background-color: #eceff1;
-            color: #37474f;
-            margin: 0;
-            min-height: 100vh;
-        }
-        h1 {
-            color: #263238;
-            margin-bottom: 25px;
-        }
-        .container-face-recognition {
-            position: relative;
-            width: 640px;
-            height: 480px;
-            margin-bottom: 25px;
-            border: 5px solid #455a64;
-            border-radius: 12px;
-            overflow: hidden;
-            background-color: #000;
-            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
-        }
-        .container-face-recognition video,
-        .container-face-recognition canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            transform: scaleX(-1);
-        }
-        .controls {
-            margin-top: 15px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            justify-content: center;
-            width: 100%;
-            max-width: 640px;
-        }
-        .controls button, .controls input[type="number"] {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 1.1em;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .controls button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 10px rgba(0,0,0,0.15);
-        }
-        .controls button:disabled {
-            background-color: #cccccc;
-            cursor: not-allowed;
-            opacity: 0.7;
-            box-shadow: none;
-        }
-        #startCameraButton {
-            background-color: #388e3c;
-            color: white;
-        }
-        #startCameraButton:hover:not(:disabled) {
-            background-color: #2e7d32;
-        }
-        #authenticateButton {
-            background-color: #1976d2;
-            color: white;
-        }
-        #authenticateButton:hover:not(:disabled) {
-            background-color: #1565c0;
-        }
-        #registerFaceButton {
-            background-color: #fbc02d;
-            color: #263238;
-        }
-        #registerFaceButton:hover:not(:disabled) {
-            background-color: #f9a825;
-        }
-        #clientIdInput {
-            border: 2px solid #b0bec5;
-            width: 180px;
-            text-align: center;
-            background-color: white;
-            color: #37474f;
-        }
-        #clientIdInput::placeholder {
-            color: #78909c;
-        }
-        #results {
-            margin-top: 35px;
-            padding: 25px;
-            border-radius: 12px;
-            background-color: #ffffff;
-            color: #3f51b5;
-            font-size: 1.3em;
-            font-weight: bold;
-            text-align: center;
-            width: 100%;
-            max-width: 640px;
-            min-height: 80px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            line-height: 1.5;
-        }
-    </style>
-</head>
-<body>
-    <h1>Reconhecimento Facial para Acesso</h1>
+@section('content')
+    <div class="bg-black/80 shadow-2xl rounded-lg p-8 max-w-full lg:max-w-4xl w-full mx-auto text-center">
 
-    <div class="container-face-recognition">
-        <video id="videoElement" width="640" height="480" autoplay muted></video>
-        <canvas id="overlayCanvas"></canvas>
+        <div class="relative w-full max-w-[1280px] aspect-video mx-auto mb-8 border-4 border-gray-600 rounded-lg overflow-hidden bg-black shadow-xl">
+            <video id="videoElement" class="absolute top-0 left-0 w-full h-full object-cover transform scale-x-[-1]"></video>
+            <canvas id="overlayCanvas" class="absolute top-0 left-0 w-full h-full transform scale-x-[-1]" style="background-color: transparent;" ></canvas>
+        </div>
+
+        <div id="results" class="alert-info px-6 py-8 rounded-lg relative min-h-[150px] flex items-center justify-center text-center shadow-lg">
+            <p class="text-3xl md:text-4xl lg:text-5xl font-bold">Aguardando modelos e câmera...</p>
+        </div>
+
+        <div class="controls hidden">
+            <button id="startCameraButton">Iniciar Câmera</button>
+            <input type="number" id="clientIdInput">
+            <button id="registerFaceButton">Cadastrar Rosto</button>
+        </div>
+
+        {{-- <div class="mt-6">
+            <a href="{{ route('dashboard') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                Voltar para o Dashboard
+            </a>
+        </div> --}}
     </div>
+@endsection
 
-    <div class="controls">
-        <button id="startCameraButton" disabled>Iniciar Câmera</button>
-        <button id="authenticateButton" disabled>Autenticar Rosto</button>
-        <input type="number" id="clientIdInput" placeholder="ID do Cliente" min="1">
-        <button id="registerFaceButton" disabled>Cadastrar Rosto</button>
-    </div>
-
-    <div id="results">Aguardando modelos e câmera...</div>
-
-</body>
-</html>
+@push('body_scripts')
+    @vite(['resources/js/app.js'])
+@endpush

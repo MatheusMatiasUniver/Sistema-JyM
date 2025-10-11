@@ -5,13 +5,6 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Cadastrar Nova Academia</h1>
 
-    @if(session('error'))
-        <div class="alert-error" role="alert">
-            <strong class="font-bold">Erro!</strong>
-            <span class="block sm:inline">{{ session('error') }}</span>
-        </div>
-    @endif
-
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('academias.store') }}" method="POST">
             @csrf

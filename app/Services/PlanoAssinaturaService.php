@@ -2,9 +2,13 @@
 
 namespace App\Services;
 
+use App\Models\Cliente; 
+use App\Models\Mensalidade;
 use App\Models\PlanoAssinatura;
+use Illuminate\Support\Facades\DB; 
 use Illuminate\Support\Facades\Log;
 use \Exception;
+use Carbon\Carbon;
 
 class PlanoAssinaturaService
 {
@@ -69,6 +73,61 @@ class PlanoAssinaturaService
         } catch (\Exception $e) {
             Log::error("Erro ao excluir plano ID {$plano->idPlano}: " . $e->getMessage());
             throw new \Exception("Falha ao excluir plano: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Renova o plano de assinatura de um cliente.
+     *
+     * @param Cliente $cliente
+     * @param PlanoAssinatura $plano
+     * @return Mensalidade
+     * @throws \Exception
+     */
+    public function renewClientPlan(Cliente $cliente, PlanoAssinatura $plano): Mensalidade
+    {
+        DB::beginTransaction();
+        try {
+            $ultimaMensalidade = $cliente->mensalidades()->latest('dataVencimento')->first();
+
+            $dataInicioNovoPeriodo = Carbon::now();
+
+            if ($ultimaMensalidade) {
+                if ($ultimaMensalidade->dataVencimento->isFuture()) {
+                    $dataInicioNovoPeriodo = $ultimaMensalidade->dataVencimento->addDay(); 
+                } else {
+                    $dataInicioNovoPeriodo = Carbon::now();
+                }
+            } else {
+                $dataInicioNovoPeriodo = Carbon::now();
+            }
+
+            $novaDataVencimento = $dataInicioNovoPeriodo->addDays($plano->duracaoDias);
+
+            $novaMensalidade = Mensalidade::create([
+                'idCliente' => $cliente->idCliente,
+                'dataVencimento' => $novaDataVencimento,
+                'valor' => $plano->valor,
+                'status' => 'Paga',
+                'dataPagamento' => Carbon::now(),
+            ]);
+
+            if ($cliente->status !== 'Ativo') {
+                $cliente->status = 'Ativo';
+                $cliente->save();
+            }
+
+            DB::commit();
+            return $novaMensalidade;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            Log::error("Erro ao renovar plano para cliente ID {$cliente->idCliente}: " . $e->getMessage(), [
+                'cliente_id' => $cliente->idCliente,
+                'plano_id' => $plano->idPlano,
+                'erro_detalhes' => $e->getTraceAsString(),
+            ]);
+            throw new \Exception("Falha ao renovar plano: " . $e->getMessage());
         }
     }
 }

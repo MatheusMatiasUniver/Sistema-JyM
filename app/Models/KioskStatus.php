@@ -5,17 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class FaceDescriptor extends Model
+class KioskStatus extends Model
 {
     use HasFactory;
 
+    protected $table = 'kiosk_status';
+
     protected $fillable = [
-        'cliente_id',
-        'descriptor',
+        'is_registering',
+        'message',
+        'expires_at',
     ];
 
     protected $casts = [
-        'descriptor' => 'array',
+        'is_registering' => 'boolean',
+        'expires_at' => 'datetime',
     ];
-
-    public $timestamps = false; }
+}

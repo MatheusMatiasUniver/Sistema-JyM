@@ -24,7 +24,6 @@ class AcademiaSeeder extends Seeder
             ]
         );
 
-        // Se quiser mais academias, adicione aqui
         Academia::firstOrCreate(
             ['nome' => 'Academia Fitness Pro'],
             [

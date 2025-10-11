@@ -4,34 +4,53 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\PlanoAssinatura;
+use App\Services\PlanoAssinaturaService;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Services\ClienteService;
+use Illuminate\Http\Request; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ClienteController extends Controller
 {
     protected $clienteService;
+    protected $planoAssinaturaService;
 
-    public function __construct(ClienteService $clienteService)
+    public function __construct(ClienteService $clienteService, PlanoAssinaturaService $planoAssinaturaService)
     {
         $this->clienteService = $clienteService;
+        $this->planoAssinaturaService = $planoAssinaturaService;
         $this->middleware(['auth']);
     }
 
-    /**
-     * Exibe uma lista de clientes.
-     */
-    public function index()
+    public function index(Request $request)
     {
-        $clientes = $this->clienteService->getAllClientes()->load('plano'); 
-        return view('clientes.index', compact('clientes'));
+        $query = Cliente::with(['plano', 'mensalidades', 'entradas']);
+
+        if ($search = $request->input('search')) {
+            $query->where('nome', 'like', '%'.$search.'%')
+                  ->orWhere('cpf', 'like', '%'.$search.'%')
+                  ->orWhere('email', 'like', '%'.$search.'%');
+        }
+
+        if ($statusFilter = $request->input('status_filter')) {
+            if (in_array($statusFilter, ['Ativo', 'Inativo'])) {
+                $query->where('status', $statusFilter);
+            }
+        }
+
+        if ($planoId = $request->input('plano_id')) {
+            $query->where('idPlano', $planoId);
+        }
+
+        $clientes = $query->paginate(10);
+        $allPlanos = PlanoAssinatura::all();
+
+        return view('clientes.index', compact('clientes', 'allPlanos'));
     }
 
-    /**
-     * Exibe o formulário para criar um novo cliente.
-     */
     public function create()
     {
         $planos = PlanoAssinatura::all(); 
@@ -58,17 +77,11 @@ class ClienteController extends Controller
         }
     }
 
-    /**
-     * Exibe os detalhes de um cliente específico.
-     */
     public function show(Cliente $cliente)
     {
         return view('clientes.show', compact('cliente'));
     }
 
-    /**
-     * Exibe o formulário para editar um cliente existente.
-     */
     public function edit(Cliente $cliente)
     {
         $planos = PlanoAssinatura::all(); 
@@ -83,18 +96,15 @@ class ClienteController extends Controller
     public function update(UpdateClienteRequest $request, Cliente $cliente)
     {
         try {
-            $data = $request->validated();
-            
-            $updatedCliente = $this->clienteService->updateCliente(
+            $this->clienteService->updateCliente(
                 $cliente,
-                $data,
+                $request->validated(),
                 $request->file('foto')
             );
 
-            return redirect()->route('clientes.index')->with('success', 'Cliente ' . $updatedCliente->nome . ' atualizado com sucesso!');
-
+            return redirect()->route('clientes.index')->with('success', 'Cliente ' . $cliente->nome . ' atualizado com sucesso!');
         } catch (\Exception $e) {
-            Log::error("Erro no ClienteController@update: " . $e->getMessage());
+            Log::error("Erro no ClienteController@update para cliente ID {$cliente->idCliente}: " . $e->getMessage());
             return back()->withInput()->with('error', 'Erro ao atualizar cliente: ' . $e->getMessage());
         }
     }
@@ -114,12 +124,30 @@ class ClienteController extends Controller
         }
     }
 
-    /**
-     * Exibe a tela de captura de rosto para um cliente específico.
-     * Este método é acessado apos o cadastro bem sucedido de um cliente.
-     */
     public function showFaceCapture(Cliente $cliente)
     {
         return view('clientes.capturar-rosto', compact('cliente'));
+    }
+
+    public function renewPlan(Cliente $cliente)
+    {
+        try {
+            if (!$cliente->idPlano) {
+                return redirect()->back()->with('error', 'O cliente não possui um plano de assinatura associado para renovar.');
+            }
+
+            $plano = PlanoAssinatura::find($cliente->idPlano);
+
+            if (!$plano) {
+                return redirect()->back()->with('error', 'O plano de assinatura associado ao cliente não foi encontrado.');
+            }
+
+            $this->planoAssinaturaService->renewClientPlan($cliente, $plano);
+
+            return redirect()->back()->with('success', 'Plano de assinatura do cliente ' . $cliente->nome . ' renovado com sucesso!');
+        } catch (\Exception $e) {
+            Log::error("Erro ao renovar plano via controller para cliente ID {$cliente->idCliente}: " . $e->getMessage());
+            return redirect()->back()->with('error', 'Erro ao renovar plano de assinatura: ' . $e->getMessage());
+        }
     }
 }
