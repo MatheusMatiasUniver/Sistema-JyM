@@ -7,6 +7,7 @@ use App\Models\Mensalidade;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\FaceDescriptor; 
+use Illuminate\Support\Facades\Hash;
 
 class Cliente extends Model
 {
@@ -26,11 +27,26 @@ class Cliente extends Model
         'foto',
         'idUsuario',
         'idPlano',
+        'codigo_acesso',
     ];
 
     protected $casts = [
         'dataNascimento' => 'date',
     ];
+
+    public function setAccessCodeAttribute($value)
+    {
+         if ($value !== null && $value !== '' && !Hash::info($value)) {
+            $this->attributes['codigo_acesso'] = Hash::make($value);
+        } else {
+            $this->attributes['codigo_acesso'] = $value;
+        }
+    }
+
+    public function setCodigoAcessoAttribute($value)
+    {
+        $this->attributes['codigo_acesso'] = empty($value) ? null : Hash::make($value);
+    }
 
     public function usuario()
     {

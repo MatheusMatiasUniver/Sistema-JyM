@@ -1,3 +1,4 @@
+<!-- resources/views/reconhecimento.blade.php -->
 @extends('layouts.kiosk')
 
 @section('title', 'Reconhecimento Facial - Acesso à Academia')
@@ -14,17 +15,21 @@
             <p class="text-3xl md:text-4xl lg:text-5xl font-bold">Aguardando modelos e câmera...</p>
         </div>
 
-        <div class="controls hidden">
-            <button id="startCameraButton">Iniciar Câmera</button>
-            <input type="number" id="clientIdInput">
-            <button id="registerFaceButton">Cadastrar Rosto</button>
-        </div>
+        <div id="code-input-area" class="hidden mt-4">
+            <input type="text" id="cpfInput" placeholder="Digite seu CPF (apenas números)"
+                   class="w-full p-4 text-center text-4xl font-bold bg-gray-800 text-white rounded-lg mb-4"
+                   maxlength="11" pattern="\\d*" inputmode="numeric">
 
-        {{-- <div class="mt-6">
-            <a href="{{ route('dashboard') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
-                Voltar para o Dashboard
-            </a>
-        </div> --}}
+            <input type="password" id="accessCodeInput" placeholder="Digite seu código de acesso (6 dígitos)"
+                   class="w-full p-4 text-center text-4xl font-bold bg-gray-800 text-white rounded-lg"
+                   maxlength="6" pattern="\\d*" inputmode="numeric">
+            <button id="submitCodeBtn" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-2xl">
+                Confirmar
+            </button>
+            <button id="cancelCodeBtn" class="mt-4 ml-4 bg-red-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-2xl">
+                Cancelar
+            </button>
+        </div>
     </div>
 @endsection
 

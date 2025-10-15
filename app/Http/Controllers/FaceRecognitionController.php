@@ -9,6 +9,7 @@ use App\Services\EntradaService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon; 
 
 class FaceRecognitionController extends Controller
@@ -123,6 +124,49 @@ class FaceRecognitionController extends Controller
             'message' => 'Rosto não reconhecido ou não encontrado.',
         ], 401);
     }
+
+    public function authenticateByCode(Request $request)
+    {
+        $request->validate([
+            'cpf' => 'required|string|digits:11',
+            'code' => 'required|integer|digits:6',
+        ]);
+
+        $cliente = Cliente::where('cpf', $request->cpf)->first();
+
+         if (!$cliente) {
+            Log::warning("Tentativa de acesso por código falhou: CPF {$request->cpf} não encontrado.");
+            return response()->json(['authenticated' => false, 'message' => 'CPF não encontrado.'], 404);
+        }
+
+
+        if (!$cliente->codigo_acesso || !Hash::check($request->code, $cliente->codigo_acesso)) {
+            Log::warning("Tentativa de acesso por código falhou para CPF {$request->cpf}: Código inválido.");
+            return response()->json(['authenticated' => false, 'message' => 'Código de acesso inválido.'], 401);
+        }
+
+        // Verifica o status do cliente (ativo/inativo)
+        if ($cliente->status !== 'Ativo') {
+            Log::warning("Acesso negado por código para cliente ID {$cliente->idCliente}: Status Inativo.");
+            return response()->json(['authenticated' => false, 'message' => 'ACESSO NEGADO! Status: ' . $cliente->status . '.'], 403);
+        }
+
+        try {
+            $this->entradaService->registrarEntrada($cliente->idCliente, 'Código Numérico');
+            Log::info("Acesso registrado para cliente {$cliente->idCliente} via Código Numérico.");
+        } catch (\Exception $e) {
+            Log::error("Falha ao registrar entrada para cliente {$cliente->idCliente} via Código Numérico: " . $e->getMessage());
+        }
+
+        return response()->json([
+            'authenticated' => true,
+            'client_id' => $cliente->idCliente,
+            'user_name' => $cliente->nome,
+            'status' => $cliente->status,
+            'message' => 'ACESSO LIBERADO! Bom treino, ' . $cliente->nome . '!'
+        ]);
+    }
+
 
     public function getKioskStatus()
     {

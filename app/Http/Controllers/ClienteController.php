@@ -8,10 +8,11 @@ use App\Services\PlanoAssinaturaService;
 use App\Http\Requests\StoreClienteRequest;
 use App\Http\Requests\UpdateClienteRequest;
 use App\Services\ClienteService;
-use Illuminate\Http\Request; 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Hash;
 
 class ClienteController extends Controller
 {
@@ -53,7 +54,7 @@ class ClienteController extends Controller
 
     public function create()
     {
-        $planos = PlanoAssinatura::all(); 
+        $planos = PlanoAssinatura::all();
         return view('clientes.create', compact('planos'));
     }
 
@@ -65,9 +66,9 @@ class ClienteController extends Controller
     {
         try {
             $data = $request->validated();
-            
+
             $cliente = $this->clienteService->createCliente($data, Auth::id(), $request->file('foto'));
-            
+
             return redirect()->route('clientes.capturarRosto', ['cliente' => $cliente->idCliente])
                              ->with('success', 'Cliente ' . $cliente->nome . ' cadastrado com sucesso! Agora, capture o rosto do cliente.');
 
@@ -84,21 +85,22 @@ class ClienteController extends Controller
 
     public function edit(Cliente $cliente)
     {
-        $planos = PlanoAssinatura::all(); 
+        $planos = PlanoAssinatura::all();
         return view('clientes.edit', compact('cliente', 'planos'));
     }
 
     /**
      * Atualiza um cliente existente no banco de dados.
-     * @param UpdateClienteRequest $request  
+     * @param UpdateClienteRequest $request
      * @param Cliente $cliente
      */
     public function update(UpdateClienteRequest $request, Cliente $cliente)
     {
         try {
+            $data = $request->validated();
             $this->clienteService->updateCliente(
                 $cliente,
-                $request->validated(),
+                $data,
                 $request->file('foto')
             );
 

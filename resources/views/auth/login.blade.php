@@ -11,10 +11,9 @@
 
         <h2 class="mb-5 text-accent-blue text-2xl font-bold">Login</h2>
         
-        <form id="loginForm" method="POST" action="{{ route('login') }}">
+        <form id="loginForm" method="POST" action="{{ route('login.submit') }}">
             @csrf
 
-            {{-- Campo para 'usuario' --}}
             <input type="text" id="usuario" name="usuario" placeholder="Usuário" value="{{ old('usuario') }}" required autofocus class="w-[95%] p-3 my-2.5 border-none rounded box-border text-black">
             @error('usuario')
                 <span class="text-error-text text-sm">{{ $message }}</span>

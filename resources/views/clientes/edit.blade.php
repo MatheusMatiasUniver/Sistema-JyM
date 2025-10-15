@@ -49,6 +49,18 @@
             </div>
 
             <div class="mb-4">
+                <label for="codigo_acesso" class="block text-gray-700 text-sm font-bold mb-2">Código de Acesso (6 dígitos, opcional):</label>
+                <input type="number" id="codigo_acesso" name="codigo_acesso" placeholder="Apenas números"
+                    value="" {{-- Não pré-preencha o valor do hash por segurança --}}
+                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('codigo_acesso') border-red-500 @enderror"
+                    maxlength="6" inputmode="numeric" pattern="\d*" oninput="this.value=this.value.slice(0,this.maxLength)">
+                @error('codigo_acesso')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
+                <p class="text-gray-500 text-xs mt-1">Será utilizado como fallback no Kiosk. Se deixado em branco, não será alterado.</p>
+            </div>
+
+            <div class="mb-4">
                 <label for="dataNascimento" class="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento:</label>
                 <input type="date" id="dataNascimento" name="dataNascimento" value="{{ old('dataNascimento', $cliente->dataNascimento ? $cliente->dataNascimento->format('Y-m-d') : '') }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('dataNascimento') border-red-500 @enderror">

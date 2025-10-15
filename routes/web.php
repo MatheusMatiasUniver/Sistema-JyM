@@ -17,15 +17,16 @@ use App\Http\Controllers\FaceRecognitionController;
 */
 
 
-Route::get('/', [AuthController::class, 'showLoginForm'])->name('login.show');
-Route::post('/login', [AuthController::class, 'login'])->name('login');
+Route::get('/', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'login'])->name('login.submit');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/logout', [AuthController::class, 'logout'])->name('logout');
+    Route::post('/logout', [AuthController::class, 'logout'])->name('logout'); 
+
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register']);
+    Route::post('/register', [AuthController::class, 'register.submit']);
 
     Route::get('/reconhecimento', function () {
         return view('reconhecimento');
@@ -33,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/face/register', [FaceRecognitionController::class, 'register']);
     Route::post('/face/authenticate', [FaceRecognitionController::class, 'authenticate']);
+    Route::post('/face/authenticate-code', [FaceRecognitionController::class, 'authenticateByCode']);
 
     Route::get('/clientes/{cliente}/capturar-rosto', [ClienteController::class, 'showFaceCapture'])->name('clientes.capturarRosto');
 

@@ -6,6 +6,7 @@ use App\Models\Cliente;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Exception;
 
 class ClienteService
 {
@@ -14,7 +15,7 @@ class ClienteService
      * @param int|null $idUsuario
      * @param \Illuminate\Http\UploadedFile|null $fotoFile
      * @return Cliente
-     * @throws \Exception
+     * @throws Exception
      */
     public function createCliente(array $data, ?int $idUsuario = null, $fotoFile = null): Cliente
     {
@@ -27,29 +28,21 @@ class ClienteService
 
             $data['cpf'] = preg_replace('/[^0-9]/', '', $data['cpf']);
 
-            $cliente = Cliente::create([
-                'nome' => $data['nome'],
-                'cpf' => $data['cpf'],
-                'email' => $data['email'] ?? null,
-                'telefone' => $data['telefone'] ?? null, 
-                'dataNascimento' => $data['dataNascimento'],
-                'status' => $data['status'] ?? 'Ativo',
-                'idPlano' => $data['idPlano'] ?? null,
-                'foto' => $fotoPath,
-                'idUsuario' => $idUsuario,
-            ]);
+            $data['idUsuario'] = $idUsuario;
+
+            $cliente = Cliente::create(array_merge($data, ['foto' => $fotoPath]));
 
             DB::commit();
             return $cliente;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error("Erro ao criar cliente: " . $e->getMessage(), [
                 'data' => $data,
                 'id_usuario' => $idUsuario,
                 'foto_uploaded' => (bool)$fotoFile
             ]);
-            throw new \Exception("Falha ao cadastrar cliente: " . $e->getMessage());
+            throw new Exception("Falha ao cadastrar cliente: " . $e->getMessage());
         }
     }
 
@@ -58,7 +51,7 @@ class ClienteService
      * @param array $data
      * @param \Illuminate\Http\UploadedFile|null $fotoFile
      * @return Cliente
-     * @throws \Exception
+     * @throws Exception
      */
     public function updateCliente(Cliente $cliente, array $data, $fotoFile = null): Cliente
     {
@@ -79,30 +72,30 @@ class ClienteService
                 $fotoPath = null;
             }
 
+            $data['foto'] = $fotoPath;
+
             $data['cpf'] = preg_replace('/[^0-9]/', '', $data['cpf']);
 
-            $cliente->fill(array_merge($data, ['foto' => $fotoPath]))->save();
+            $cliente->fill($data)->save();
 
             DB::commit();
             return $cliente;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error("Erro ao atualizar cliente ID {$cliente->idCliente}: " . $e->getMessage(), [
                 'data' => $data,
                 'cliente_id' => $cliente->idCliente,
                 'foto_uploaded' => (bool)$fotoFile
             ]);
-            throw new \Exception("Falha ao atualizar cliente: " . $e->getMessage());
+            throw new Exception("Falha ao atualizar cliente: " . $e->getMessage());
         }
     }
 
     /**
-     * Exclui um cliente.
-     *
      * @param Cliente $cliente
      * @return bool
-     * @throws \Exception
+     * @throws Exception
      */
     public function deleteCliente(Cliente $cliente): bool
     {
@@ -112,19 +105,22 @@ class ClienteService
                 Storage::disk('public')->delete($cliente->foto);
             }
 
+            if ($cliente->faceDescriptor) {
+                $cliente->faceDescriptor->delete();
+            }
+
             $deleted = $cliente->delete();
             DB::commit();
             return $deleted;
 
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             DB::rollBack();
             Log::error("Erro ao excluir cliente ID {$cliente->idCliente}: " . $e->getMessage(), ['cliente_id' => $cliente->idCliente]);
-            throw new \Exception("Falha ao excluir cliente: " . $e->getMessage());
+            throw new Exception("Falha ao excluir cliente: " . $e->getMessage());
         }
     }
 
     /**
-     * Obtém todos os clientes, opcionalmente paginados.
      * @param int|null $perPage
      * @return \Illuminate\Pagination\LengthAwarePaginator|\Illuminate\Database\Eloquent\Collection
      */
