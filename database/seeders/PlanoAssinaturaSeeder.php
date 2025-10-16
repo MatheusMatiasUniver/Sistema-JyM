@@ -2,54 +2,49 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\PlanoAssinatura;
-use App\Models\Academia;
+use Illuminate\Support\Facades\DB;
 
 class PlanoAssinaturaSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $academiaJyM = Academia::where('nome', 'Academia Teste JyM')->first();
-        $academiaFitnessPro = Academia::where('nome', 'Academia Fitness Pro')->first();
-
-        if (!$academiaJyM) {
-            $this->command->warn('Academia "Academia Teste JyM" não encontrada para vincular planos.');
-            $academiaJyM = Academia::factory()->create(['nome' => 'Academia Teste JyM']);
-        }
-        if (!$academiaFitnessPro) {
-            $this->command->warn('Academia "Academia Fitness Pro" não encontrada para vincular planos.');
-            $academiaFitnessPro = Academia::factory()->create(['nome' => 'Academia Fitness Pro']);
-        }
-        PlanoAssinatura::firstOrCreate(
-            ['nome' => 'Plano Mensal Básico', 'idAcademia' => $academiaJyM->idAcademia ?? null],
+        DB::table('plano_assinaturas')->insert([
             [
-                'descricao' => 'Acesso ilimitado à academia por 30 dias.',
+                'nome' => 'Mensal Básico',
+                'descricao' => 'Acesso completo à academia',
                 'valor' => 89.90,
                 'duracaoDias' => 30,
-            ]
-        );
-
-        PlanoAssinatura::firstOrCreate(
-            ['nome' => 'Plano Trimestral Premium', 'idAcademia' => $academiaJyM->idAcademia ?? null],
+                'idAcademia' => 1,
+            ],
             [
-                'descricao' => 'Acesso completo + aulas especiais por 90 dias.',
-                'valor' => 250.00,
+                'nome' => 'Trimestral',
+                'descricao' => 'Acesso completo por 3 meses',
+                'valor' => 249.90,
                 'duracaoDias' => 90,
-            ]
-        );
-
-        PlanoAssinatura::firstOrCreate(
-            ['nome' => 'Plano Anual Gold', 'idAcademia' => $academiaFitnessPro->idAcademia ?? null],
+                'idAcademia' => 1,
+            ],
             [
-                'descricao' => 'Acesso completo a todas as unidades por 365 dias.',
-                'valor' => 899.00,
+                'nome' => 'Anual Premium',
+                'descricao' => 'Acesso completo + Personal Trainer',
+                'valor' => 999.90,
                 'duracaoDias' => 365,
-            ]
-        );
+                'idAcademia' => 1,
+            ],
+            [
+                'nome' => 'Mensal Básico',
+                'descricao' => 'Acesso completo à academia',
+                'valor' => 79.90,
+                'duracaoDias' => 30,
+                'idAcademia' => 2,
+            ],
+            [
+                'nome' => 'Semestral',
+                'descricao' => 'Acesso completo por 6 meses',
+                'valor' => 449.90,
+                'duracaoDias' => 180,
+                'idAcademia' => 2,
+            ],
+        ]);
     }
 }

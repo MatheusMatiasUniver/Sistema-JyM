@@ -2,28 +2,54 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class Entrada extends Model
 {
-    use HasFactory;
-
+    protected $table = 'entradas';
     protected $primaryKey = 'idEntrada';
+
     public $timestamps = false;
 
     protected $fillable = [
         'idCliente',
-        'dataHora',
-        'metodo',
+        'dataHoraEntrada',
+        'metodoEntrada',
+        'idAcademia',
     ];
 
     protected $casts = [
-        'dataHora' => 'datetime',
+        'dataHoraEntrada' => 'datetime',
     ];
- 
-    public function cliente()
+
+    public function academia(): BelongsTo
+    {
+        return $this->belongsTo(Academia::class, 'idAcademia', 'idAcademia');
+    }
+
+    public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente');
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope('academia', function (Builder $builder) {
+            if (Auth::check()) {
+                $user = Auth::user();
+                
+                if ($user->isFuncionario() && $user->idAcademia) {
+                    $builder->where('entradas.idAcademia', $user->idAcademia);
+                } elseif ($user->isAdministrador()) {
+                    $academiaId = session('academia_selecionada');
+                    if ($academiaId) {
+                        $builder->where('entradas.idAcademia', $academiaId);
+                    }
+                }
+            }
+        });
     }
 }

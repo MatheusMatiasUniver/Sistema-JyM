@@ -2,45 +2,45 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\User;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Faker\Factory as Faker;
 
 class UserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $faker = Faker::create('pt_BR');
-
-        User::create([
-            'nome' => 'Administrador JyM',
-            'usuario' => 'adminjym',
-            'email' => 'admin@jym.com',
-            'senha' => Hash::make('password'),
+        $adminId = DB::table('users')->insertGetId([
+            'nome' => 'Administrador Sistema',
+            'usuario' => 'admin',
+            'email' => 'admin@jym.com.br',
+            'senha' => Hash::make('admin123'),
             'nivelAcesso' => 'Administrador',
+            'idAcademia' => null,
         ]);
 
-        User::create([
-            'nome' => 'Funcionario JyM',
-            'usuario' => 'funcjym',
-            'email' => 'funcionario@jym.com',
-            'senha' => Hash::make('password'),
-            'nivelAcesso' => 'Funcionário',
+        DB::table('usuario_academia')->insert([
+            ['idUsuario' => $adminId, 'idAcademia' => 1, 'created_at' => now(), 'updated_at' => now()],
+            ['idUsuario' => $adminId, 'idAcademia' => 2, 'created_at' => now(), 'updated_at' => now()],
         ]);
 
-        for ($i = 0; $i < 8; $i++) {
-            User::create([
-                'nome' => $faker->name,
-                'usuario' => $faker->userName,
-                'email' => $faker->unique()->safeEmail,
-                'senha' => Hash::make('senha123'),
-                'nivelAcesso' => $faker->randomElement(['Administrador', 'Funcionário']),
-            ]);
-        }
+        DB::table('users')->insert([
+            [
+                'nome' => 'Carlos Eduardo Santos',
+                'usuario' => 'carlos.santos',
+                'email' => 'carlos@jymcentro.com.br',
+                'senha' => Hash::make('func123'),
+                'nivelAcesso' => 'Funcionário',
+                'idAcademia' => 1,
+            ],
+            [
+                'nome' => 'Ana Paula Oliveira',
+                'usuario' => 'ana.oliveira',
+                'email' => 'ana@jymzonasul.com.br',
+                'senha' => Hash::make('func123'),
+                'nivelAcesso' => 'Funcionário',
+                'idAcademia' => 2,
+            ],
+        ]);
     }
 }

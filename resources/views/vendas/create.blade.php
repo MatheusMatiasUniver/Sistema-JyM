@@ -44,17 +44,17 @@
             </div>
 
             <div class="mb-6">
-                <label for="tipoPagamento" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Pagamento:</label>
-                <select id="tipoPagamento" name="tipoPagamento" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('tipoPagamento') border-red-500 @enderror">
+                <label for="formaPagamento" class="block text-gray-700 text-sm font-bold mb-2">Tipo de Pagamento:</label>
+                <select id="formaPagamento" name="formaPagamento" required
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('formaPagamento') border-red-500 @enderror">
                     <option value="">Selecione o tipo de pagamento</option>
                     @foreach($tiposPagamento as $tipo)
-                        <option value="{{ $tipo }}" {{ old('tipoPagamento') == $tipo ? 'selected' : '' }}>
+                        <option value="{{ $tipo }}" {{ old('formaPagamento') == $tipo ? 'selected' : '' }}>
                             {{ $tipo }}
                         </option>
                     @endforeach
                 </select>
-                @error('tipoPagamento')
+                @error('formaPagamento')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
             </div>

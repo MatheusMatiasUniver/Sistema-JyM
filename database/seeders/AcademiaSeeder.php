@@ -2,37 +2,32 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Academia;
+use Illuminate\Support\Facades\DB;
 
 class AcademiaSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        Academia::firstOrCreate(
-            ['nome' => 'Academia Teste JyM'],
+        DB::table('academias')->insert([
             [
-                'CNPJ' => '12.345.678/0001-90',
-                'telefone' => '(11)99999-1234',
-                'email' => 'contato@academiatestejym.com',
-                'endereco' => 'Rua Exemplo, 123, Cidade',
-                'responsavel' => 'Responsável Teste',
-            ]
-        );
-
-        Academia::firstOrCreate(
-            ['nome' => 'Academia Fitness Pro'],
+                'idAcademia' => 1,
+                'nome' => 'JyM Fitness Centro',
+                'cnpj' => '12.345.678/0001-90',
+                'telefone' => '(44) 3025-8900',
+                'email' => 'contato@jymcentro.com.br',
+                'endereco' => 'Av. Brasil, 1500 - Centro, Maringá - PR',
+                'responsavel' => 'João Marcos Silva',
+            ],
             [
-                'CNPJ' => '98.765.432/0001-21',
-                'telefone' => '(21)98888-5678',
-                'email' => 'fitnesspro@exemplo.com',
-                'endereco' => 'Avenida Principal, 456, Outra Cidade',
-                'responsavel' => 'Novo Responsável',
-            ]
-        );
+                'idAcademia' => 2,
+                'nome' => 'JyM Fitness Zona Sul',
+                'cnpj' => '12.345.678/0002-71',
+                'telefone' => '(44) 3026-7800',
+                'email' => 'contato@jymzonasul.com.br',
+                'endereco' => 'Rua das Flores, 850 - Zona Sul, Maringá - PR',
+                'responsavel' => 'Maria Fernanda Costa',
+            ],
+        ]);
     }
 }

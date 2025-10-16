@@ -2,95 +2,105 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Academia;
-use App\Services\AcademiaService;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreAcademiaRequest;
-use App\Http\Requests\UpdateAcademiaRequest;
-use Illuminate\Support\Facades\Log;
 
 class AcademiaController extends Controller
 {
-    protected $academiaService;
-
-    public function __construct(AcademiaService $academiaService)
-    {
-        $this->academiaService = $academiaService;
-        $this->middleware(['auth', 'admin']);
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $academias = $this->academiaService->getAllAcademias();
+        if (Auth::user()->isAdministrador()) {
+            $academias = Auth::user()->academias;
+        } else {
+            $academias = Academia::where('idAcademia', Auth::user()->idAcademia)->get();
+        }
+        
         return view('academias.index', compact('academias'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
+        if (!Auth::user()->isAdministrador()) {
+            abort(403, 'Apenas administradores podem criar academias.');
+        }
+
         return view('academias.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(StoreAcademiaRequest $request)
     {
-        try {
-            $academia = $this->academiaService->createAcademia($request->validated());
-            return redirect()->route('academias.index')->with('success', 'Academia ' . $academia->nome . ' cadastrada com sucesso!');
-        } catch (\Exception $e) {
-            Log::error("Erro em AcademiaController@store: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Erro ao cadastrar academia: ' . $e->getMessage());
+        if (!Auth::user()->isAdministrador()) {
+            abort(403, 'Apenas administradores podem criar academias.');
         }
+
+        $validated = $request->validated();
+
+        $academia = Academia::create($validated);
+
+        Auth::user()->academias()->attach($academia->idAcademia);
+
+        return redirect()->route('academias.index')
+                         ->with('success', 'Academia cadastrada com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Academia $academia)
     {
-        return redirect()->route('academias.edit', $academia->idAcademia);
+        if (!Auth::user()->temAcessoAcademia($academia->idAcademia)) {
+            abort(403, 'Você não tem acesso a esta academia.');
+        }
+
+        return view('academias.show', compact('academia'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Academia $academia)
     {
+        if (!Auth::user()->temAcessoAcademia($academia->idAcademia)) {
+            abort(403, 'Você não tem permissão para editar esta academia.');
+        }
+
         return view('academias.edit', compact('academia'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(UpdateAcademiaRequest $request, Academia $academia)
     {
-        try {
-            $updatedAcademia = $this->academiaService->updateAcademia($academia, $request->validated());
-            return redirect()->route('academias.index')->with('success', 'Academia ' . $updatedAcademia->nome . ' atualizada com sucesso!');
-        } catch (\Exception $e) {
-            Log::error("Erro em AcademiaController@update: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Erro ao atualizar academia: ' . $e->getMessage());
+        if (!Auth::user()->temAcessoAcademia($academia->idAcademia)) {
+            abort(403, 'Você não tem permissão para editar esta academia.');
         }
+
+        $validated = $request->validated();
+
+        $academia->update($validated);
+
+        return redirect()->route('academias.index')
+                        ->with('success', 'Academia atualizada com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Academia $academia)
+    public function trocar(Request $request)
     {
-        try {
-            $this->academiaService->deleteAcademia($academia);
-            return redirect()->route('academias.index')->with('success', 'Academia ' . $academia->nome . ' excluída com sucesso!');
-        } catch (\Exception $e) {
-            Log::error("Erro em AcademiaController@destroy: " . $e->getMessage());
-            return back()->with('error', 'Erro ao excluir academia: ' . $e->getMessage());
+        $user = Auth::user();
+        
+        if (!$user->isAdministrador()) {
+            return response()->json(['error' => 'Acesso negado'], 403);
         }
+        
+        $request->validate([
+            'idAcademia' => 'required|exists:academias,idAcademia'
+        ]);
+        
+        $academiaId = $request->idAcademia;
+        
+        if (!$user->temAcessoAcademia($academiaId)) {
+            return response()->json(['error' => 'Você não tem acesso a esta academia'], 403);
+        }
+        
+        session(['academia_selecionada' => $academiaId]);
+        
+        return response()->json([
+            'success' => true,
+            'message' => 'Academia alterada com sucesso',
+            'academia' => Academia::find($academiaId)
+        ]);
     }
 }

@@ -2,102 +2,118 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Produto;
-use App\Services\ProdutoService;
-use App\Http\Requests\StoreProdutoRequest;
-use App\Http\Requests\UpdateProdutoRequest;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
 class ProdutoController extends Controller
 {
-    protected $produtoService;
-
-    public function __construct(ProdutoService $produtoService)
-    {
-        $this->produtoService = $produtoService;
-    }
-
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $produtos = $this->produtoService->getAllProdutos();
+        $produtos = Produto::with('academia')->paginate(15);
         return view('produtos.index', compact('produtos'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         return view('produtos.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreProdutoRequest $request)
+    public function store(Request $request)
     {
-        try {
-            $produto = $this->produtoService->createProduto(
-                $request->validated(),
-                $request->file('imagem')
-            );
-            return redirect()->route('produtos.index')->with('success', 'Produto ' . $produto->nome . ' cadastrado com sucesso!');
-        } catch (\Exception $e) {
-            Log::error("Erro em ProdutoController@store: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Erro ao cadastrar produto: ' . $e->getMessage());
+        $validated = $request->validate([
+            'descricao' => 'nullable|string',
+        ]);
+
+        $validated['idAcademia'] = config('app.academia_atual');
+
+        if ($request->hasFile('imagem')) {
+            $validated['imagem'] = $request->file('imagem')->store('produtos', 'public');
         }
+
+        Produto::create($validated);
+
+        return redirect()->route('produtos.index')
+                         ->with('success', 'Produto cadastrado com sucesso!');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(Produto $produto)
     {
-        return redirect()->route('produtos.edit', $produto->idProduto);
+        if ($produto->idAcademia !== config('app.academia_atual')) {
+            abort(403, 'Você não tem permissão para visualizar este produto.');
+        }
+
+        return view('produtos.show', compact('produto'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Produto $produto)
     {
+        if ($produto->idAcademia !== config('app.academia_atual')) {
+            abort(403, 'Você não tem permissão para editar este produto.');
+        }
+
         return view('produtos.edit', compact('produto'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProdutoRequest $request, Produto $produto)
+    public function update(Request $request, Produto $produto)
     {
-        try {
-            $updatedProduto = $this->produtoService->updateProduto(
-                $produto,
-                $request->validated(),
-                $request->file('imagem')
-            );
-            return redirect()->route('produtos.index')->with('success', 'Produto ' . $updatedProduto->nome . ' atualizado com sucesso!');
-        } catch (\Exception $e) {
-            Log::error("Erro em ProdutoController@update: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Erro ao atualizar produto: ' . $e->getMessage());
+        if ($produto->idAcademia !== config('app.academia_atual')) {
+            abort(403, 'Você não tem permissão para editar este produto.');
         }
+
+        $validated = $request->validate([
+            'descricao' => 'nullable|string',
+        ]);
+
+        if ($request->hasFile('imagem')) {
+            if ($produto->imagem) {
+                Storage::disk('public')->delete($produto->imagem);
+            }
+            $validated['imagem'] = $request->file('imagem')->store('produtos', 'public');
+        }
+
+        $produto->update($validated);
+
+        return redirect()->route('produtos.index')
+                         ->with('success', 'Produto atualizado com sucesso!');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(Produto $produto)
     {
-        try {
-            $this->produtoService->deleteProduto($produto);
-            return redirect()->route('produtos.index')->with('success', 'Produto ' . $produto->nome . ' excluído com sucesso!');
-        } catch (\Exception $e) {
-            Log::error("Erro em ProdutoController@destroy: " . $e->getMessage());
-            return back()->with('error', 'Erro ao excluir produto: ' . $e->getMessage());
+        if ($produto->idAcademia !== config('app.academia_atual')) {
+            abort(403, 'Você não tem permissão para excluir este produto.');
         }
+
+        if ($produto->imagem) {
+            Storage::disk('public')->delete($produto->imagem);
+        }
+
+        $produto->delete();
+
+        return redirect()->route('produtos.index')
+                         ->with('success', 'Produto excluído com sucesso!');
+    }
+
+    public function ajustarEstoque(Request $request, Produto $produto)
+    {
+        if ($produto->idAcademia !== config('app.academia_atual')) {
+            abort(403, 'Você não tem permissão para ajustar o estoque deste produto.');
+        }
+
+        $validated = $request->validate([
+            'tipo' => 'required|in:adicionar,remover',
+        ]);
+
+        if ($validated['tipo'] === 'adicionar') {
+            $produto->adicionarEstoque($validated['quantidade']);
+            $mensagem = 'Estoque adicionado com sucesso!';
+        } else {
+            if (!$produto->baixarEstoque($validated['quantidade'])) {
+                return back()->with('error', 'Estoque insuficiente!');
+            }
+            $mensagem = 'Estoque removido com sucesso!';
+        }
+
+        return back()->with('success', $mensagem);
     }
 }

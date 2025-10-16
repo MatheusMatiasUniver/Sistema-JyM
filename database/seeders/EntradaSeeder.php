@@ -2,35 +2,59 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use App\Models\Entrada;
-use App\Models\Cliente;
-use Faker\Factory as Faker;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
 
 class EntradaSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $faker = Faker::create('pt_BR');
-        $clientes = Cliente::all();
-
-        if ($clientes->isEmpty()) {
-            $this->call(ClienteSeeder::class);
-            $clientes = Cliente::all();
-        }
-
-        foreach ($clientes as $cliente) {
-            for ($i = 0; $i < $faker->numberBetween(2, 10); $i++) {
-                Entrada::create([
-                    'idCliente' => $cliente->idCliente,
-                    'dataHora' => $faker->dateTimeBetween('-1 month', 'now'),
-                    'metodo' => $faker->randomElement(['Reconhecimento Facial', 'CPF/Senha', 'Manual']),
-                ]);
-            }
-        }
+        $hoje = Carbon::today();
+        
+        DB::table('entradas')->insert([
+            [
+                'idCliente' => 1,
+                'dataHora' => $hoje->copy()->setTime(6, 30),
+                'metodo' => 'Reconhecimento Facial',
+                'idAcademia' => 1,
+            ],
+            [
+                'idCliente' => 2,
+                'dataHora' => $hoje->copy()->setTime(7, 15),
+                'metodo' => 'CPF/Senha',
+                'idAcademia' => 1,
+            ],
+            [
+                'idCliente' => 1,
+                'dataHora' => $hoje->copy()->setTime(18, 45),
+                'metodo' => 'Reconhecimento Facial',
+                'idAcademia' => 1,
+            ],
+            [
+                'idCliente' => 5,
+                'dataHora' => $hoje->copy()->setTime(8, 0),
+                'metodo' => 'CPF/Senha',
+                'idAcademia' => 2,
+            ],
+            [
+                'idCliente' => 6,
+                'dataHora' => $hoje->copy()->setTime(19, 30),
+                'metodo' => 'Reconhecimento Facial',
+                'idAcademia' => 2,
+            ],
+            [
+                'idCliente' => 5,
+                'dataHora' => $hoje->copy()->subDay()->setTime(7, 30),
+                'metodo' => 'Manual',
+                'idAcademia' => 2,
+            ],
+            [
+                'idCliente' => 6,
+                'dataHora' => $hoje->copy()->subDay()->setTime(18, 0),
+                'metodo' => 'CPF/Senha',
+                'idAcademia' => 2,
+            ],
+        ]);
     }
 }

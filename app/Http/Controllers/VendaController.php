@@ -2,105 +2,140 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Services\VendaService;
-use App\Models\Cliente;
-use App\Models\Produto;
 use App\Models\VendaProduto;
-use App\Http\Requests\StoreVendaRequest;
-use Illuminate\Support\Facades\Log;
+use App\Models\Produto;
+use App\Models\Cliente;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 
 class VendaController extends Controller
 {
-    protected $vendaService;
-
-    public function __construct(VendaService $vendaService)
-    {
-        $this->vendaService = $vendaService;
-    }
-
-    /**
-     * Display a listing of the resource (histórico de vendas).
-     */
     public function index()
     {
-        $vendas = VendaProduto::with('cliente', 'itensVenda.produto')
-                               ->orderByDesc('dataVenda')
-                               ->paginate(10);
-
+        $vendas = VendaProduto::with(['cliente', 'itens'])
+                              ->orderBy('dataVenda', 'desc')
+                              ->paginate(15);
+        
         return view('vendas.index', compact('vendas'));
     }
 
-    /**
-     * Show the form for creating a new resource (registro de venda).
-     */
     public function create()
     {
-        $clientes = Cliente::orderBy('nome')->get();
-        $produtos = Produto::where('estoque', '>', 0)->orderBy('nome')->get();
-        $tiposPagamento = ['Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'Pix'];
-
-        return view('vendas.create', compact('clientes', 'produtos', 'tiposPagamento'));
+        $academiaId = config('app.academia_atual');
+        $produtos = Produto::where('idAcademia', $academiaId)
+                           ->where('estoque', '>', 0)
+                           ->get();
+        $clientes = Cliente::where('idAcademia', $academiaId)->get();
+        
+        $tiposPagamento = ['Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'PIX', 'Boleto'];
+        
+        return view('vendas.create', compact('produtos', 'clientes', 'tiposPagamento'));
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(StoreVendaRequest $request)
+    public function store(Request $request)
     {
         try {
-            $venda = $this->vendaService->registrarVenda($request->validated());
-            return redirect()->route('vendas.index')->with('success', 'Venda #' . $venda->idVenda . ' registrada com sucesso!');
+            $request->validate([
+                'idCliente' => 'nullable|exists:clientes,idCliente',
+                'formaPagamento' => 'required|in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto',
+                'produtos.*.idProduto' => 'required|exists:produtos,idProduto',
+            ]);
+
+            if (empty($request->produtos)) {
+                return back()->with('error', 'Adicione pelo menos um produto à venda!')->withInput();
+            }
+
+            DB::beginTransaction();
+            
+            $dados = [
+                'idCliente' => $request->idCliente,
+                'idAcademia' => config('app.academia_atual'),
+                'dataVenda' => now(),
+                'formaPagamento' => $request->formaPagamento,
+                'valorTotal' => 0,
+            ];
+
+            $vendaId = DB::table('venda_produtos')->insertGetId($dados);
+
+            $valorTotal = 0;
+
+            foreach ($request->produtos as $item) {
+                $produto = Produto::findOrFail($item['idProduto']);
+                
+                if ($produto->idAcademia != config('app.academia_atual')) {
+                    throw new \Exception('Produto não pertence a esta academia.');
+                }
+
+                if (!$produto->temEstoque($item['quantidade'])) {
+                    throw new \Exception("Estoque insuficiente para o produto: {$produto->nome}");
+                }
+
+                DB::table('itens_vendas')->insert([
+                    'idVenda' => $vendaId,
+                    'idProduto' => $produto->idProduto,
+                    'quantidade' => $item['quantidade'],
+                    'precoUnitario' => $produto->preco,
+                ]);
+
+                $produto->baixarEstoque($item['quantidade']);
+                
+                $valorTotal += $produto->preco * $item['quantidade'];
+            }
+
+            DB::table('venda_produtos')->where('idVenda', $vendaId)->update(['valorTotal' => $valorTotal]);
+
+            DB::commit();
+
+            return redirect()->route('vendas.index')
+                            ->with('success', 'Venda realizada com sucesso!');
+
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()->with('error', 'Erro de validação: Verifique se todos os campos estão preenchidos corretamente.')
+                        ->withInput();
         } catch (\Exception $e) {
-            Log::error("Erro em VendaController@store: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Erro ao registrar venda: ' . $e->getMessage());
+            DB::rollBack();
+            return back()->with('error', 'Erro ao realizar venda: ' . $e->getMessage())
+                        ->withInput();
         }
     }
 
-    /**
-     * Display the specified resource (detalhes de uma venda).
-     */
-    public function show(VendaProduto $venda)
+    public function show($id)
     {
-        $venda->load('cliente', 'itensVenda.produto');
+        $venda = VendaProduto::with(['cliente', 'itens.produto'])->findOrFail($id);
+        
+        if ($venda->idAcademia !== config('app.academia_atual')) {
+            abort(403, 'Você não tem permissão para visualizar esta venda.');
+        }
+
         return view('vendas.show', compact('venda'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(VendaProduto $venda)
+    public function destroy($id)
     {
-        return redirect()->route('vendas.show', $venda->idVenda)->with('info', 'Edição de vendas não é permitida diretamente. Consulte o histórico de itens.');
-    }
+        $venda = VendaProduto::findOrFail($id);
+        
+        if ($venda->idAcademia !== config('app.academia_atual')) {
+            abort(403, 'Você não tem permissão para cancelar esta venda.');
+        }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, VendaProduto $venda)
-    {
-      return redirect()->route('vendas.show', $venda->idVenda)->with('error', 'Atualização de vendas não implementada.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(VendaProduto $venda)
-    {
+        DB::beginTransaction();
+        
         try {
-            DB::beginTransaction();
-            foreach ($venda->itensVenda as $item) {
-                Produto::where('idProduto', $item->idProduto)
-                       ->increment('estoque', $item->quantidade);
+            foreach ($venda->itens as $item) {
+                $item->produto->adicionarEstoque($item->quantidade);
             }
+
             $venda->delete();
+
             DB::commit();
-            return redirect()->route('vendas.index')->with('success', 'Venda #' . $venda->idVenda . ' estornada com sucesso! Produtos retornados ao estoque.');
+
+            return redirect()->route('vendas.index')
+                             ->with('success', 'Venda cancelada com sucesso!');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Erro ao estornar venda ID {$venda->idVenda}: " . $e->getMessage());
-            return back()->with('error', 'Erro ao estornar venda: ' . $e->getMessage());
+            return back()->with('error', 'Erro ao cancelar venda: ' . $e->getMessage());
         }
     }
 }

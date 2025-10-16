@@ -11,7 +11,7 @@
             <p class="text-black"><strong>Cliente:</strong> {{ $venda->cliente ? $venda->cliente->nome : 'Cliente Removido' }} (CPF: {{ $venda->cliente ? $venda->cliente->cpfFormatado : 'N/A' }})</p>
             <p class="text-black"><strong>Data da Venda:</strong> {{ $venda->dataVenda->format('d/m/Y H:i:s') }}</p>
             <p class="text-black"><strong>Valor Total:</strong> R$ {{ number_format($venda->valorTotal, 2, ',', '.') }}</p>
-            <p class="text-black"><strong>Tipo de Pagamento:</strong> {{ $venda->tipoPagamento }}</p>
+            <p class="text-black"><strong>Tipo de Pagamento:</strong> {{ $venda->formaPagamento }}</p>
         </div>
 
         <div class="mb-6">

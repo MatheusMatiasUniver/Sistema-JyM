@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class PlanoAssinatura extends Model
 {
-    use HasFactory;
-
     protected $table = 'plano_assinaturas';
     protected $primaryKey = 'idPlano';
+
     public $timestamps = false;
 
     protected $fillable = [
@@ -21,13 +22,36 @@ class PlanoAssinatura extends Model
         'idAcademia',
     ];
 
-    public function academia()
+    protected $casts = [
+        'valor' => 'decimal:2',
+        'duracaoDias' => 'integer',
+    ];
+
+    public function academia(): BelongsTo
     {
         return $this->belongsTo(Academia::class, 'idAcademia', 'idAcademia');
     }
 
-    public function clientes()
+    public function mensalidades()
     {
-        return $this->hasMany(Cliente::class, 'idPlano', 'idPlano');
+        return $this->hasMany(Mensalidade::class, 'idPlano', 'idPlano');
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope('academia', function (Builder $builder) {
+            if (Auth::check()) {
+                $user = Auth::user();
+                
+                if ($user->isFuncionario() && $user->idAcademia) {
+                    $builder->where('plano_assinaturas.idAcademia', $user->idAcademia);
+                } elseif ($user->isAdministrador()) {
+                    $academiaId = session('academia_selecionada');
+                    if ($academiaId) {
+                        $builder->where('plano_assinaturas.idAcademia', $academiaId);
+                    }
+                }
+            }
+        });
     }
 }

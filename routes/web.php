@@ -25,8 +25,10 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout'); 
 
+    Route::post('/academia/trocar', [AcademiaController::class, 'trocar'])->name('academia.trocar');
+
     Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
-    Route::post('/register', [AuthController::class, 'register.submit']);
+    Route::post('/register', [AuthController::class, 'register'])->name('register.submit');
 
     Route::get('/reconhecimento', function () {
         return view('reconhecimento');

@@ -2,19 +2,16 @@
 
 namespace App\Models;
 
-use App\Models\PlanoAssinatura; 
-use App\Models\Mensalidade;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\FaceDescriptor; 
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Auth;
 
 class Cliente extends Model
 {
-    use HasFactory;
-
     protected $table = 'clientes';
     protected $primaryKey = 'idCliente';
+    
     public $timestamps = false;
 
     protected $fillable = [
@@ -23,34 +20,31 @@ class Cliente extends Model
         'dataNascimento',
         'telefone',
         'email',
+        'codigo_acesso',
         'status',
         'foto',
         'idUsuario',
+        'idAcademia',
         'idPlano',
-        'codigo_acesso',
     ];
 
     protected $casts = [
         'dataNascimento' => 'date',
     ];
 
-    public function setAccessCodeAttribute($value)
+    public function academia(): BelongsTo
     {
-         if ($value !== null && $value !== '' && !Hash::info($value)) {
-            $this->attributes['codigo_acesso'] = Hash::make($value);
-        } else {
-            $this->attributes['codigo_acesso'] = $value;
-        }
+        return $this->belongsTo(Academia::class, 'idAcademia', 'idAcademia');
     }
 
-    public function setCodigoAcessoAttribute($value)
-    {
-        $this->attributes['codigo_acesso'] = empty($value) ? null : Hash::make($value);
-    }
-
-    public function usuario()
+    public function usuario(): BelongsTo
     {
         return $this->belongsTo(User::class, 'idUsuario', 'idUsuario');
+    }
+
+    public function plano(): BelongsTo
+    {
+        return $this->belongsTo(PlanoAssinatura::class, 'idPlano', 'idPlano');
     }
 
     public function mensalidades()
@@ -63,32 +57,85 @@ class Cliente extends Model
         return $this->hasMany(Entrada::class, 'idCliente', 'idCliente');
     }
 
-    public function vendasProdutos()
+    public function vendas()
     {
         return $this->hasMany(VendaProduto::class, 'idCliente', 'idCliente');
     }
 
-    public function plano()
+    public function faceDescriptors()
     {
-        return $this->belongsTo(PlanoAssinatura::class, 'idPlano', 'idPlano');
+        return $this->hasMany(FaceDescriptor::class, 'idCliente', 'idCliente');
     }
 
-    public function getIsAtivoAttribute()
+    public function isAtivo(): bool
     {
         return $this->status === 'Ativo';
     }
 
-    public function faceDescriptors()
+    public function isSuspenso(): bool
     {
-        return $this->hasMany(FaceDescriptor::class, 'cliente_id', 'idCliente');
+        return $this->status === 'Suspenso';
     }
 
-    public function getCpfFormatadoAttribute()
+    public function isInadimplente(): bool
     {
-        $cpf = preg_replace('/[^0-9]/', '', $this->cpf);
-        if (strlen($cpf) === 11) {
-            return preg_replace('/(\d{3})(\d{3})(\d{3})(\d{2})/', '$1.$2.$3-$4', $cpf);
-        }
-        return $this->cpf;
+        return $this->status === 'Inadimplente';
+    }
+
+    public function isInativo(): bool
+    {
+        return $this->status === 'Inativo';
+    }
+
+    public function isPendente(): bool
+    {
+        return $this->status === 'Pendente';
+    }
+
+    public function podeAcessarAcademia(): bool
+    {
+        return in_array($this->status, ['Ativo', 'Inadimplente']);
+    }
+
+    public function getStatusColorAttribute(): string
+    {
+        return match($this->status) {
+            'Ativo' => 'green',
+            'Suspenso' => 'yellow',
+            'Inadimplente' => 'orange',
+            'Inativo' => 'red',
+            'Pendente' => 'blue',
+            default => 'gray'
+        };
+    }
+
+    public function getStatusBadgeClassAttribute(): string
+    {
+        return match($this->status) {
+            'Ativo' => 'bg-green-100 text-green-800',
+            'Suspenso' => 'bg-yellow-100 text-yellow-800',
+            'Inadimplente' => 'bg-orange-100 text-orange-800',
+            'Inativo' => 'bg-red-100 text-red-800',
+            'Pendente' => 'bg-blue-100 text-blue-800',
+            default => 'bg-gray-100 text-gray-800'
+        };
+    }
+
+    protected static function booted()
+    {
+        static::addGlobalScope('academia', function (Builder $builder) {
+            if (Auth::check()) {
+                $user = Auth::user();
+                
+                if ($user->isFuncionario() && $user->idAcademia) {
+                    $builder->where('clientes.idAcademia', $user->idAcademia);
+                } elseif ($user->isAdministrador()) {
+                    $academiaId = session('academia_selecionada');
+                    if ($academiaId) {
+                        $builder->where('clientes.idAcademia', $academiaId);
+                    }
+                }
+            }
+        });
     }
 }

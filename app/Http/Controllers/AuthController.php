@@ -5,15 +5,23 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 
 class AuthController extends Controller
 {
+    /**
+     * Exibe o formulário de login
+     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
+    /**
+     * Processa o login do usuário
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -25,9 +33,7 @@ class AuthController extends Controller
 
         if ($user && Hash::check($credentials['senha'], $user->senha)) {
             Auth::login($user);
-
             $request->session()->regenerate();
-
             return redirect()->intended('/dashboard')->with('success', 'Login realizado com sucesso!');
         }
 
@@ -36,6 +42,9 @@ class AuthController extends Controller
         ])->onlyInput('usuario');
     }
 
+    /**
+     * Exibe o formulário de cadastro de usuário
+     */
     public function showRegisterForm()
     {
         if (Auth::check() && Auth::user()->nivelAcesso === 'Administrador') {
@@ -44,38 +53,86 @@ class AuthController extends Controller
         return redirect()->route('login')->with('error', 'Acesso negado. Apenas administradores podem cadastrar novos usuários.');
     }
 
+    /**
+     * Processa o cadastro de novo usuário
+     */
     public function register(Request $request)
     {
+        // Verifica se é administrador
         if (!Auth::check() || Auth::user()->nivelAcesso !== 'Administrador') {
             return redirect()->route('dashboard')->with('error', 'Acesso negado. Apenas administradores podem cadastrar novos usuários.');
         }
 
+        // Validação
         $request->validate([
             'nome' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'string', 'email', 'max:150'],
-            'usuario' => ['required', 'string', 'max:50', 'unique:'.User::class.',usuario'],
+            'email' => ['nullable', 'string', 'email', 'max:150', 'unique:users,email'],
+            'usuario' => ['required', 'string', 'max:50', 'unique:users,usuario'],
             'senha' => ['required', 'string', 'min:8'],
-            'nivelAcesso' => ['required', 'in:Administrador,Funcionario'],
+            'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
         ]);
 
-        User::create([
-            'nome' => $request->nome,
-            'email' => $request->email,
-            'usuario' => $request->usuario,
-            'senha' => Hash::make($request->senha),
-            'nivelAcesso' => $request->nivelAcesso,
-        ]);
+        // Inicia transação
+        DB::beginTransaction();
+        
+        try {
+            // 1. Cria o usuário
+            $user = User::create([
+                'nome' => $request->nome,
+                'email' => $request->email,
+                'usuario' => $request->usuario,
+                'senha' => Hash::make($request->senha),
+                'nivelAcesso' => $request->nivelAcesso,
+            ]);
 
-        return redirect()->route('users.index')->with('success', 'Usuário cadastrado com sucesso!');
+            Log::info("Usuário criado: ID {$user->idUsuario}, Nível: {$user->nivelAcesso}");
+
+            // 2. Se for ADMINISTRADOR, não faz nada aqui (vinculado via outra lógica ou manualmente)
+            if ($request->nivelAcesso === 'Administrador') {
+                // Lógica para vincular novo admin a academias pode ser adicionada aqui se necessário
+                Log::info("Novo usuário Administrador {$user->idUsuario} criado.");
+            }
+            // 3. Se for FUNCIONÁRIO, vincula à academia do admin que o cadastrou
+            elseif ($request->nivelAcesso === 'Funcionário') {
+                $admin = Auth::user();
+                if ($admin->idAcademia) {
+                    $user->idAcademia = $admin->idAcademia;
+                    $user->save();
+                    Log::info("Funcionário {$user->idUsuario} vinculado à academia {$admin->idAcademia}");
+                } else {
+                    DB::rollBack();
+                    Log::error("Admin {$admin->idUsuario} sem academia definida não pode cadastrar funcionário.");
+                    return back()
+                        ->withInput()
+                        ->withErrors(['error' => 'Você não está associado a uma academia, portanto não pode cadastrar funcionários.']);
+                }
+            }
+
+            // Commit da transação
+            DB::commit();
+
+            return redirect()->route('users.index')->with('success', 'Usuário cadastrado com sucesso!');
+
+        } catch (\Exception $e) {
+            // Rollback em caso de erro
+            DB::rollBack();
+            Log::error('Erro ao cadastrar usuário: ' . $e->getMessage());
+            Log::error('Stack trace: ' . $e->getTraceAsString());
+            
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Erro ao cadastrar usuário: ' . $e->getMessage()]);
+        }
     }
 
+    /**
+     * Processa o logout do usuário
+     */
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-
         return redirect('/')->with('success', 'Logout realizado com sucesso!');
     }
 }

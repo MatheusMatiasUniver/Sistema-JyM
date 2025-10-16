@@ -27,7 +27,7 @@ class StoreAcademiaRequest extends FormRequest
     {
         return [
             'nome' => ['required', 'string', 'max:100'],
-            'CNPJ' => ['required', 'string', 'regex:/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/', 'unique:academias,CNPJ'],
+            'CNPJ' => ['required', 'string', 'regex:/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/', Rule::unique('academias', 'CNPJ')],
             'telefone' => ['nullable', 'string', 'max:20'],
             'email' => ['nullable', 'email', 'max:100'],
             'endereco' => ['nullable', 'string', 'max:255'],

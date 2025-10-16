@@ -4,152 +4,243 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\PlanoAssinatura;
-use App\Services\PlanoAssinaturaService;
-use App\Http\Requests\StoreClienteRequest;
-use App\Http\Requests\UpdateClienteRequest;
-use App\Services\ClienteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
-use Carbon\Carbon;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class ClienteController extends Controller
 {
-    protected $clienteService;
-    protected $planoAssinaturaService;
-
-    public function __construct(ClienteService $clienteService, PlanoAssinaturaService $planoAssinaturaService)
-    {
-        $this->clienteService = $clienteService;
-        $this->planoAssinaturaService = $planoAssinaturaService;
-        $this->middleware(['auth']);
+    /**
+     * Display a listing of the resource.
+     */
+    public function index()
+{
+    $academiaId = session('academia_selecionada');
+    
+    if (!$academiaId) {
+        return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
     }
 
-    public function index(Request $request)
-    {
-        $query = Cliente::with(['plano', 'mensalidades', 'entradas']);
+    $allPlanos = PlanoAssinatura::where('idAcademia', $academiaId)->get();
 
-        if ($search = $request->input('search')) {
-            $query->where('nome', 'like', '%'.$search.'%')
-                  ->orWhere('cpf', 'like', '%'.$search.'%')
-                  ->orWhere('email', 'like', '%'.$search.'%');
-        }
+    $clientes = Cliente::where('idAcademia', $academiaId)
+        ->with('plano')
+        ->orderBy('nome')
+        ->paginate(15);
 
-        if ($statusFilter = $request->input('status_filter')) {
-            if (in_array($statusFilter, ['Ativo', 'Inativo'])) {
-                $query->where('status', $statusFilter);
-            }
-        }
+    return view('clientes.index', compact('clientes', 'allPlanos'));
+}
 
-        if ($planoId = $request->input('plano_id')) {
-            $query->where('idPlano', $planoId);
-        }
-
-        $clientes = $query->paginate(10);
-        $allPlanos = PlanoAssinatura::all();
-
-        return view('clientes.index', compact('clientes', 'allPlanos'));
-    }
-
+    /**
+     * Show the form for creating a new resource.
+     */
     public function create()
     {
-        $planos = PlanoAssinatura::all();
+        $academiaId = session('academia_selecionada');
+        
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
+
+        $planos = PlanoAssinatura::where('idAcademia', $academiaId)->get();
+
         return view('clientes.create', compact('planos'));
     }
 
     /**
-     * Armazena um novo cliente no banco de dados e redireciona para a tela de captura de rosto.
-     * @param StoreClienteRequest $request
+     * Store a newly created resource in storage.
      */
-    public function store(StoreClienteRequest $request)
+    public function store(Request $request)
     {
+        Log::info('=== DADOS RECEBIDOS NO REQUEST ===');
+        Log::info('All:', ['data' => $request->all()]);
+        Log::info('Input:', ['data' => $request->input()]);
+        Log::info('Has nome?', ['has_nome' => $request->has('nome')]);
+        Log::info('Nome value:', ['nome' => $request->input('nome')]);
+
         try {
-            $data = $request->validated();
+            $validated = $request->validate([
+                'dataNascimento' => 'required|date',
+                'status' => 'required|string',
+            ]);
 
-            $cliente = $this->clienteService->createCliente($data, Auth::id(), $request->file('foto'));
+            Log::info('Validação passou!');
+            Log::info('Dados validados:', ['validated' => $validated]);
 
-            return redirect()->route('clientes.capturarRosto', ['cliente' => $cliente->idCliente])
-                             ->with('success', 'Cliente ' . $cliente->nome . ' cadastrado com sucesso! Agora, capture o rosto do cliente.');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::error('Erro de validação:', ['errors' => $e->errors()]);
+            
+            // Esta parte já está correta, vai redirecionar com os erros
+            return back()
+                ->withInput()
+                ->withErrors($e->errors());
+        }
+
+        try {
+            $academiaId = session('academia_selecionada');
+
+            if (!$academiaId) {
+                return back()
+                    ->withInput()
+                    ->withErrors(['error' => 'Nenhuma academia selecionada.']);
+            }
+
+            $clienteData = $validated;
+
+            $clienteData['idAcademia'] = $academiaId;
+            $clienteData['idUsuario'] = Auth::id();
+
+            if (!empty($validated['codigo_acesso'])) {
+                $clienteData['codigo_acesso'] = Hash::make($validated['codigo_acesso']);
+            }
+
+            if ($request->hasFile('foto')) {
+                $fotoPath = $request->file('foto')->store('clientes/fotos', 'public');
+                $clienteData['foto'] = $fotoPath;
+                Log::info('Foto salva', ['path' => $fotoPath]);
+            }
+
+            Log::info('DADOS FINAIS PARA CRIAÇÃO:', $clienteData);
+            dd($clienteData); 
+
+            $cliente = Cliente::create($clienteData);
+
+            Log::info('Cliente criado com sucesso', ['id' => $cliente->idCliente]);
+
+            return redirect()
+                ->route('clientes.index')
+                ->with('success', 'Cliente cadastrado com sucesso!');
 
         } catch (\Exception $e) {
-            Log::error("Erro no ClienteController@store: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Erro ao cadastrar cliente: ' . $e->getMessage());
+            Log::error('Erro ao criar cliente:', [
+                'message' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Erro: ' . $e->getMessage()]);
         }
     }
 
+    /**
+     * Display the specified resource.
+     */
     public function show(Cliente $cliente)
     {
         return view('clientes.show', compact('cliente'));
     }
 
+    /**
+     * Show the form for editing the specified resource.
+     */
     public function edit(Cliente $cliente)
     {
-        $planos = PlanoAssinatura::all();
+        $academiaId = session('academia_selecionada');
+        
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
+
+        $planos = PlanoAssinatura::where('idAcademia', $academiaId)->get();
+
         return view('clientes.edit', compact('cliente', 'planos'));
     }
 
     /**
-     * Atualiza um cliente existente no banco de dados.
-     * @param UpdateClienteRequest $request
-     * @param Cliente $cliente
+     * Update the specified resource in storage.
      */
-    public function update(UpdateClienteRequest $request, Cliente $cliente)
+    public function update(Request $request, Cliente $cliente)
     {
         try {
-            $data = $request->validated();
-            $this->clienteService->updateCliente(
-                $cliente,
-                $data,
-                $request->file('foto')
-            );
+            $validated = $request->validate([
+                'cpf' => [
+                    'required',
+                    'string',
+                    'size:11',
+                    'unique:clientes,cpf,' . $cliente->idCliente . ',idCliente',
+                    'regex:/^[0-9]{11}$/'
+                ],
+                'status' => 'required|in:Ativo,Inativo,Suspenso,Inadimplente,Pendente',
+                'idPlano' => 'required|exists:plano_assinaturas,idPlano',
+            ], [
+                'cpf.unique' => 'Este CPF já está cadastrado para outro cliente.',
+                'cpf.regex' => 'O CPF deve conter apenas números.',
+                'cpf.size' => 'O CPF deve ter exatamente 11 dígitos.',
+            ]);
 
-            return redirect()->route('clientes.index')->with('success', 'Cliente ' . $cliente->nome . ' atualizado com sucesso!');
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            return back()
+                ->withInput()
+                ->withErrors($e->errors());
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $cliente->nome = $validated['nome'];
+            $cliente->cpf = $validated['cpf'];
+            $cliente->dataNascimento = $validated['dataNascimento'];
+            $cliente->telefone = $validated['telefone'] ?? null;
+            $cliente->email = $validated['email'] ?? null;
+            $cliente->status = $validated['status'];
+            $cliente->idPlano = $validated['idPlano'];
+
+            if (!empty($validated['codigo_acesso'])) {
+                $cliente->codigo_acesso = Hash::make($validated['codigo_acesso']);
+            }
+
+            if ($request->hasFile('foto')) {
+                if ($cliente->foto && Storage::disk('public')->exists($cliente->foto)) {
+                    Storage::disk('public')->delete($cliente->foto);
+                }
+                $cliente->foto = $request->file('foto')->store('clientes/fotos', 'public');
+            }
+
+            $cliente->save();
+
+            DB::commit();
+
+            Log::info("Cliente {$cliente->idCliente} atualizado com sucesso por usuário " . Auth::id());
+
+            return redirect()
+                ->route('clientes.index')
+                ->with('success', 'Cliente atualizado com sucesso!');
+
         } catch (\Exception $e) {
-            Log::error("Erro no ClienteController@update para cliente ID {$cliente->idCliente}: " . $e->getMessage());
-            return back()->withInput()->with('error', 'Erro ao atualizar cliente: ' . $e->getMessage());
+            DB::rollBack();
+            Log::error('Erro ao atualizar cliente: ' . $e->getMessage());
+
+            return back()
+                ->withInput()
+                ->withErrors(['error' => 'Erro ao atualizar cliente: ' . $e->getMessage()]);
         }
     }
 
     /**
-     * Remove um cliente do banco de dados.
-     * @param Cliente $cliente
+     * Remove the specified resource from storage.
      */
     public function destroy(Cliente $cliente)
     {
         try {
-            $this->clienteService->deleteCliente($cliente);
-            return redirect()->route('clientes.index')->with('success', 'Cliente ' . $cliente->nome . ' excluído com sucesso!');
-        } catch (\Exception $e) {
-            Log::error("Erro no ClienteController@destroy: " . $e->getMessage());
-            return back()->with('error', 'Erro ao excluir cliente: ' . $e->getMessage());
-        }
-    }
-
-    public function showFaceCapture(Cliente $cliente)
-    {
-        return view('clientes.capturar-rosto', compact('cliente'));
-    }
-
-    public function renewPlan(Cliente $cliente)
-    {
-        try {
-            if (!$cliente->idPlano) {
-                return redirect()->back()->with('error', 'O cliente não possui um plano de assinatura associado para renovar.');
+            if ($cliente->foto && Storage::disk('public')->exists($cliente->foto)) {
+                Storage::disk('public')->delete($cliente->foto);
             }
 
-            $plano = PlanoAssinatura::find($cliente->idPlano);
+            $cliente->delete();
 
-            if (!$plano) {
-                return redirect()->back()->with('error', 'O plano de assinatura associado ao cliente não foi encontrado.');
-            }
+            return redirect()
+                ->route('clientes.index')
+                ->with('success', 'Cliente excluído com sucesso!');
 
-            $this->planoAssinaturaService->renewClientPlan($cliente, $plano);
-
-            return redirect()->back()->with('success', 'Plano de assinatura do cliente ' . $cliente->nome . ' renovado com sucesso!');
         } catch (\Exception $e) {
-            Log::error("Erro ao renovar plano via controller para cliente ID {$cliente->idCliente}: " . $e->getMessage());
-            return redirect()->back()->with('error', 'Erro ao renovar plano de assinatura: ' . $e->getMessage());
+            Log::error('Erro ao excluir cliente: ' . $e->getMessage());
+
+            return back()
+                ->withErrors(['error' => 'Erro ao excluir cliente: ' . $e->getMessage()]);
         }
     }
 }

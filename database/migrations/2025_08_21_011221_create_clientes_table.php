@@ -18,7 +18,7 @@ return new class extends Migration
             $table->date('dataNascimento')->nullable(false);
             $table->string('email', 150)->nullable();
             $table->string('telefone', 20)->nullable();
-            $table->enum('status', ['Ativo', 'Inativo'])->nullable(false);
+            $table->enum('status', ['Ativo', 'Inativo', 'Inadimplente', 'Suspenso', 'Pendente'])->nullable(false);
             $table->string('foto', 255)->nullable();
             $table->unsignedInteger('idUsuario')->nullable();
 

@@ -26,7 +26,7 @@ class StoreVendaRequest extends FormRequest
     {
         $rules = [
             'idCliente' => ['required', 'exists:clientes,idCliente'],
-            'tipoPagamento' => ['required', 'string', 'in:Dinheiro,Cartão de Crédito,Cartão de Débito,Pix'],
+            'formaPagamento' => ['required', 'string', 'in:Dinheiro,Cartão de Crédito,Cartão de Débito,Pix'],
             'produtos' => ['required', 'array', 'min:1'],
             'produtos.*.idProduto' => ['required', 'exists:produtos,idProduto'],
             'produtos.*.quantidade' => ['required', 'integer', 'min:1'],
@@ -54,8 +54,8 @@ class StoreVendaRequest extends FormRequest
         return [
             'idCliente.required' => 'O cliente é obrigatório.',
             'idCliente.exists' => 'O cliente selecionado não existe.',
-            'tipoPagamento.required' => 'O tipo de pagamento é obrigatório.',
-            'tipoPagamento.in' => 'O tipo de pagamento selecionado é inválido.',
+            'formaPagamento.required' => 'O tipo de pagamento é obrigatório.',
+            'formaPagamento.in' => 'O tipo de pagamento selecionado é inválido.',
             'produtos.required' => 'É necessário adicionar pelo menos um produto à venda.',
             'produtos.array' => 'Os produtos devem ser enviados em formato de lista.',
             'produtos.min' => 'É necessário adicionar pelo menos um produto à venda.',

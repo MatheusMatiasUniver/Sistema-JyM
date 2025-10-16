@@ -1,6 +1,7 @@
 <aside class="sidebar-layout">
     <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="sidebar-logo">
     <nav>
+        @include('partials.academia-selector')
         <a href="{{ route('dashboard') }}" class="sidebar-nav-link">Visão Geral</a>
         <a href="{{ route('clientes.index') }}" class="sidebar-nav-link">Clientes</a>
         <a href="{{ route('produtos.index') }}" class="sidebar-nav-link">Produtos</a>

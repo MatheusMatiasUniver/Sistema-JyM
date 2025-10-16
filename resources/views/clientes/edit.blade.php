@@ -71,10 +71,22 @@
 
             <div class="mb-4">
                 <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Status:</label>
-                <select id="status" name="status" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('status') border-red-500 @enderror">
-                    <option value="Ativo" {{ old('status', $cliente->status) == 'Ativo' ? 'selected' : '' }}>Ativo</option>
-                    <option value="Inativo" {{ old('status', $cliente->status) == 'Inativo' ? 'selected' : '' }}>Inativo</option>
+                <select name="status" required class="seu-estilo-aqui">
+                    <option value="Pendente" {{ old('status', $cliente->status ?? '') == 'Pendente' ? 'selected' : '' }}>
+                        Pendente
+                    </option>
+                    <option value="Ativo" {{ old('status', $cliente->status ?? '') == 'Ativo' ? 'selected' : '' }}>
+                        Ativo
+                    </option>
+                    <option value="Suspenso" {{ old('status', $cliente->status ?? '') == 'Suspenso' ? 'selected' : '' }}>
+                        Suspenso
+                    </option>
+                    <option value="Inadimplente" {{ old('status', $cliente->status ?? '') == 'Inadimplente' ? 'selected' : '' }}>
+                        Inadimplente
+                    </option>
+                    <option value="Inativo" {{ old('status', $cliente->status ?? '') == 'Inativo' ? 'selected' : '' }}>
+                        Inativo
+                    </option>
                 </select>
                 @error('status')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>

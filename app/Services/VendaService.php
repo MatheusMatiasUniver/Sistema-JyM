@@ -14,7 +14,7 @@ class VendaService
     /**
      * Registra uma nova venda e atualiza o estoque dos produtos.
      *
-     * @param array $data Dados da venda (idCliente, tipoPagamento, produtos)
+     * @param array $data Dados da venda (idCliente, formaPagamento, produtos)
      *        'produtos' é um array de objetos/arrays: [['idProduto' => 1, 'quantidade' => 2, 'precoUnitario' => 10.50], ...]
      * @return VendaProduto
      * @throws \Exception
@@ -52,7 +52,7 @@ class VendaService
                 'idCliente' => $data['idCliente'],
                 'dataVenda' => now(),
                 'valorTotal' => $totalVenda,
-                'tipoPagamento' => $data['tipoPagamento'],
+                'formaPagamento' => $data['formaPagamento'],
             ]);
 
             foreach ($itensVenda as $itemData) {
