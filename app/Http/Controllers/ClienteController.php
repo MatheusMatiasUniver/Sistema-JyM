@@ -17,22 +17,22 @@ class ClienteController extends Controller
      * Display a listing of the resource.
      */
     public function index()
-{
-    $academiaId = session('academia_selecionada');
-    
-    if (!$academiaId) {
-        return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+    {
+        $academiaId = session('academia_selecionada');
+        
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
+
+        $allPlanos = PlanoAssinatura::where('idAcademia', $academiaId)->get();
+
+        $clientes = Cliente::where('idAcademia', $academiaId)
+            ->with('plano')
+            ->orderBy('nome')
+            ->paginate(15);
+
+        return view('clientes.index', compact('clientes', 'allPlanos'));
     }
-
-    $allPlanos = PlanoAssinatura::where('idAcademia', $academiaId)->get();
-
-    $clientes = Cliente::where('idAcademia', $academiaId)
-        ->with('plano')
-        ->orderBy('nome')
-        ->paginate(15);
-
-    return view('clientes.index', compact('clientes', 'allPlanos'));
-}
 
     /**
      * Show the form for creating a new resource.
