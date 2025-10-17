@@ -2,10 +2,12 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class Cliente extends Model
 {
@@ -30,7 +32,23 @@ class Cliente extends Model
 
     protected $casts = [
         'dataNascimento' => 'date',
+        'codigo_acesso' => 'string',
     ];
+    
+    protected $attributes = [
+        'status' => 'Pendente',
+    ];
+    
+    public static function boot()
+    {
+        parent::boot();
+        
+        static::creating(function ($cliente) {
+            if (empty($cliente->codigo_acesso)) {
+                $cliente->codigo_acesso = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+            }
+        });
+    }
 
     public function academia(): BelongsTo
     {
@@ -127,9 +145,16 @@ class Cliente extends Model
             if (Auth::check()) {
                 $user = Auth::user();
                 
-                if ($user->isFuncionario() && $user->idAcademia) {
-                    $builder->where('clientes.idAcademia', $user->idAcademia);
-                } elseif ($user->isAdministrador()) {
+                if ($user && $user->nivelAcesso === 'Funcionario') {
+                    // Obter a academia diretamente da tabela usuario_academia
+                    $academia = DB::table('usuario_academia')
+                        ->where('idUsuario', $user->idUsuario)
+                        ->join('academias', 'usuario_academia.idAcademia', '=', 'academias.idAcademia')
+                        ->first();
+                    if ($academia) {
+                        $builder->where('clientes.idAcademia', $academia->idAcademia);
+                    }
+                } elseif ($user && $user->nivelAcesso === 'Administrador') {
                     $academiaId = session('academia_selecionada');
                     if ($academiaId) {
                         $builder->where('clientes.idAcademia', $academiaId);

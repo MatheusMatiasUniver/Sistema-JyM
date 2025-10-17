@@ -14,6 +14,14 @@ use Illuminate\Support\Facades\Storage;
 class ClienteController extends Controller
 {
     /**
+     * Show face capture page for the client
+     */
+    public function showFaceCapture(Cliente $cliente)
+    {
+        return view('clientes.capturar-rosto', compact('cliente'));
+    }
+
+    /**
      * Display a listing of the resource.
      */
     public function index()
@@ -55,25 +63,23 @@ class ClienteController extends Controller
      */
     public function store(Request $request)
     {
-        Log::info('=== DADOS RECEBIDOS NO REQUEST ===');
-        Log::info('All:', ['data' => $request->all()]);
-        Log::info('Input:', ['data' => $request->input()]);
-        Log::info('Has nome?', ['has_nome' => $request->has('nome')]);
-        Log::info('Nome value:', ['nome' => $request->input('nome')]);
-
         try {
             $validated = $request->validate([
+                'nome' => 'required|string|max:255',
+                'cpf' => 'required|string|size:11|unique:clientes,cpf|regex:/^[0-9]{11}$/',
                 'dataNascimento' => 'required|date',
+                'telefone' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
                 'status' => 'required|string',
+                'idPlano' => 'required|exists:plano_assinaturas,idPlano',
+                'codigo_acesso' => 'nullable|string|max:20',
+            ], [
+                'cpf.unique' => 'Este CPF já está cadastrado para outro cliente.',
+                'cpf.regex' => 'O CPF deve conter apenas números.',
+                'cpf.size' => 'O CPF deve ter exatamente 11 dígitos.',
             ]);
 
-            Log::info('Validação passou!');
-            Log::info('Dados validados:', ['validated' => $validated]);
-
         } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::error('Erro de validação:', ['errors' => $e->errors()]);
-            
-            // Esta parte já está correta, vai redirecionar com os erros
             return back()
                 ->withInput()
                 ->withErrors($e->errors());
@@ -100,26 +106,15 @@ class ClienteController extends Controller
             if ($request->hasFile('foto')) {
                 $fotoPath = $request->file('foto')->store('clientes/fotos', 'public');
                 $clienteData['foto'] = $fotoPath;
-                Log::info('Foto salva', ['path' => $fotoPath]);
             }
-
-            Log::info('DADOS FINAIS PARA CRIAÇÃO:', $clienteData);
-            dd($clienteData); 
 
             $cliente = Cliente::create($clienteData);
 
-            Log::info('Cliente criado com sucesso', ['id' => $cliente->idCliente]);
-
             return redirect()
-                ->route('clientes.index')
-                ->with('success', 'Cliente cadastrado com sucesso!');
+                ->route('clientes.capturarRosto', ['cliente' => $cliente->idCliente])
+                ->with('success', 'Cliente cadastrado com sucesso! Por favor, registre o reconhecimento facial.');
 
         } catch (\Exception $e) {
-            Log::error('Erro ao criar cliente:', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString()
-            ]);
-
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Erro: ' . $e->getMessage()]);
@@ -204,16 +199,13 @@ class ClienteController extends Controller
 
             DB::commit();
 
-            Log::info("Cliente {$cliente->idCliente} atualizado com sucesso por usuário " . Auth::id());
-
             return redirect()
                 ->route('clientes.index')
                 ->with('success', 'Cliente atualizado com sucesso!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao atualizar cliente: ' . $e->getMessage());
-
+            
             return back()
                 ->withInput()
                 ->withErrors(['error' => 'Erro ao atualizar cliente: ' . $e->getMessage()]);
@@ -237,8 +229,6 @@ class ClienteController extends Controller
                 ->with('success', 'Cliente excluído com sucesso!');
 
         } catch (\Exception $e) {
-            Log::error('Erro ao excluir cliente: ' . $e->getMessage());
-
             return back()
                 ->withErrors(['error' => 'Erro ao excluir cliente: ' . $e->getMessage()]);
         }
