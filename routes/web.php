@@ -9,6 +9,7 @@ use App\Http\Controllers\VendaController;
 use App\Http\Controllers\AcademiaController;
 use App\Http\Controllers\PlanoAssinaturaController;
 use App\Http\Controllers\FaceRecognitionController;
+use App\Http\Controllers\CategoriaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('clientes', ClienteController::class);
 
     Route::resource('produtos', ProdutoController::class);
+
+    Route::resource('categorias', CategoriaController::class);
 
     Route::resource('vendas', VendaController::class);
 

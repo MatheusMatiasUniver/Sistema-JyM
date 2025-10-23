@@ -49,7 +49,7 @@
                             {{ $produto->nome }}
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            {{ $produto->categoria }}
+                            {{ $produto->categoria ? $produto->categoria->nome : 'Sem categoria' }}
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             R$ {{ number_format($produto->preco, 2, ',', '.') }}

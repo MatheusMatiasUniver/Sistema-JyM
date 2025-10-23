@@ -16,7 +16,7 @@ class Produto extends Model
 
     protected $fillable = [
         'nome',
-        'categoria',
+        'idCategoria',
         'preco',
         'estoque',
         'descricao',
@@ -32,6 +32,11 @@ class Produto extends Model
     public function academia(): BelongsTo
     {
         return $this->belongsTo(Academia::class, 'idAcademia', 'idAcademia');
+    }
+
+    public function categoria(): BelongsTo
+    {
+        return $this->belongsTo(Categoria::class, 'idCategoria', 'idCategoria');
     }
 
     public function itensVenda()
@@ -65,9 +70,9 @@ class Produto extends Model
             if (Auth::check()) {
                 $user = Auth::user();
                 
-                if ($user->isFuncionario() && $user->idAcademia) {
+                if ($user && $user->isFuncionario() && isset($user->idAcademia)) {
                     $builder->where('produtos.idAcademia', $user->idAcademia);
-                } elseif ($user->isAdministrador()) {
+                } elseif ($user && $user->isAdministrador()) {
                     $academiaId = session('academia_selecionada');
                     if ($academiaId) {
                         $builder->where('produtos.idAcademia', $academiaId);

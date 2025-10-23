@@ -63,7 +63,6 @@ class AuthController extends Controller
             return redirect()->route('dashboard')->with('error', 'Acesso negado. Apenas administradores podem cadastrar novos usuários.');
         }
 
-        // Validação
         $request->validate([
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:150', 'unique:users,email'],
@@ -72,11 +71,9 @@ class AuthController extends Controller
             'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
         ]);
 
-        // Inicia transação
         DB::beginTransaction();
         
         try {
-            // 1. Cria o usuário
             $user = User::create([
                 'nome' => $request->nome,
                 'email' => $request->email,
@@ -87,12 +84,9 @@ class AuthController extends Controller
 
             Log::info("Usuário criado: ID {$user->idUsuario}, Nível: {$user->nivelAcesso}");
 
-            // 2. Se for ADMINISTRADOR, não faz nada aqui (vinculado via outra lógica ou manualmente)
             if ($request->nivelAcesso === 'Administrador') {
-                // Lógica para vincular novo admin a academias pode ser adicionada aqui se necessário
                 Log::info("Novo usuário Administrador {$user->idUsuario} criado.");
             }
-            // 3. Se for FUNCIONÁRIO, vincula à academia do admin que o cadastrou
             elseif ($request->nivelAcesso === 'Funcionário') {
                 $admin = Auth::user();
                 if ($admin->idAcademia) {
@@ -108,13 +102,11 @@ class AuthController extends Controller
                 }
             }
 
-            // Commit da transação
             DB::commit();
 
             return redirect()->route('users.index')->with('success', 'Usuário cadastrado com sucesso!');
 
         } catch (\Exception $e) {
-            // Rollback em caso de erro
             DB::rollBack();
             Log::error('Erro ao cadastrar usuário: ' . $e->getMessage());
             Log::error('Stack trace: ' . $e->getTraceAsString());

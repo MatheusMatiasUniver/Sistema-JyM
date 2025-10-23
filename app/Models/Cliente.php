@@ -146,7 +146,6 @@ class Cliente extends Model
                 $user = Auth::user();
                 
                 if ($user && $user->nivelAcesso === 'Funcionario') {
-                    // Obter a academia diretamente da tabela usuario_academia
                     $academia = DB::table('usuario_academia')
                         ->where('idUsuario', $user->idUsuario)
                         ->join('academias', 'usuario_academia.idAcademia', '=', 'academias.idAcademia')

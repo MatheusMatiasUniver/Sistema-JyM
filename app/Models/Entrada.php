@@ -41,9 +41,9 @@ class Entrada extends Model
             if (Auth::check()) {
                 $user = Auth::user();
                 
-                if ($user->isFuncionario() && $user->idAcademia) {
+                if ($user && $user->isFuncionario() && isset($user->idAcademia)) {
                     $builder->where('entradas.idAcademia', $user->idAcademia);
-                } elseif ($user->isAdministrador()) {
+                } elseif ($user && $user->isAdministrador()) {
                     $academiaId = session('academia_selecionada');
                     if ($academiaId) {
                         $builder->where('entradas.idAcademia', $academiaId);

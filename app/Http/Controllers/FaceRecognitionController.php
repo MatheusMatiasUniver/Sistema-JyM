@@ -145,7 +145,6 @@ class FaceRecognitionController extends Controller
             return response()->json(['authenticated' => false, 'message' => 'Código de acesso inválido.'], 401);
         }
 
-        // Verifica o status do cliente (ativo/inativo)
         if ($cliente->status !== 'Ativo') {
             Log::warning("Acesso negado por código para cliente ID {$cliente->idCliente}: Status Inativo.");
             return response()->json(['authenticated' => false, 'message' => 'ACESSO NEGADO! Status: ' . $cliente->status . '.'], 403);

@@ -25,7 +25,7 @@ class User extends Authenticatable
         'nome',
         'email',
         'usuario',
-        'senha',        // ✅ JÁ CORRIGIDO ANTERIORMENTE
+        'senha',
         'nivelAcesso',
     ];
 
@@ -73,25 +73,16 @@ class User extends Authenticatable
         );
     }
 
-    /**
-     * ✅ Verifica se o usuário é administrador
-     */
     public function isAdministrador(): bool
     {
         return $this->nivelAcesso === 'Administrador';
     }
 
-    /**
-     * ✅ MÉTODO ADICIONADO - Verifica se o usuário é funcionário
-     */
     public function isFuncionario(): bool
     {
         return $this->nivelAcesso === 'Funcionario';
     }
 
-    /**
-     * Verifica se o usuário tem acesso a uma academia específica
-     */
     public function temAcessoAcademia($academiaId): bool
     {
         return $this->academias()->where('academias.idAcademia', $academiaId)->exists();

@@ -37,14 +37,13 @@ class ItensVendaSeeder extends Seeder
         foreach ($vendas as $venda) {
             $numItens = $faker->numberBetween(1, 3);
             for ($i = 0; $i < $numItens; $i++) {
-                // CORREÇÃO: Filtra produtos para garantir que pertençam à mesma academia da venda
                 $produto = $produtos->where('idAcademia', $venda->idAcademia)->random();
                 $quantidade = $faker->numberBetween(1, 5);
 
                 ItemVenda::create([
                     'idVenda' => $venda->idVenda,
                     'idProduto' => $produto->idProduto,
-                    'idAcademia' => $venda->idAcademia, // <-- CORREÇÃO
+                    'idAcademia' => $venda->idAcademia,
                     'quantidade' => $quantidade,
                     'precoUnitario' => $produto->preco,
                 ]);

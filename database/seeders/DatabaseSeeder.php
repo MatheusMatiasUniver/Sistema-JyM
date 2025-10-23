@@ -13,6 +13,7 @@ class DatabaseSeeder extends Seeder
             UserSeeder::class,
             PlanoAssinaturaSeeder::class,
             ClienteSeeder::class,
+            CategoriaSeeder::class,
             ProdutoSeeder::class,
             MensalidadeSeeder::class,
             VendaProdutoSeeder::class,

@@ -1,4 +1,3 @@
-<!-- resources/views/reconhecimento.blade.php -->
 @extends('layouts.kiosk')
 
 @section('title', 'Reconhecimento Facial - Acesso à Academia')

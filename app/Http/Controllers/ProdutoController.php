@@ -3,29 +3,74 @@
 namespace App\Http\Controllers;
 
 use App\Models\Produto;
+use App\Models\Categoria;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 class ProdutoController extends Controller
 {
     public function index()
     {
-        $produtos = Produto::with('academia')->paginate(15);
+        $produtos = Produto::with('categoria')->get();
         return view('produtos.index', compact('produtos'));
     }
 
     public function create()
     {
-        return view('produtos.create');
+        $academiaId = $this->getAcademiaId();
+        
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
+
+        $categorias = Categoria::ativas()
+            ->porAcademia($academiaId)
+            ->orderBy('nome')
+            ->get();
+
+        return view('produtos.create', compact('categorias'));
     }
 
     public function store(Request $request)
     {
+        $academiaId = $this->getAcademiaId();
+        
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
+
         $validated = $request->validate([
+            'nome' => 'required|string|max:255',
+            'idCategoria' => 'required|exists:categorias,idCategoria',
+            'preco' => 'required|numeric|min:0',
+            'estoque' => 'required|integer|min:0',
             'descricao' => 'nullable|string',
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'nome.required' => 'O nome do produto é obrigatório.',
+            'idCategoria.required' => 'A categoria é obrigatória.',
+            'idCategoria.exists' => 'A categoria selecionada não existe.',
+            'preco.required' => 'O preço é obrigatório.',
+            'preco.numeric' => 'O preço deve ser um número.',
+            'preco.min' => 'O preço deve ser maior ou igual a zero.',
+            'estoque.required' => 'O estoque é obrigatório.',
+            'estoque.integer' => 'O estoque deve ser um número inteiro.',
+            'estoque.min' => 'O estoque deve ser maior ou igual a zero.',
+            'imagem.image' => 'O arquivo deve ser uma imagem.',
+            'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif.',
+            'imagem.max' => 'A imagem não pode ser maior que 2MB.',
         ]);
 
-        $validated['idAcademia'] = config('app.academia_atual');
+        $categoria = Categoria::where('idCategoria', $validated['idCategoria'])
+            ->where('idAcademia', $academiaId)
+            ->first();
+
+        if (!$categoria) {
+            return back()->withInput()->withErrors(['idCategoria' => 'A categoria selecionada não pertence a esta academia.']);
+        }
+
+        $validated['idAcademia'] = $academiaId;
 
         if ($request->hasFile('imagem')) {
             $validated['imagem'] = $request->file('imagem')->store('produtos', 'public');
@@ -48,22 +93,57 @@ class ProdutoController extends Controller
 
     public function edit(Produto $produto)
     {
-        if ($produto->idAcademia !== config('app.academia_atual')) {
+        $academiaId = $this->getAcademiaId();
+        
+        if (!$academiaId || $produto->idAcademia !== $academiaId) {
             abort(403, 'Você não tem permissão para editar este produto.');
         }
 
-        return view('produtos.edit', compact('produto'));
+        $categorias = Categoria::ativas()
+            ->porAcademia($academiaId)
+            ->orderBy('nome')
+            ->get();
+
+        return view('produtos.edit', compact('produto', 'categorias'));
     }
 
     public function update(Request $request, Produto $produto)
     {
-        if ($produto->idAcademia !== config('app.academia_atual')) {
+        $academiaId = $this->getAcademiaId();
+        
+        if (!$academiaId || $produto->idAcademia !== $academiaId) {
             abort(403, 'Você não tem permissão para editar este produto.');
         }
 
         $validated = $request->validate([
+            'nome' => 'required|string|max:255',
+            'idCategoria' => 'required|exists:categorias,idCategoria',
+            'preco' => 'required|numeric|min:0',
+            'estoque' => 'required|integer|min:0',
             'descricao' => 'nullable|string',
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ], [
+            'nome.required' => 'O nome do produto é obrigatório.',
+            'idCategoria.required' => 'A categoria é obrigatória.',
+            'idCategoria.exists' => 'A categoria selecionada não existe.',
+            'preco.required' => 'O preço é obrigatório.',
+            'preco.numeric' => 'O preço deve ser um número.',
+            'preco.min' => 'O preço deve ser maior ou igual a zero.',
+            'estoque.required' => 'O estoque é obrigatório.',
+            'estoque.integer' => 'O estoque deve ser um número inteiro.',
+            'estoque.min' => 'O estoque deve ser maior ou igual a zero.',
+            'imagem.image' => 'O arquivo deve ser uma imagem.',
+            'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif.',
+            'imagem.max' => 'A imagem não pode ser maior que 2MB.',
         ]);
+
+        $categoria = Categoria::where('idCategoria', $validated['idCategoria'])
+            ->where('idAcademia', $academiaId)
+            ->first();
+
+        if (!$categoria) {
+            return back()->withInput()->withErrors(['idCategoria' => 'A categoria selecionada não pertence a esta academia.']);
+        }
 
         if ($request->hasFile('imagem')) {
             if ($produto->imagem) {
@@ -115,5 +195,10 @@ class ProdutoController extends Controller
         }
 
         return back()->with('success', $mensagem);
+    }
+
+    private function getAcademiaId()
+    {
+        return Auth::user()->idAcademia ?? config('app.academia_atual');
     }
 }

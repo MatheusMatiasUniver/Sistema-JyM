@@ -48,7 +48,6 @@ function getCsrfToken() {
     if (tokenElement) {
         return tokenElement.getAttribute('content');
     }
-    console.error('CSRF token meta tag not found.');
     return null;
 }
 
@@ -70,7 +69,6 @@ async function pollKioskStatus() {
     try {
         const csrfToken = getCsrfToken();
         if (!csrfToken) {
-            console.error('CSRF token is null or undefined when attempting to pollKioskStatus.');
             return;
         }
 
@@ -95,15 +93,12 @@ async function pollKioskStatus() {
 
                 if (codeInputArea) codeInputArea.style.display = 'none';
                 showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
-                console.log('Kiosk: Registro em andamento detectado, pausando autenticação.');
             } else if (!detectionStarted && modelsLoaded && video && video.srcObject) {
-                console.log('Kiosk: Registro finalizado, reiniciando autenticação.');
                 showMessage('info', 'Aguardando detecção de rosto.');
                 hideCodeInput();
             }
         }
     } catch (error) {
-        console.error('Erro ao verificar status do quiosque:', error);
     }
 }
 
@@ -120,7 +115,6 @@ async function loadModels() {
             faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL),
             faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL),
         ]);
-        console.log('Face-API models loaded successfully!');
         modelsLoaded = true;
 
         showMessage('info', 'Modelos carregados. Pronto para iniciar a câmera.');
@@ -135,19 +129,16 @@ async function loadModels() {
         }
 
     } catch (err) {
-        console.error('Erro ao carregar modelos do Face-API:', err);
         showMessage('error', 'Erro!', `Falha ao carregar modelos: ${err.message}`);
     }
 }
 
 async function startVideo() {
     if (video && video.srcObject && !video.paused) {
-        console.log('Webcam já está rodando.');
         return;
     }
 
     if (!video) {
-        console.error('Elemento de vídeo não encontrado na página.');
         showMessage('error', 'Erro!', 'Elemento de vídeo não encontrado.');
         return;
     }
@@ -173,8 +164,6 @@ async function startVideo() {
         video.play();
 
     } catch (err) {
-        console.error('Erro ao acessar a webcam:', err);
-
         showMessage('error', 'Erro!', `Ao iniciar webcam: ${err.name} - ${err.message}. Verifique permissões e se a câmera não está em uso por outro aplicativo.`);
 
         if (startCameraButton) startCameraButton.disabled = true;
@@ -183,7 +172,6 @@ async function startVideo() {
 
 function setupVideoAndDetection() {
     if (detectionStarted) {
-        console.log('Detecção já iniciada, ignorando setup.');
         return;
     }
 
@@ -195,7 +183,6 @@ function setupVideoAndDetection() {
 
         if (displaySize.width === 0 || displaySize.height === 0) {
             displaySize = { width: video.offsetWidth || 1280, height: video.offsetHeight || 720 };
-            console.warn('Dimensões do vídeo ainda são 0 após metadados/play, usando dimensões do elemento ou fallback.');
         }
 
         if (canvas) {
@@ -226,8 +213,6 @@ function startDetectionLoop() {
     if (detectionIntervalId) clearInterval(detectionIntervalId);
 
     if (!video || !canvas || !context || displaySize.width === 0 || displaySize.height === 0) {
-        console.warn('Elementos de vídeo/canvas não encontrados ou dimensões inválidas. Detecção não pode ser iniciada.');
-
         showMessage('error', 'Erro!', 'Problema na inicialização do vídeo/canvas. Recarregue a página.');
 
         detectionStarted = false;
@@ -236,7 +221,6 @@ function startDetectionLoop() {
     }
 
     if (isKioskPage && isKioskRegistering) {
-        console.log('Kiosk: Detecção suspensa devido a registro em andamento.');
         return;
     }
 
@@ -247,7 +231,6 @@ function startDetectionLoop() {
     detectionIntervalId = setInterval(async () => {
         if (modelsLoaded && !video.paused && !video.ended && displaySize.width > 0 && displaySize.height > 0) {
             if (isKioskPage && isKioskRegistering) {
-                console.log('Kiosk: Detecção suspensa (loop inter.).');
                 clearInterval(detectionIntervalId);
                 detectionIntervalId = null;
                 detectionStarted = false;
@@ -304,7 +287,6 @@ function startDetectionLoop() {
                 }
             }
         } else if (video.paused || video.ended) {
-            console.log('Vídeo pausado ou finalizado, parando loop de detecção.');
             clearInterval(detectionIntervalId);
             detectionIntervalId = null;
             detectionStarted = false;
@@ -321,7 +303,6 @@ async function authenticateFace(descriptor) {
     }
 
     if (lastAuthenticatedClientId && (Date.now() - lastAuthTime < COOLDOWN_DURATION) ) {
-        console.log(`Cliente ${lastAuthenticatedClientId} já autenticado recentemente. Ignorando.`);
         return;
     }
 
@@ -331,7 +312,6 @@ async function authenticateFace(descriptor) {
         const currentCsrfToken = getCsrfToken();
         if (!currentCsrfToken) {
             showMessage('error', 'Erro de segurança!', 'Token CSRF ausente. Recarregue a página.');
-            console.error('CSRF token is null or undefined when attempting to authenticateFace.');
 
             failedFaceAttempts++;
             if (failedFaceAttempts >= MAX_FAILED_FACE_ATTEMPTS) {
@@ -354,12 +334,11 @@ async function authenticateFace(descriptor) {
         });
 
         const data = await response.json();
-        console.log('Resposta da autenticação:', data);
 
         if (response.ok && data.authenticated) {
             lastAuthenticatedClientId = data.client_id;
 
-            failedFaceAttempts = 0;sucesso
+            failedFaceAttempts = 0;
             if (data.status === 'Ativo') {
                 showMessage('success', 'ACESSO LIBERADO!', `Bom treino, ${data.user_name}!`);
             } else {
@@ -384,7 +363,6 @@ async function authenticateFace(descriptor) {
             }
         }
     } catch (error) {
-        console.error('Erro durante a autenticação (fetch/JSON):', error);
         lastAuthenticatedClientId = null;
         showMessage('error', 'Erro!', `Falha na autenticação: ${error.message}`);
 
@@ -419,7 +397,6 @@ async function registerFace(descriptor) {
         const currentCsrfToken = getCsrfToken();
         if (!currentCsrfToken) {
             showMessage('error', 'Erro de segurança!', 'Token CSRF ausente. Recarregue a página.');
-            console.error('CSRF token is null or undefined when attempting to registerFace.');
             return;
         }
 
@@ -455,7 +432,6 @@ async function registerFace(descriptor) {
         }
 
         const data = await response.json();
-        console.log('Resposta do registro:', data);
 
         if (data.success) {
             showMessage('success', 'REGISTRO CONCLUÍDO!', `Rosto de ${data.user_name || 'o cliente'} foi registrado.`);
@@ -478,7 +454,7 @@ async function registerFace(descriptor) {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': currentCsrfToken },
                     body: JSON.stringify({ is_registering: false })
-                }).then(res => res.json()).then(res => console.log('Kiosk status cleared:', res));
+                });
 
                 if (isCaptureFacePage) {
                     window.location.href = '/clientes';
@@ -492,20 +468,19 @@ async function registerFace(descriptor) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': currentCsrfToken },
                 body: JSON.stringify({ is_registering: false })
-            }).then(res => res.json()).then(res => console.log('Kiosk status cleared (error):', res));
+            });
 
             setTimeout(() => {
                 showMessage('info', 'Aguardando detecção de rosto.');
             }, MESSAGE_DURATION);
         }
     } catch (error) {
-        console.error('Erro durante o registro:', error);
         showMessage('error', 'Erro!', `Falha no registro: ${error.message}`);
         fetch('/face/set-kiosk-registering', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': currentCsrfToken },
             body: JSON.stringify({ is_registering: false })
-        }).then(res => res.json()).then(res => console.log('Kiosk status cleared (exception):', res));
+        });
         setTimeout(() => {
             showMessage('info', 'Aguardando detecção de rosto.');
         }, MESSAGE_DURATION);
@@ -564,10 +539,9 @@ async function submitAccessCode() {
     showMessage('info', 'Verificando CPF e código...');
 
     try {
-        const currentCsrfToken = getCsrfToken();atualizado
+        const currentCsrfToken = getCsrfToken();
         if (!currentCsrfToken) {
             showMessage('error', 'Erro de segurança!', 'Token CSRF ausente. Recarregue a página.');
-            console.error('CSRF token is null or undefined when attempting to submitAccessCode.');
             return;
         }
 
@@ -595,7 +569,6 @@ async function submitAccessCode() {
             accessCodeInput.focus();
         }
     } catch (error) {
-        console.error('Erro durante autenticação por código:', error);
         showMessage('error', 'Erro!', `Falha na autenticação: ${error.message}`);
     }
 }
@@ -647,6 +620,6 @@ window.addEventListener('beforeunload', () => {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() },
             body: JSON.stringify({ is_registering: false })
-        }).then(res => res.json()).then(res => console.log('Kiosk status cleared on unload:', res));
+        });
     }
 });

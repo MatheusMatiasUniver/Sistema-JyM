@@ -9,7 +9,6 @@ return new class extends Migration
 {
     public function up(): void
     {
-        // ✅ Modifica o ENUM para incluir todos os status necessários
         DB::statement("ALTER TABLE `clientes` MODIFY COLUMN `status` ENUM('Ativo', 'Inativo', 'Inadimplente', 'Suspenso', 'Pendente') NOT NULL");
     }
 

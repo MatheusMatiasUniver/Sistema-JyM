@@ -20,12 +20,26 @@
             </div>
 
             <div class="mb-4">
-                <label for="categoria" class="block text-gray-700 text-sm font-bold mb-2">Categoria:</label>
-                <input type="text" id="categoria" name="categoria" value="{{ old('categoria', $produto->categoria) }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('categoria') border-red-500 @enderror">
-                @error('categoria')
+                <label for="idCategoria" class="block text-gray-700 text-sm font-bold mb-2">Categoria:</label>
+                <select id="idCategoria" name="idCategoria" required
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idCategoria') border-red-500 @enderror">
+                    <option value="">Selecione uma categoria</option>
+                    @foreach($categorias as $categoria)
+                        <option value="{{ $categoria->idCategoria }}" 
+                                {{ old('idCategoria', $produto->idCategoria) == $categoria->idCategoria ? 'selected' : '' }}>
+                            {{ $categoria->nome }}
+                        </option>
+                    @endforeach
+                </select>
+                @error('idCategoria')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
+                @if($categorias->isEmpty())
+                    <small class="text-gray-600">
+                        Nenhuma categoria ativa encontrada. 
+                        <a href="{{ route('categorias.create') }}" class="text-blue-500 hover:text-blue-800">Criar nova categoria</a>
+                    </small>
+                @endif
             </div>
 
             <div class="mb-4">

@@ -16,7 +16,6 @@ return new class extends Migration
             $table->unsignedInteger('idCliente')->nullable(false);
             $table->unsignedInteger('idPlano')->nullable(false);
             
-            // ✅ COLUNA ADICIONADA
             $table->unsignedInteger('idAcademia')->nullable(false)->comment('Identificador da academia');
 
             $table->date('dataVencimento')->nullable(false);
@@ -33,7 +32,6 @@ return new class extends Migration
                 'Boleto'
             ])->nullable()->comment('Forma de pagamento utilizada');
 
-            // Foreign keys
             $table->foreign('idCliente')
                   ->references('idCliente')
                   ->on('clientes')
@@ -44,17 +42,15 @@ return new class extends Migration
                   ->on('plano_assinaturas')
                   ->onDelete('restrict');
 
-            // ✅ CHAVE ESTRANGEIRA ADICIONADA
             $table->foreign('idAcademia')
                   ->references('idAcademia')
                   ->on('academias')
                   ->onDelete('cascade');
             
-            // Índices para melhorar performance
             $table->index('dataVencimento');
             $table->index('status');
             $table->index('dataPagamento');
-            $table->index('idAcademia'); // ✅ ÍNDICE ADICIONADO
+            $table->index('idAcademia');
         });
     }
 

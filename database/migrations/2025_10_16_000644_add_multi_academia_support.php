@@ -4,15 +4,13 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use App\Models\Academia;
 
-return new class extends Migration
+class AddMultiAcademiaSupport extends Migration
 {
     public function up(): void
     {
         echo "Iniciando a migração para suporte multi-academia...\n";
 
-        // ✅ 1. SEMPRE cria a coluna idAcademia na tabela users
         if (!Schema::hasColumn('users', 'idAcademia')) {
             echo "Adicionando 'idAcademia' à tabela 'users'...\n";
             Schema::table('users', function (Blueprint $table) {
@@ -31,7 +29,6 @@ return new class extends Migration
             echo "✅ Coluna 'idAcademia' adicionada à tabela 'users'.\n";
         }
 
-        // ✅ 2. Adiciona idAcademia às outras tabelas
         $tabelas = [
             'clientes' => 'idCliente',
             'plano_assinaturas' => 'idPlano',
@@ -61,7 +58,6 @@ return new class extends Migration
             }
         }
 
-        // ✅ 3. Cria a tabela pivot usuario_academia
         if (!Schema::hasTable('usuario_academia')) {
             echo "Criando tabela pivot 'usuario_academia'...\n";
             Schema::create('usuario_academia', function (Blueprint $table) {
@@ -81,22 +77,19 @@ return new class extends Migration
                 $table->primary(['idUsuario', 'idAcademia']);
                 $table->timestamps();
             });
-            echo "✅ Tabela 'usuario_academia' criada.\n";
+            echo "Tabela 'usuario_academia' criada.\n";
         }
 
-        // ✅ 4. SOMENTE AGORA atribui registros existentes à primeira academia (se existir)
-        $primeiraAcademia = Academia::first();
+        $primeiraAcademia = DB::table('academias')->first();
         
         if ($primeiraAcademia) {
             echo "Migrando dados existentes para academia '{$primeiraAcademia->nome}'...\n";
             
-            // Atribui usuários funcionários
             DB::table('users')
               ->where('nivelAcesso', 'Funcionário')
               ->whereNull('idAcademia')
               ->update(['idAcademia' => $primeiraAcademia->idAcademia]);
             
-            // Atribui clientes
             DB::table('clientes')
               ->whereNull('idAcademia')
               ->update(['idAcademia' => $primeiraAcademia->idAcademia]);
@@ -108,14 +101,12 @@ return new class extends Migration
                   ->update(['idAcademia' => $primeiraAcademia->idAcademia]);
             }
             
-            // Atribui vendas
             if (Schema::hasTable('venda_produtos')) {
                 DB::table('venda_produtos')
                   ->whereNull('idAcademia')
                   ->update(['idAcademia' => $primeiraAcademia->idAcademia]);
             }
             
-            // Atribui entradas
             if (Schema::hasTable('entradas')) {
                 DB::table('entradas')
                   ->whereNull('idAcademia')
@@ -134,10 +125,8 @@ return new class extends Migration
     {
         echo "Revertendo suporte multi-academia...\n";
 
-        // Remove tabela pivot
         Schema::dropIfExists('usuario_academia');
 
-        // Remove colunas das tabelas
         $tabelas = ['users', 'clientes', 'plano_assinaturas', 'produtos', 'entradas', 'venda_produtos'];
         
         foreach ($tabelas as $tabela) {
@@ -151,4 +140,4 @@ return new class extends Migration
 
         echo "✅ Reversão concluída!\n";
     }
-};
+}

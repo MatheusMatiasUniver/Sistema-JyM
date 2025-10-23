@@ -61,7 +61,6 @@
             }
         })
         .catch(error => {
-            console.error('Erro:', error);
             alert('Erro ao trocar academia');
         });
     }
