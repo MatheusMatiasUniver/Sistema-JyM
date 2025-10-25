@@ -16,13 +16,13 @@ class Entrada extends Model
 
     protected $fillable = [
         'idCliente',
-        'dataHoraEntrada',
-        'metodoEntrada',
+        'dataHora',
+        'metodo',
         'idAcademia',
     ];
 
     protected $casts = [
-        'dataHoraEntrada' => 'datetime',
+        'dataHora' => 'datetime',
     ];
 
     public function academia(): BelongsTo

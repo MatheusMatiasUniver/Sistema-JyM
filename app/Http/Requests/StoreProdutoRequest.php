@@ -18,7 +18,7 @@ class StoreProdutoRequest extends FormRequest
         if (Auth::check()) {
             $user = Auth::user();
 
-            return $user->nivelAcesso === 'Administrador' || $user->nivelAcesso === 'Funcionario';            
+            return $user->nivelAcesso === 'Administrador' || $user->nivelAcesso === 'Funcionário';            
         }
         
         return false;

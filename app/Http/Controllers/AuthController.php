@@ -63,13 +63,20 @@ class AuthController extends Controller
             return redirect()->route('dashboard')->with('error', 'Acesso negado. Apenas administradores podem cadastrar novos usuários.');
         }
 
-        $request->validate([
+        $validationRules = [
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:150', 'unique:users,email'],
             'usuario' => ['required', 'string', 'max:50', 'unique:users,usuario'],
             'senha' => ['required', 'string', 'min:8'],
             'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
-        ]);
+        ];
+
+        // Se for funcionário, a academia é obrigatória
+        if ($request->nivelAcesso === 'Funcionário') {
+            $validationRules['idAcademia'] = ['required', 'exists:academias,idAcademia'];
+        }
+
+        $request->validate($validationRules);
 
         DB::beginTransaction();
         
@@ -88,18 +95,21 @@ class AuthController extends Controller
                 Log::info("Novo usuário Administrador {$user->idUsuario} criado.");
             }
             elseif ($request->nivelAcesso === 'Funcionário') {
+                $academiaId = $request->idAcademia;
                 $admin = Auth::user();
-                if ($admin->idAcademia) {
-                    $user->idAcademia = $admin->idAcademia;
-                    $user->save();
-                    Log::info("Funcionário {$user->idUsuario} vinculado à academia {$admin->idAcademia}");
-                } else {
+                
+                // Verificar se o administrador tem acesso à academia selecionada
+                if (!$admin->temAcessoAcademia($academiaId)) {
                     DB::rollBack();
-                    Log::error("Admin {$admin->idUsuario} sem academia definida não pode cadastrar funcionário.");
+                    Log::error("Admin {$admin->idUsuario} tentou cadastrar funcionário em academia {$academiaId} sem acesso.");
                     return back()
                         ->withInput()
-                        ->withErrors(['error' => 'Você não está associado a uma academia, portanto não pode cadastrar funcionários.']);
+                        ->withErrors(['error' => 'Você não tem acesso à academia selecionada.']);
                 }
+                
+                $user->idAcademia = $academiaId;
+                $user->save();
+                Log::info("Funcionário {$user->idUsuario} vinculado à academia {$academiaId}");
             }
 
             DB::commit();

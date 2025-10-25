@@ -56,11 +56,18 @@
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('planos.edit', $plano->idPlano) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
-                                <form action="{{ route('planos.destroy', $plano->idPlano) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este plano?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
-                                </form>
+                                @if($plano->podeDeletar())
+                                    <form action="{{ route('planos.destroy', $plano->idPlano) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este plano?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
+                                    </form>
+                                @else
+                                    <span class="text-gray-400 cursor-not-allowed" 
+                                          title="Não é possível excluir plano com clientes ou mensalidades associadas">
+                                        Excluir
+                                    </span>
+                                @endif
                             </div>
                         </td>
                     </tr>

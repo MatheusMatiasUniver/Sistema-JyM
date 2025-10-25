@@ -1,5 +1,6 @@
 <aside class="sidebar-layout">
     <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="sidebar-logo">
+        
     <nav>
         @include('partials.academia-selector')
         <a href="{{ route('dashboard') }}" class="sidebar-nav-link">Visão Geral</a>
@@ -22,4 +23,26 @@
             @csrf
         </form>
     </nav>
+
+    @auth
+        <div class="user-info-section">
+            <div class="user-avatar">
+                <i class="fas fa-user-circle"></i>
+            </div>
+            <div class="user-details">
+                <div class="user-name">{{ Auth::user()->nome }}</div>
+                <div class="user-role">
+                    @if(Auth::user()->isAdministrador())
+                        <span class="role-badge admin">Administrador</span>
+                    @elseif(Auth::user()->isFuncionario())
+                        <span class="role-badge funcionario">Funcionário</span>
+                    @endif
+                </div>
+                @if(Auth::user()->isFuncionario() && Auth::user()->usuario_academia)
+                    <div class="user-academia">{{ Auth::user()->usuario_academia->nome }}</div>
+                @endif
+            </div>
+        </div>
+    @endauth
+
 </aside>

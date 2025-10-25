@@ -13,7 +13,7 @@ class Academia extends Model
 
     protected $fillable = [
         'nome',
-        'cnpj',
+        'CNPJ',
         'telefone',
         'email',
         'endereco',
@@ -56,5 +56,15 @@ class Academia extends Model
         return $this->belongsToMany(User::class, 'usuario_academia', 'idAcademia', 'idUsuario')
                     ->where('nivelAcesso', 'Administrador')
                     ->withTimestamps();
+    }
+
+    public function podeDeletar(): bool
+    {
+        return $this->clientes()->count() === 0 && 
+               $this->produtos()->count() === 0 && 
+               $this->vendas()->count() === 0 && 
+               $this->entradas()->count() === 0 && 
+               $this->planos()->count() === 0 && 
+               $this->funcionarios()->count() === 0;
     }
 }

@@ -5,6 +5,18 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Gerenciar Academias</h1>
 
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="mb-4">
         <a href="{{ route('academias.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Cadastrar Nova Academia
@@ -56,11 +68,18 @@
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('academias.edit', $academia->idAcademia) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
-                                <form action="{{ route('academias.destroy', $academia->idAcademia) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta academia?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
-                                </form>
+                                @if($academia->podeDeletar())
+                                    <form action="{{ route('academias.destroy', $academia->idAcademia) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta academia?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
+                                    </form>
+                                @else
+                                    <span class="text-gray-400 cursor-not-allowed" 
+                                          title="Não é possível excluir academia com registros associados">
+                                        Excluir
+                                    </span>
+                                @endif
                             </div>
                         </td>
                     </tr>

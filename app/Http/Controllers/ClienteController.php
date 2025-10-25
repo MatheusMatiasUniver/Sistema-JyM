@@ -64,6 +64,9 @@ class ClienteController extends Controller
     public function store(Request $request)
     {
         try {
+            $cpfLimpo = preg_replace('/[^0-9]/', '', $request->cpf);
+            $request->merge(['cpf' => $cpfLimpo]);
+
             $validated = $request->validate([
                 'nome' => 'required|string|max:255',
                 'cpf' => 'required|string|size:11|unique:clientes,cpf|regex:/^[0-9]{11}$/',
@@ -152,6 +155,7 @@ class ClienteController extends Controller
     {
         try {
             $validated = $request->validate([
+                'nome' => 'required|string|max:255',
                 'cpf' => [
                     'required',
                     'string',
@@ -159,13 +163,37 @@ class ClienteController extends Controller
                     'unique:clientes,cpf,' . $cliente->idCliente . ',idCliente',
                     'regex:/^[0-9]{11}$/'
                 ],
+                'dataNascimento' => 'required|date',
+                'telefone' => 'nullable|string|max:20',
+                'email' => 'nullable|email|max:255',
                 'status' => 'required|in:Ativo,Inativo,Suspenso,Inadimplente,Pendente',
                 'idPlano' => 'required|exists:plano_assinaturas,idPlano',
+                'codigo_acesso_antigo' => 'nullable|string|max:6',
+                'codigo_acesso' => 'nullable|string|max:6',
             ], [
                 'cpf.unique' => 'Este CPF já está cadastrado para outro cliente.',
                 'cpf.regex' => 'O CPF deve conter apenas números.',
                 'cpf.size' => 'O CPF deve ter exatamente 11 dígitos.',
+                'nome.required' => 'O nome é obrigatório.',
+                'dataNascimento.required' => 'A data de nascimento é obrigatória.',
+                'email.email' => 'O email deve ter um formato válido.',
+                'codigo_acesso_antigo.required_with' => 'Digite o código de acesso atual para alterá-lo.',
             ]);
+
+            // Verificar código de acesso antigo se um novo código foi fornecido
+            if (!empty($validated['codigo_acesso'])) {
+                if (empty($validated['codigo_acesso_antigo'])) {
+                    return back()
+                        ->withInput()
+                        ->withErrors(['codigo_acesso_antigo' => 'Digite o código de acesso atual para alterá-lo.']);
+                }
+
+                if (!Hash::check($validated['codigo_acesso_antigo'], $cliente->codigo_acesso)) {
+                    return back()
+                        ->withInput()
+                        ->withErrors(['codigo_acesso_antigo' => 'Código de acesso atual incorreto.']);
+                }
+            }
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()
@@ -217,6 +245,10 @@ class ClienteController extends Controller
      */
     public function destroy(Cliente $cliente)
     {
+        if (!$cliente->podeDeletar()) {
+            return back()->with('error', 'Não é possível excluir este cliente pois existem registros associados (mensalidades, entradas ou vendas).');
+        }
+
         try {
             if ($cliente->foto && Storage::disk('public')->exists($cliente->foto)) {
                 Storage::disk('public')->delete($cliente->foto);

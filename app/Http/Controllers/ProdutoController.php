@@ -164,14 +164,23 @@ class ProdutoController extends Controller
             abort(403, 'Você não tem permissão para excluir este produto.');
         }
 
-        if ($produto->imagem) {
-            Storage::disk('public')->delete($produto->imagem);
+        if (!$produto->podeDeletar()) {
+            return back()->with('error', 'Não é possível excluir este produto pois existem vendas associadas a ele.');
         }
 
-        $produto->delete();
+        try {
+            if ($produto->imagem) {
+                Storage::disk('public')->delete($produto->imagem);
+            }
 
-        return redirect()->route('produtos.index')
-                         ->with('success', 'Produto excluído com sucesso!');
+            $produto->delete();
+
+            return redirect()->route('produtos.index')
+                             ->with('success', 'Produto excluído com sucesso!');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao excluir produto: ' . $e->getMessage());
+        }
     }
 
     public function ajustarEstoque(Request $request, Produto $produto)

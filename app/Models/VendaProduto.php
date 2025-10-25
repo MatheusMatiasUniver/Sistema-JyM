@@ -42,6 +42,11 @@ class VendaProduto extends Model
         return $this->hasMany(ItemVenda::class, 'idVenda', 'idVenda');
     }
 
+    public function itensVenda()
+    {
+        return $this->hasMany(ItemVenda::class, 'idVenda', 'idVenda');
+    }
+
     public function calcularTotal(): float
     {
         return $this->itens->sum(function ($item) {

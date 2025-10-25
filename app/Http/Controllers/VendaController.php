@@ -104,10 +104,6 @@ class VendaController extends Controller
     {
         $venda = VendaProduto::with(['cliente', 'itens.produto'])->findOrFail($id);
         
-        if ($venda->idAcademia !== config('app.academia_atual')) {
-            abort(403, 'Você não tem permissão para visualizar esta venda.');
-        }
-
         return view('vendas.show', compact('venda'));
     }
 
@@ -115,10 +111,6 @@ class VendaController extends Controller
     {
         $venda = VendaProduto::findOrFail($id);
         
-        if ($venda->idAcademia !== config('app.academia_atual')) {
-            abort(403, 'Você não tem permissão para cancelar esta venda.');
-        }
-
         DB::beginTransaction();
         
         try {

@@ -27,6 +27,7 @@ class User extends Authenticatable
         'usuario',
         'senha',
         'nivelAcesso',
+        'idAcademia',
     ];
 
     /**
@@ -80,7 +81,7 @@ class User extends Authenticatable
 
     public function isFuncionario(): bool
     {
-        return $this->nivelAcesso === 'Funcionario';
+        return $this->nivelAcesso === 'Funcionário';
     }
 
     public function temAcessoAcademia($academiaId): bool
@@ -94,5 +95,10 @@ class User extends Authenticatable
     public function clientes()
     {
         return $this->hasMany(Cliente::class, 'idUsuario', 'idUsuario');
+    }
+
+    public function podeDeletar(): bool
+    {
+        return $this->clientes()->count() === 0;
     }
 }

@@ -33,6 +33,46 @@
     @apply block text-text-white no-underline my-2.5 p-2.5 rounded transition-all duration-300 hover:bg-accent-blue hover:text-text-black;
   }
 
+  .user-info-section {
+    @apply bg-primary-dark rounded-lg p-4 mb-6 border border-border-light;
+  }
+
+  .user-avatar {
+    @apply text-center mb-3;
+  }
+
+  .user-avatar i {
+    @apply text-4xl text-accent-blue;
+  }
+
+  .user-details {
+    @apply text-center;
+  }
+
+  .user-name {
+    @apply text-text-white font-bold text-lg mb-2;
+  }
+
+  .user-role {
+    @apply mb-2;
+  }
+
+  .role-badge {
+    @apply px-2 py-1 rounded text-xs font-semibold;
+  }
+
+  .role-badge.admin {
+    @apply bg-accent-purple text-text-white;
+  }
+
+  .role-badge.funcionario {
+    @apply bg-accent-blue text-text-black;
+  }
+
+  .user-academia {
+    @apply text-text-white text-sm opacity-80;
+  }
+
   .main-content-area {
     @apply ml-[220px] p-7.5;
   }
@@ -64,5 +104,13 @@
   .alert-error .sub-message,
   .alert-info .sub-message {
     @apply text-2xl md:text-3xl lg:text-4xl font-semibold mt-4;
+  }
+
+  /* Estilos específicos para tela de captura de rosto (funcionários) */
+  .face-capture-alert .main-message {
+    @apply text-xl md:text-2xl font-bold;
+  }
+  .face-capture-alert .sub-message {
+    @apply text-base md:text-lg font-medium mt-2;
   }
 }

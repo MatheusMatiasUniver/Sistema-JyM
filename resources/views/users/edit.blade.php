@@ -5,6 +5,18 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Editar Usuário: {{ $user->nome }}</h1>
 
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('users.update', $user->idUsuario) }}" method="POST">
             @csrf
@@ -57,7 +69,7 @@
                 <select id="nivelAcesso" name="nivelAcesso" required
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nivelAcesso') border-red-500 @enderror">
                     <option value="Administrador" {{ old('nivelAcesso', $user->nivelAcesso) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                    <option value="Funcionario" {{ old('nivelAcesso', $user->nivelAcesso) == 'Funcionario' ? 'selected' : '' }}>Funcionário</option>
+                    <option value="Funcionário" {{ old('nivelAcesso', $user->nivelAcesso) == 'Funcionário' ? 'selected' : '' }}>Funcionário</option>
                 </select>
                 @error('nivelAcesso')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>

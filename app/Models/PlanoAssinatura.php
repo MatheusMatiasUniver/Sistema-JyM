@@ -37,6 +37,16 @@ class PlanoAssinatura extends Model
         return $this->hasMany(Mensalidade::class, 'idPlano', 'idPlano');
     }
 
+    public function clientes()
+    {
+        return $this->hasMany(Cliente::class, 'idPlano', 'idPlano');
+    }
+
+    public function podeDeletar(): bool
+    {
+        return $this->clientes()->count() === 0 && $this->mensalidades()->count() === 0;
+    }
+
     protected static function booted()
     {
         static::addGlobalScope('academia', function (Builder $builder) {

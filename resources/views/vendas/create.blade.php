@@ -13,14 +13,29 @@
 
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Registrar Nova Venda</h1>
 
-    @if(session('error'))        
-        @if($errors->any())
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Erro!</strong>
+            <span class="block sm:inline">{{ session('error') }}</span>
+        </div>
+    @endif
+
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Sucesso!</strong>
+            <span class="block sm:inline">{{ session('success') }}</span>
+        </div>
+    @endif
+
+    @if($errors->any())
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <strong class="font-bold">Erros de validação:</strong>
             <ul class="mt-2 list-disc list-inside text-sm">
                 @foreach ($errors->all() as $error)
                     <li>{{ $error }}</li>
                 @endforeach
             </ul>
-        @endif
+        </div>
     @endif
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto">
@@ -63,18 +78,30 @@
             <div id="produtos-container" class="mb-4">                
                 @if(old('produtos'))
                     @foreach(old('produtos') as $index => $oldProduct)
-                        <div class="flex items-center space-x-2 mb-2 product-item">
-                            <select name="produtos[{{ $index }}][idProduto]" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline flex-grow product-select">
-                                <option value="">Selecione um produto</option>
-                                @foreach($produtos as $prod)
-                                    <option value="{{ $prod->idProduto }}" data-preco="{{ $prod->preco }}" data-estoque="{{ $prod->estoque }}" {{ $oldProduct['idProduto'] == $prod->idProduto ? 'selected' : '' }}>
-                                        {{ $prod->nome }} (Estoque: {{ $prod->estoque }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            <input type="number" name="produtos[{{ $index }}][quantidade]" value="{{ $oldProduct['quantidade'] }}" min="1" placeholder="Qtd" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-20 product-quantity">
-                            <span class="product-price font-semibold w-24 text-right">R\$ {{ number_format($oldProduct['precoUnitario'] ?? 0, 2, ',', '.') }}</span>
-                            <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded remove-product-btn">-</button>
+                        <div class="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-2 mb-4 p-3 border rounded-lg bg-gray-50 product-item">
+                            <div class="w-full sm:flex-grow">
+                                <label class="block text-sm font-medium text-gray-700 mb-1 sm:hidden">Produto:</label>
+                                <select name="produtos[{{ $index }}][idProduto]" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full product-select">
+                                    <option value="">Selecione um produto</option>
+                                    @foreach($produtos as $prod)
+                                        <option value="{{ $prod->idProduto }}" data-preco="{{ $prod->preco }}" data-estoque="{{ $prod->estoque }}" {{ $oldProduct['idProduto'] == $prod->idProduto ? 'selected' : '' }}>
+                                            {{ $prod->nome }} (Estoque: {{ $prod->estoque }})
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="w-full sm:w-24">
+                                <label class="block text-sm font-medium text-gray-700 mb-1 sm:hidden">Quantidade:</label>
+                                <input type="number" name="produtos[{{ $index }}][quantidade]" value="{{ $oldProduct['quantidade'] }}" min="1" placeholder="Qtd" class="shadow border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline w-full product-quantity">
+                            </div>
+                            <div class="w-full sm:w-28">
+                                <label class="block text-sm font-medium text-gray-700 mb-1 sm:hidden">Preço:</label>
+                                <span class="product-price font-semibold text-lg text-green-600 block">R$ {{ number_format($oldProduct['precoUnitario'] ?? 0, 2, ',', '.') }}</span>
+                            </div>
+                            <button type="button" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-3 rounded remove-product-btn w-full sm:w-auto">
+                                <span class="sm:hidden">Remover Produto</span>
+                                <span class="hidden sm:inline">-</span>
+                            </button>
                         </div>
                     @endforeach
                 @endif

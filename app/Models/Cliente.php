@@ -115,6 +115,13 @@ class Cliente extends Model
         return in_array($this->status, ['Ativo', 'Inadimplente']);
     }
 
+    public function podeDeletar(): bool
+    {
+        return $this->mensalidades()->count() === 0 && 
+               $this->entradas()->count() === 0 && 
+               $this->vendas()->count() === 0;
+    }
+
     public function getStatusColorAttribute(): string
     {
         return match($this->status) {
@@ -145,7 +152,7 @@ class Cliente extends Model
             if (Auth::check()) {
                 $user = Auth::user();
                 
-                if ($user && $user->nivelAcesso === 'Funcionario') {
+                if ($user && $user->nivelAcesso === 'Funcionário') {
                     $academia = DB::table('usuario_academia')
                         ->where('idUsuario', $user->idUsuario)
                         ->join('academias', 'usuario_academia.idAcademia', '=', 'academias.idAcademia')

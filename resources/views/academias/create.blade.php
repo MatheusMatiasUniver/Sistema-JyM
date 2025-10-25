@@ -5,6 +5,18 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Cadastrar Nova Academia</h1>
 
+    @if(session('success'))
+        <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 max-w-lg mx-auto">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    @if(session('error'))
+        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4 max-w-lg mx-auto">
+            {{ session('error') }}
+        </div>
+    @endif
+
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('academias.store') }}" method="POST">
             @csrf
@@ -20,7 +32,7 @@
 
             <div class="mb-4">
                 <label for="CNPJ" class="block text-gray-700 text-sm font-bold mb-2">CNPJ:</label>
-                <input type="text" id="CNPJ" name="CNPJ" value="{{ old('CNPJ') }}" required placeholder="XX.XXX.XXX/YYYY-ZZ"
+                <input type="text" id="CNPJ" name="CNPJ" value="{{ old('CNPJ') }}" required placeholder="00.000.000/0000-00"
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('CNPJ') border-red-500 @enderror">
                 @error('CNPJ')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
@@ -30,7 +42,8 @@
             <div class="mb-4">
                 <label for="telefone" class="block text-gray-700 text-sm font-bold mb-2">Telefone:</label>
                 <input type="text" id="telefone" name="telefone" value="{{ old('telefone') }}"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror"
+                       placeholder="(00) 00000-0000">
                 @error('telefone')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror

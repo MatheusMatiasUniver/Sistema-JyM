@@ -48,20 +48,20 @@ Route::middleware('auth')->group(function () {
 
     // --- MÓDULOS DE GERENCIAMENTO ---
 
-    Route::resource('clientes', ClienteController::class);
+    Route::resource('clientes', ClienteController::class)->middleware('funcionario');
 
-    Route::resource('produtos', ProdutoController::class);
+    Route::resource('produtos', ProdutoController::class)->middleware('funcionario');
 
-    Route::resource('categorias', CategoriaController::class);
+    Route::resource('categorias', CategoriaController::class)->middleware('funcionario');
 
-    Route::resource('vendas', VendaController::class);
+    Route::resource('vendas', VendaController::class)->middleware('funcionario');
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');
     Route::put('/users/{user}', [UserController::class, 'update'])->name('users.update');
     Route::delete('/users/{user}', [UserController::class, 'destroy'])->name('users.destroy'); 
 
-    Route::resource('academias', AcademiaController::class);
+    Route::resource('academias', AcademiaController::class)->middleware('admin');
 
     Route::resource('planos', PlanoAssinaturaController::class);
 });

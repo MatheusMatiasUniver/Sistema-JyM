@@ -32,7 +32,7 @@ class UserController extends Controller
             'nome' => ['required', 'string', 'max:255'],
             'email' => ['nullable', 'string', 'email', 'max:150', Rule::unique('users')->ignore($user->idUsuario, 'idUsuario')],
             'usuario' => ['required', 'string', 'max:50', Rule::unique('users')->ignore($user->idUsuario, 'idUsuario')],
-            'nivelAcesso' => ['required', 'in:Administrador,Funcionario'],
+            'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
             'senha' => ['nullable', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -56,7 +56,15 @@ class UserController extends Controller
             return back()->with('error', 'Você não pode excluir seu próprio usuário.');
         }
 
-        $user->delete();
-        return redirect()->route('users.index')->with('success', 'Usuário ' . $user->nome . ' excluído com sucesso!');
+        if (!$user->podeDeletar()) {
+            return back()->with('error', 'Não é possível excluir este usuário pois existem clientes associados.');
+        }
+
+        try {
+            $user->delete();
+            return redirect()->route('users.index')->with('success', 'Usuário ' . $user->nome . ' excluído com sucesso!');
+        } catch (\Exception $e) {
+            return back()->with('error', 'Erro ao excluir usuário: ' . $e->getMessage());
+        }
     }
 }

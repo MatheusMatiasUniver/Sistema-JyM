@@ -11,11 +11,19 @@ export function initVendasCreate() {
 
         function createProductItem() {
             const div = document.createElement('div');
-            div.classList.add('flex', 'items-center', 'space-x-2', 'mb-2', 'product-item');
+            div.classList.add('flex', 'flex-col', 'sm:flex-row', 'items-start', 'sm:items-center', 'space-y-2', 'sm:space-y-0', 'sm:space-x-2', 'mb-4', 'p-3', 'border', 'rounded-lg', 'bg-gray-50', 'product-item');
+
+            // Product select container
+            const selectContainer = document.createElement('div');
+            selectContainer.classList.add('w-full', 'sm:flex-grow');
+
+            const selectLabel = document.createElement('label');
+            selectLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700', 'mb-1', 'sm:hidden');
+            selectLabel.textContent = 'Produto:';
 
             const select = document.createElement('select');
             select.name = `produtos[${productIndex}][idProduto]`;
-            select.classList.add('shadow', 'border', 'rounded', 'py-2', 'px-3', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'flex-grow', 'product-select');
+            select.classList.add('shadow', 'border', 'rounded', 'py-2', 'px-3', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'w-full', 'product-select');
             
             let defaultOption = document.createElement('option');
             defaultOption.value = '';
@@ -34,25 +42,51 @@ export function initVendasCreate() {
                 }
             }
 
+            // Quantity container
+            const quantityContainer = document.createElement('div');
+            quantityContainer.classList.add('w-full', 'sm:w-24');
+
+            const quantityLabel = document.createElement('label');
+            quantityLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700', 'mb-1', 'sm:hidden');
+            quantityLabel.textContent = 'Quantidade:';
+
             const quantityInput = document.createElement('input');
             quantityInput.type = 'number';
             quantityInput.name = `produtos[${productIndex}][quantidade]`;
             quantityInput.value = '1';
             quantityInput.min = '1';
             quantityInput.placeholder = 'Qtd';
-            quantityInput.classList.add('shadow', 'border', 'rounded', 'py-2', 'px-3', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'w-20', 'product-quantity');
+            quantityInput.classList.add('shadow', 'border', 'rounded', 'py-2', 'px-3', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'w-full', 'product-quantity');
+
+            // Price container
+            const priceContainer = document.createElement('div');
+            priceContainer.classList.add('w-full', 'sm:w-28');
+
+            const priceLabel = document.createElement('label');
+            priceLabel.classList.add('block', 'text-sm', 'font-medium', 'text-gray-700', 'mb-1', 'sm:hidden');
+            priceLabel.textContent = 'Preço:';
 
             const priceSpan = document.createElement('span');
-            priceSpan.classList.add('product-price', 'font-semibold', 'w-24', 'text-right');
+            priceSpan.classList.add('product-price', 'font-semibold', 'text-lg', 'text-green-600', 'block');
             priceSpan.textContent = 'R$ 0,00';
 
             const removeBtn = document.createElement('button');
             removeBtn.type = 'button';
-            removeBtn.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-1', 'px-2', 'rounded', 'remove-product-btn');
-            removeBtn.textContent = '-';
+            removeBtn.classList.add('bg-red-500', 'hover:bg-red-700', 'text-white', 'font-bold', 'py-2', 'px-3', 'rounded', 'remove-product-btn', 'w-full', 'sm:w-auto');
+            
+            const removeBtnTextMobile = document.createElement('span');
+            removeBtnTextMobile.classList.add('sm:hidden');
+            removeBtnTextMobile.textContent = 'Remover Produto';
+            
+            const removeBtnTextDesktop = document.createElement('span');
+            removeBtnTextDesktop.classList.add('hidden', 'sm:inline');
+            removeBtnTextDesktop.textContent = '-';
+            
+            removeBtn.appendChild(removeBtnTextMobile);
+            removeBtn.appendChild(removeBtnTextDesktop);
             removeBtn.addEventListener('click', function () {
                 div.remove();
-                calculateTotal();
+                updateTotal();
             });
 
             select.addEventListener('change', function() {
@@ -81,9 +115,19 @@ export function initVendasCreate() {
                 calculateTotal();
             });
 
-            div.appendChild(select);
-            div.appendChild(quantityInput);
-            div.appendChild(priceSpan);
+            // Assemble containers
+            selectContainer.appendChild(selectLabel);
+            selectContainer.appendChild(select);
+
+            quantityContainer.appendChild(quantityLabel);
+            quantityContainer.appendChild(quantityInput);
+
+            priceContainer.appendChild(priceLabel);
+            priceContainer.appendChild(priceSpan);
+
+            div.appendChild(selectContainer);
+            div.appendChild(quantityContainer);
+            div.appendChild(priceContainer);
             div.appendChild(removeBtn);
 
             productIndex++;

@@ -68,6 +68,10 @@ class PlanoAssinaturaService
      */
     public function deletePlano(PlanoAssinatura $plano): bool
     {
+        if (!$plano->podeDeletar()) {
+            throw new \Exception("Não é possível excluir este plano pois existem clientes ou mensalidades associadas.");
+        }
+
         try {
             return $plano->delete();
         } catch (\Exception $e) {

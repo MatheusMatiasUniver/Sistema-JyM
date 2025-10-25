@@ -31,7 +31,7 @@
                 <label for="cpf" class="block text-gray-700 text-sm font-bold mb-2">CPF:</label>
                 <input type="text" id="cpf" name="cpf" value="{{ old('cpf') }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('cpf') border-red-500 @enderror"
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                       placeholder="000.000.000-00">
                 @error('cpf')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -50,7 +50,7 @@
                 <label for="telefone" class="block text-gray-700 text-sm font-bold mb-2">Telefone:</label>
                 <input type="text" id="telefone" name="telefone" value="{{ old('telefone') }}"
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror"
-                       oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                       placeholder="(00) 00000-0000">
                 @error('telefone')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -58,10 +58,13 @@
 
             <div class="mb-4">
                 <label for="codigo_acesso" class="block text-gray-700 text-sm font-bold mb-2">Código de Acesso (6 dígitos, opcional):</label>
-                <input type="number" id="codigo_acesso" name="codigo_acesso" placeholder="Apenas números"
+                <input type="password" id="codigo_acesso" name="codigo_acesso" placeholder="Apenas números"
                     value="" {{-- Não pré-preencha o valor do hash por segurança --}}
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('codigo_acesso') border-red-500 @enderror"
-                    maxlength="6" inputmode="numeric" pattern="\d*" oninput="this.value=this.value.slice(0,this.maxLength)">
+                    maxlength="6" inputmode="numeric" pattern="\d*" 
+                    oninput="this.value=this.value.slice(0,this.maxLength)"
+                    oncopy="return false" onpaste="return false" oncut="return false"
+                    oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
                 @error('codigo_acesso')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -79,7 +82,7 @@
 
             <div class="mb-4">
                 <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Status:</label>
-                <select name="status" required class="seu-estilo-aqui">
+                <select id="status" name="status" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline @error('status') border-red-500 @enderror">
                     <option value="Pendente" {{ old('status', $cliente->status ?? '') == 'Pendente' ? 'selected' : '' }}>
                         Pendente
                     </option>
@@ -119,15 +122,53 @@
 
             <div class="mb-6">
                 <label for="foto" class="block text-gray-700 text-sm font-bold mb-2">Foto (Opcional):</label>
-                <input type="file" id="foto" name="foto"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('foto') border-red-500 @enderror">
+                <input type="file" id="foto" name="foto" accept="image/*"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('foto') border-red-500 @enderror"
+                       onchange="previewImage(this)">
                 @error('foto')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
+                
+                <!-- Preview da imagem -->
+                <div id="imagePreview" class="mt-3 hidden">
+                    <p class="text-sm text-gray-600 mb-2">Preview da imagem:</p>
+                    <img id="preview" src="" alt="Preview" class="max-w-xs max-h-48 rounded border shadow">
+                    <button type="button" onclick="removeImage()" class="ml-3 text-red-500 hover:text-red-700 text-sm">
+                        Remover imagem
+                    </button>
+                </div>
             </div>
 
             <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 Cadastrar Cliente
             </button>
         </form>    
+
+        <script>
+            function previewImage(input) {
+                const preview = document.getElementById('preview');
+                const previewContainer = document.getElementById('imagePreview');
+                
+                if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    
+                    reader.onload = function(e) {
+                        preview.src = e.target.result;
+                        previewContainer.classList.remove('hidden');
+                    }
+                    
+                    reader.readAsDataURL(input.files[0]);
+                } else {
+                    previewContainer.classList.add('hidden');
+                }
+            }
+            
+            function removeImage() {
+                const input = document.getElementById('foto');
+                const previewContainer = document.getElementById('imagePreview');
+                
+                input.value = '';
+                previewContainer.classList.add('hidden');
+            }
+        </script>
 @endsection

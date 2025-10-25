@@ -1,6 +1,9 @@
 import './bootstrap';
 import * as faceapi from 'face-api.js';
 import { initVendasCreate } from './vendas-create';
+import { applyFormatting } from './formatters';
+import './cnpj-mask';
+import webSocketManager from './websocket-manager';
 
 const video = document.getElementById('videoElement');
 const canvas = document.getElementById('overlayCanvas');
@@ -58,6 +61,12 @@ function showMessage(type, mainMessage, subMessage = '') {
     if (resultsDiv) {
         resultsDiv.classList.remove('alert-info', 'alert-success', 'alert-error');
         resultsDiv.classList.add(`alert-${type}`);
+        
+        // Adiciona classe específica para tela de captura de rosto
+        if (isCaptureFacePage) {
+            resultsDiv.classList.add('face-capture-alert');
+        }
+        
         resultsDiv.innerHTML = `<p class="main-message">${mainMessage}</p>`;
         if (subMessage) {
             resultsDiv.innerHTML += `<p class="sub-message">${subMessage}</p>`;
@@ -65,41 +74,106 @@ function showMessage(type, mainMessage, subMessage = '') {
     }
 }
 
-async function pollKioskStatus() {
-    try {
-        const csrfToken = getCsrfToken();
-        if (!csrfToken) {
+function handleKioskStatusChange(data) {
+    const newIsRegistering = data.isRegistering || false;
+    const newMessage = data.message || '';
+
+    if (newIsRegistering !== isKioskRegistering || newMessage !== kioskRegistrationMessage) {
+        isKioskRegistering = newIsRegistering;
+        kioskRegistrationMessage = newMessage;
+
+        if (isKioskRegistering) {
+            if (detectionIntervalId) {
+                clearInterval(detectionIntervalId);
+                detectionIntervalId = null;
+                detectionStarted = false;
+            }
+
+            if (codeInputArea) codeInputArea.style.display = 'none';
+            showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
+        } else if (!detectionStarted && modelsLoaded && video && video.srcObject) {
+            showMessage('info', 'Aguardando detecção de rosto.');
+            hideCodeInput();
+        }
+    }
+}
+
+function handleClientRegistrationStarted(data) {
+    console.log('Registro de cliente iniciado:', data);
+    if (data.message) {
+        showMessage('info', data.message);
+    }
+}
+
+function handleClientRegistrationCompleted(data) {
+    console.log('Registro de cliente concluído:', data);
+    if (data.success) {
+        showMessage('success', data.message || 'Cliente registrado com sucesso!');
+    } else {
+        showMessage('error', data.message || 'Erro ao registrar cliente.');
+    }
+}
+
+function initializeWebSocket() {
+    if (!isKioskPage) return;
+
+    // Configurar callbacks do WebSocket
+    webSocketManager.onKioskStatusChanged(handleKioskStatusChange);
+    webSocketManager.onClientRegistrationStarted(handleClientRegistrationStarted);
+    webSocketManager.onClientRegistrationCompleted(handleClientRegistrationCompleted);
+    
+    webSocketManager.onConnectionStateChange((isConnected) => {
+        if (isConnected) {
+            console.log('WebSocket conectado - polling desabilitado');
+        } else {
+            console.log('WebSocket desconectado - tentando reconectar...');
+            // Fallback para polling se WebSocket falhar
+            setTimeout(() => {
+                if (!webSocketManager.isWebSocketConnected()) {
+                    console.log('Fallback: iniciando polling HTTP');
+                    startPollingFallback();
+                }
+            }, 5000);
+        }
+    });
+
+    // Inicializar WebSocket
+    webSocketManager.init();
+}
+
+// Função de fallback para polling HTTP em caso de falha do WebSocket
+function startPollingFallback() {
+    if (kioskStatusPollingId) {
+        clearInterval(kioskStatusPollingId);
+    }
+    
+    kioskStatusPollingId = setInterval(async () => {
+        if (webSocketManager.isWebSocketConnected()) {
+            clearInterval(kioskStatusPollingId);
+            kioskStatusPollingId = null;
             return;
         }
+        
+        try {
+            const csrfToken = getCsrfToken();
+            if (!csrfToken) return;
 
-        const response = await fetch('/face/kiosk-status', {
-            method: 'GET',
-            headers: {
-                'Accept': 'application/json',
-                'X-CSRF-TOKEN': csrfToken
-            },
-        });
-        const data = await response.json();
-        if (data.is_registering !== isKioskRegistering || data.message !== kioskRegistrationMessage) {
-            isKioskRegistering = data.is_registering;
-            kioskRegistrationMessage = data.message;
-
-            if (isKioskRegistering) {
-                if (detectionIntervalId) {
-                    clearInterval(detectionIntervalId);
-                    detectionIntervalId = null;
-                    detectionStarted = false;
-                }
-
-                if (codeInputArea) codeInputArea.style.display = 'none';
-                showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
-            } else if (!detectionStarted && modelsLoaded && video && video.srcObject) {
-                showMessage('info', 'Aguardando detecção de rosto.');
-                hideCodeInput();
-            }
+            const response = await fetch('/face/kiosk-status', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': csrfToken
+                },
+            });
+            const data = await response.json();
+            handleKioskStatusChange({
+                isRegistering: data.is_registering,
+                message: data.message
+            });
+        } catch (error) {
+            console.error('Erro no polling de fallback:', error);
         }
-    } catch (error) {
-    }
+    }, KIOSK_POLLING_INTERVAL);
 }
 
 async function loadModels() {
@@ -122,7 +196,7 @@ async function loadModels() {
         if (isKioskPage) {
             if (startCameraButton) startCameraButton.style.display = 'none';
             startVideo();
-            kioskStatusPollingId = setInterval(pollKioskStatus, KIOSK_POLLING_INTERVAL);
+            initializeWebSocket();
         } else if (isCaptureFacePage) {
             if (startCameraButton) startCameraButton.disabled = false;
             if (registerFaceButton) registerFaceButton.disabled = false;
@@ -251,7 +325,7 @@ function startDetectionLoop() {
 
                 lastDetectedDescriptor = detections.descriptor;
 
-                if (isKioskPage) {
+                if (isKioskPage && !isKioskRegistering) {
                     const currentTime = Date.now();
                     if (!authenticationCooldown && (currentTime - lastAuthTime > COOLDOWN_DURATION)) {
                         authenticationCooldown = true;
@@ -264,12 +338,12 @@ function startDetectionLoop() {
                                 if (!isKioskRegistering) {
                                     showMessage('info', 'Aguardando detecção de rosto.');
                                     lastAuthenticatedClientId = null;
-                                } else {
-                                    showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
                                 }
                             }
                         }, COOLDOWN_DURATION);
                     }
+                } else if (isKioskPage && isKioskRegistering) {
+                    showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
                 }
                 else if (isCaptureFacePage) {
                     showMessage('info', 'Rosto detectado!', 'Pronto para cadastrar.');
@@ -302,7 +376,9 @@ async function authenticateFace(descriptor) {
         return;
     }
 
-    if (lastAuthenticatedClientId && (Date.now() - lastAuthTime < COOLDOWN_DURATION) ) {
+    // Previne autenticação durante registro
+    if (isKioskRegistering) {
+        showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
         return;
     }
 
@@ -391,6 +467,12 @@ async function registerFace(descriptor) {
         return;
     }
 
+    // Pausa o loop de detecção durante o registro para evitar sobreposição de mensagens
+    if (detectionIntervalId) {
+        clearInterval(detectionIntervalId);
+        detectionIntervalId = null;
+    }
+
     showMessage('info', `Registrando rosto para Cliente ID ${clientId}...`);
 
     try {
@@ -460,6 +542,10 @@ async function registerFace(descriptor) {
                     window.location.href = '/clientes';
                 } else if (isKioskPage) {
                     showMessage('info', 'Aguardando detecção de rosto.');
+                    // Reinicia o loop de detecção se estivermos no kiosk
+                    if (!detectionIntervalId && modelsLoaded && video && !video.paused && !video.ended) {
+                        startDetectionLoop();
+                    }
                 }
             }, REGISTER_COOLDOWN_DURATION);
         } else {
@@ -472,6 +558,10 @@ async function registerFace(descriptor) {
 
             setTimeout(() => {
                 showMessage('info', 'Aguardando detecção de rosto.');
+                // Reinicia o loop de detecção após erro
+                if (isCaptureFacePage && !detectionIntervalId && modelsLoaded && video && !video.paused && !video.ended) {
+                    startDetectionLoop();
+                }
             }, MESSAGE_DURATION);
         }
     } catch (error) {
@@ -483,6 +573,10 @@ async function registerFace(descriptor) {
         });
         setTimeout(() => {
             showMessage('info', 'Aguardando detecção de rosto.');
+            // Reinicia o loop de detecção após exceção
+            if (isCaptureFacePage && !detectionIntervalId && modelsLoaded && video && !video.paused && !video.ended) {
+                startDetectionLoop();
+            }
         }, MESSAGE_DURATION);
     }
 }
@@ -574,7 +668,11 @@ async function submitAccessCode() {
 }
 
 
-document.addEventListener('DOMContentLoaded', loadModels);
+document.addEventListener('DOMContentLoaded', () => {
+    loadModels();
+    applyFormatting();
+    initializeWebSocket();
+});
 
 if (startCameraButton && !isKioskPage) {
     startCameraButton.addEventListener('click', startVideo);
@@ -615,6 +713,12 @@ if (accessCodeInput) {
 window.addEventListener('beforeunload', () => {
     if (detectionIntervalId) clearInterval(detectionIntervalId);
     if (kioskStatusPollingId) clearInterval(kioskStatusPollingId);
+    
+    // Cleanup do WebSocket
+    if (webSocketManager) {
+        webSocketManager.disconnect();
+    }
+    
     if (isCaptureFacePage && detectionStarted) {
          fetch('/face/set-kiosk-registering', {
             method: 'POST',

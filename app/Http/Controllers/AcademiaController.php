@@ -3,9 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Academia;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\StoreAcademiaRequest;
+use App\Http\Requests\UpdateAcademiaRequest;
 
 class AcademiaController extends Controller
 {
@@ -102,5 +104,26 @@ class AcademiaController extends Controller
             'message' => 'Academia alterada com sucesso',
             'academia' => Academia::find($academiaId)
         ]);
+    }
+
+    public function destroy(Academia $academia)
+    {
+        if (!Auth::user()->isAdministrador()) {
+            abort(403, 'Apenas administradores podem excluir academias.');
+        }
+
+        if (!$academia->podeDeletar()) {
+            return redirect()->route('academias.index')
+                           ->with('error', 'Não é possível excluir esta academia pois existem registros associados (clientes, produtos, vendas, entradas, planos ou funcionários).');
+        }
+
+        try {
+            $academia->delete();
+            return redirect()->route('academias.index')
+                           ->with('success', 'Academia excluída com sucesso!');
+        } catch (\Exception $e) {
+            return redirect()->route('academias.index')
+                           ->with('error', 'Erro ao excluir academia: ' . $e->getMessage());
+        }
     }
 }

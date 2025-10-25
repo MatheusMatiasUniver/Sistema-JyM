@@ -17,6 +17,18 @@ class UpdateClienteRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        if ($this->has('cpf')) {
+            $this->merge([
+                'cpf' => preg_replace('/[^0-9]/', '', $this->cpf)
+            ]);
+        }
+    }
+
+    /**
      * Regras de validação para a atualização de um cliente.
      */
     public function rules(): array
@@ -28,8 +40,8 @@ class UpdateClienteRequest extends FormRequest
             'cpf' => [
                 'required',
                 'string',
-                'digits:11',
-                'regex:/^\d{3}\.?\d{3}\.?\d{3}-?\d{2}$/',
+                'size:11',
+                'regex:/^[0-9]{11}$/',
                 Rule::unique('clientes', 'cpf')->ignore($clienteId, 'idCliente'),
             ],
             'email' => ['nullable', 'email', 'max:100', Rule::unique('clientes', 'email')->ignore($clienteId, 'idCliente')],
@@ -51,7 +63,8 @@ class UpdateClienteRequest extends FormRequest
         return [
             'nome.required' => 'O campo Nome é obrigatório.',
             'cpf.required' => 'O campo CPF é obrigatório.',
-            'cpf.digits' => 'O CPF deve conter exatamente 11 dígitos numéricos.',
+            'cpf.size' => 'O CPF deve ter exatamente 11 dígitos.',
+            'cpf.regex' => 'O CPF deve conter apenas números.',
             'cpf.unique' => 'Este CPF já está cadastrado para outro cliente.',
             'email.email' => 'O formato do E-mail é inválido.',
              'email.unique' => 'O e-mail informado já está em uso.',

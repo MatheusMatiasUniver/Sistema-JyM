@@ -16,6 +16,18 @@ class StoreClienteRequest extends FormRequest
     }
 
     /**
+     * Prepare the data for validation.
+     */
+    protected function prepareForValidation()
+    {
+        if ($this->has('cpf')) {
+            $this->merge([
+                'cpf' => preg_replace('/[^0-9]/', '', $this->cpf)
+            ]);
+        }
+    }
+
+    /**
      * Get the validation rules that apply to the request.
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
@@ -27,8 +39,8 @@ class StoreClienteRequest extends FormRequest
             'cpf' => [
                 'required',
                 'string',
-                'max:14',
-                'regex:/^\\d{3}\\.?\\d{3}\\.?\\d{3}-?\\d{2}$/',
+                'size:11',
+                'regex:/^[0-9]{11}$/',
                 Rule::unique('clientes', 'cpf'),
             ],
             'email' => ['nullable', 'email', 'max:100', Rule::unique('clientes', 'email')],
@@ -53,7 +65,8 @@ class StoreClienteRequest extends FormRequest
             'nome.max' => 'O Nome não pode ter mais de :max caracteres.',
             'cpf.required' => 'O campo CPF é obrigatório.',
             'cpf.unique' => 'Este CPF já está cadastrado.',
-            'cpf.regex' => 'O CPF deve ter um formato válido (ex: 123.456.789-00 ou 12345678900).',
+            'cpf.regex' => 'O CPF deve conter apenas números.',
+            'cpf.size' => 'O CPF deve ter exatamente 11 dígitos.',
             'email.unique' => 'O e-mail informado já está em uso.',
             'dataNascimento.required' => 'A Data de Nascimento é obrigatória.',
             'dataNascimento.date' => 'A Data de Nascimento deve ser uma data válida.',

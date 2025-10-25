@@ -64,6 +64,11 @@ class Produto extends Model
         return $this->estoque >= $quantidade;
     }
 
+    public function podeDeletar(): bool
+    {
+        return $this->itensVenda()->count() === 0;
+    }
+
     protected static function booted()
     {
         static::addGlobalScope('academia', function (Builder $builder) {

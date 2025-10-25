@@ -7,8 +7,18 @@
     <title>@yield('title', 'Sistema JyM')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}"> 
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <script>
+        window.pusherConfig = {
+            key: '{{ env('PUSHER_APP_KEY', 'local-key') }}',
+            cluster: '{{ env('PUSHER_APP_CLUSTER', 'mt1') }}',
+            host: '{{ env('PUSHER_HOST', '127.0.0.1') }}',
+            port: {{ env('PUSHER_PORT', 8080) }},
+            scheme: '{{ env('PUSHER_SCHEME', 'http') }}'
+        };
+    </script>
 
-    @vite(['resources/css/app.css'])
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
     @stack('head_styles')
 </head>
 <body>

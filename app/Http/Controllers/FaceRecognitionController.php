@@ -6,6 +6,9 @@ use App\Models\Cliente;
 use App\Models\FaceDescriptor;
 use App\Models\KioskStatus;
 use App\Services\EntradaService; 
+use App\Events\KioskStatusChanged;
+use App\Events\ClientRegistrationStarted;
+use App\Events\ClientRegistrationCompleted;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
@@ -32,13 +35,19 @@ class FaceRecognitionController extends Controller
         try {
             DB::beginTransaction();
 
+            // Buscar cliente primeiro
+            $cliente = Cliente::find($request->cliente_id);
+            
             KioskStatus::updateOrCreate(
                 ['id' => 1],
                 ['is_registering' => true, 'message' => 'Rosto sendo registrado...', 'expires_at' => Carbon::now()->addSeconds(60)]
             );
 
+            // Disparar evento de início de registro
+            event(new ClientRegistrationStarted($request->cliente_id, $cliente->nome, 'Rosto sendo registrado...'));
+            event(new KioskStatusChanged(true, 'Rosto sendo registrado...'));
+
             $existingDescriptor = FaceDescriptor::where('cliente_id', $request->cliente_id)->first();
-            $cliente = Cliente::find($request->cliente_id);
 
             $descriptorData = [
                 'cliente_id' => $request->cliente_id,
@@ -57,23 +66,26 @@ class FaceRecognitionController extends Controller
 
             KioskStatus::where('id', 1)->update(['is_registering' => false, 'message' => null, 'expires_at' => null]);
 
+            // Disparar eventos de conclusão do registro
+            event(new ClientRegistrationCompleted($request->cliente_id, $cliente->nome, true, $message));
+            event(new KioskStatusChanged(false, null));
+
             return response()->json(['success' => true, 'message' => $message, 'user_name' => $cliente->nome]);
         } catch (\Exception $e) {
             DB::rollBack();
             Log::error("Erro ao registrar/atualizar descritor facial: " . $e->getMessage(), ['cliente_id' => $request->cliente_id]);
             
             KioskStatus::where('id', 1)->update(['is_registering' => false, 'message' => null, 'expires_at' => null]);
-            return response()->json(['success' => false, 'message' => 'Falha ao registrar/atualizar descritor facial: ' . $e->getMessage()], 500);
-        }        
-
-        $cliente = Cliente::find($request->cliente_id);
-
-        $faceDescriptor = FaceDescriptor::firstOrNew(['cliente_id' => $request->cliente_id]);
-
-        $faceDescriptor->descriptor = $request->descriptor;
-        $faceDescriptor->save();
-
-        return response()->json(['success' => true, 'message' => 'Descritor facial salvo/atualizado com sucesso para o cliente ' . $cliente->nome . '.'], 200);
+            
+            $cliente = Cliente::find($request->cliente_id);
+            $errorMessage = 'Falha ao registrar/atualizar descritor facial: ' . $e->getMessage();
+            
+            // Disparar eventos de erro
+            event(new ClientRegistrationCompleted($request->cliente_id, $cliente ? $cliente->nome : 'Cliente', false, $errorMessage));
+            event(new KioskStatusChanged(false, null));
+            
+            return response()->json(['success' => false, 'message' => $errorMessage], 500);
+        }
     }
 
     public function authenticate(Request $request)
@@ -193,17 +205,25 @@ class FaceRecognitionController extends Controller
 
         if ($request->is_registering) {
             $expiresAt = $request->duration_seconds ? Carbon::now()->addSeconds($request->duration_seconds) : null;
+            $message = $request->message ?: 'Rosto sendo registrado em outra estação...';
+            
             $kioskStatus->update([
                 'is_registering' => true,
-                'message' => $request->message ?: 'Rosto sendo registrado em outra estação...',
+                'message' => $message,
                 'expires_at' => $expiresAt,
             ]);
+            
+            // Disparar evento de mudança de status
+            event(new KioskStatusChanged(true, $message));
         } else {
             $kioskStatus->update([
                 'is_registering' => false,
                 'message' => null,
                 'expires_at' => null,
             ]);
+            
+            // Disparar evento de mudança de status
+            event(new KioskStatusChanged(false, null));
         }
 
         return response()->json(['success' => true, 'kiosk_status' => $kioskStatus]);

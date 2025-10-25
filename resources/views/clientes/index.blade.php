@@ -139,11 +139,18 @@
                                     </form>
                                 @endif
 
-                                <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
-                                </form>
+                                @if($cliente->podeDeletar())
+                                    <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
+                                    </form>
+                                @else
+                                    <span class="text-gray-400 cursor-not-allowed" 
+                                          title="Não é possível excluir cliente com mensalidades, entradas ou vendas associadas">
+                                        Excluir
+                                    </span>
+                                @endif
                             </div>
                         </td>
                     </tr>
