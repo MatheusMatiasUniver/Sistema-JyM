@@ -199,7 +199,6 @@
 
     </div>
 
-    <script src="{{ asset('js/formatters.js') }}"></script>
     <script>
         function previewImage(input) {
             const preview = document.getElementById('preview');
@@ -227,9 +226,10 @@
             previewContainer.classList.add('hidden');
         }
 
-        // Aplicar formatação automática quando a página carregar
         document.addEventListener('DOMContentLoaded', function() {
-            applyFormatting();
+            if (typeof applyFormatting === 'function') {
+                applyFormatting();
+            }
         });
     </script>
 @endsection

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Cliente;
 use App\Models\PlanoAssinatura;
+use App\Services\PlanoAssinaturaService;
+use App\Http\Requests\UpdateClienteRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -151,34 +153,10 @@ class ClienteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Cliente $cliente)
+    public function update(UpdateClienteRequest $request, Cliente $cliente)
     {
         try {
-            $validated = $request->validate([
-                'nome' => 'required|string|max:255',
-                'cpf' => [
-                    'required',
-                    'string',
-                    'size:11',
-                    'unique:clientes,cpf,' . $cliente->idCliente . ',idCliente',
-                    'regex:/^[0-9]{11}$/'
-                ],
-                'dataNascimento' => 'required|date',
-                'telefone' => 'nullable|string|max:20',
-                'email' => 'nullable|email|max:255',
-                'status' => 'required|in:Ativo,Inativo,Suspenso,Inadimplente,Pendente',
-                'idPlano' => 'required|exists:plano_assinaturas,idPlano',
-                'codigo_acesso_antigo' => 'nullable|string|max:6',
-                'codigo_acesso' => 'nullable|string|max:6',
-            ], [
-                'cpf.unique' => 'Este CPF já está cadastrado para outro cliente.',
-                'cpf.regex' => 'O CPF deve conter apenas números.',
-                'cpf.size' => 'O CPF deve ter exatamente 11 dígitos.',
-                'nome.required' => 'O nome é obrigatório.',
-                'dataNascimento.required' => 'A data de nascimento é obrigatória.',
-                'email.email' => 'O email deve ter um formato válido.',
-                'codigo_acesso_antigo.required_with' => 'Digite o código de acesso atual para alterá-lo.',
-            ]);
+            $validated = $request->validated();
 
             // Verificar código de acesso antigo se um novo código foi fornecido
             if (!empty($validated['codigo_acesso'])) {
@@ -263,6 +241,42 @@ class ClienteController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withErrors(['error' => 'Erro ao excluir cliente: ' . $e->getMessage()]);
+        }
+    }
+
+    /**
+     * Renova o plano de assinatura do cliente.
+     */
+    public function renewPlan(Cliente $cliente, PlanoAssinaturaService $planoService)
+    {
+        try {
+            // Verifica se o cliente pertence à academia selecionada
+            $academiaId = session('academia_selecionada');
+            if (!$academiaId || $cliente->idAcademia != $academiaId) {
+                return back()->with('error', 'Cliente não encontrado ou não pertence à academia selecionada.');
+            }
+
+            // Verifica se o cliente tem um plano associado
+            if (!$cliente->plano) {
+                return back()->with('error', 'Cliente não possui plano de assinatura associado.');
+            }
+
+            // Renova o plano usando o serviço
+            $novaMensalidade = $planoService->renewClientPlan($cliente, $cliente->plano);
+
+            return redirect()
+                ->route('clientes.index')
+                ->with('success', "Plano '{$cliente->plano->nome}' renovado com sucesso para {$cliente->nome}! Nova mensalidade criada com vencimento em " . $novaMensalidade->dataVencimento->format('d/m/Y') . ".");
+
+        } catch (\Exception $e) {
+            Log::error("Erro ao renovar plano do cliente ID {$cliente->idCliente}: " . $e->getMessage(), [
+                'cliente_id' => $cliente->idCliente,
+                'plano_id' => $cliente->idPlano,
+                'erro_detalhes' => $e->getTraceAsString(),
+            ]);
+
+            return back()
+                ->with('error', 'Erro ao renovar plano: ' . $e->getMessage());
         }
     }
 }

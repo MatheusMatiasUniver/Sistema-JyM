@@ -5,6 +5,8 @@ import { applyFormatting } from './formatters';
 import './cnpj-mask';
 import webSocketManager from './websocket-manager';
 
+window.applyFormatting = applyFormatting;
+
 const video = document.getElementById('videoElement');
 const canvas = document.getElementById('overlayCanvas');
 const resultsDiv = document.getElementById('results');
