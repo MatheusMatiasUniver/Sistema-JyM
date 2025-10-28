@@ -16,6 +16,7 @@ class Mensalidade extends Model
     protected $fillable = [
         'idCliente',
         'idPlano',
+        'idAcademia',
         'dataVencimento',
         'dataPagamento',
         'valor',

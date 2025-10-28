@@ -110,6 +110,8 @@ class PlanoAssinaturaService
 
             $novaMensalidade = Mensalidade::create([
                 'idCliente' => $cliente->idCliente,
+                'idPlano' => $plano->idPlano,
+                'idAcademia' => $cliente->idAcademia,
                 'dataVencimento' => $novaDataVencimento,
                 'valor' => $plano->valor,
                 'status' => 'Paga',
@@ -133,5 +135,41 @@ class PlanoAssinaturaService
             ]);
             throw new \Exception("Falha ao renovar plano: " . $e->getMessage());
         }
+    }
+
+    /**
+     * Verifica se um cliente pode ter seu status alterado para Ativo
+     * @param Cliente $cliente
+     * @return bool
+     */
+    public function podeAtivarCliente(Cliente $cliente): bool
+    {
+        // Verificar se há mensalidades vencidas não pagas
+        $mensalidadeVencida = Mensalidade::where('idCliente', $cliente->idCliente)
+            ->where('status', 'Pendente')
+            ->where('dataVencimento', '<', Carbon::today())
+            ->exists();
+        
+        return !$mensalidadeVencida;
+    }
+
+    /**
+     * Obtém informações sobre mensalidades vencidas de um cliente
+     * @param Cliente $cliente
+     * @return array
+     */
+    public function getMensalidadesVencidas(Cliente $cliente): array
+    {
+        $mensalidadesVencidas = Mensalidade::where('idCliente', $cliente->idCliente)
+            ->where('status', 'Pendente')
+            ->where('dataVencimento', '<', Carbon::today())
+            ->orderBy('dataVencimento', 'asc')
+            ->get();
+
+        return [
+            'total' => $mensalidadesVencidas->count(),
+            'valor_total' => $mensalidadesVencidas->sum('valor'),
+            'mensalidades' => $mensalidadesVencidas
+        ];
     }
 }

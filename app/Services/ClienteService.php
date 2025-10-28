@@ -57,6 +57,19 @@ class ClienteService
     {
         DB::beginTransaction();
         try {
+            // Validar se está tentando alterar status para Ativo
+            if (isset($data['status']) && $data['status'] === 'Ativo' && $cliente->status !== 'Ativo') {
+                // Verificar se há mensalidades vencidas não pagas
+                $mensalidadeVencida = \App\Models\Mensalidade::where('idCliente', $cliente->idCliente)
+                    ->where('status', 'Pendente')
+                    ->where('dataVencimento', '<', \Carbon\Carbon::today())
+                    ->exists();
+                
+                if ($mensalidadeVencida) {
+                    throw new Exception("Não é possível alterar o status para Ativo. O cliente possui mensalidades vencidas não pagas.");
+                }
+            }
+
             $oldFotoPath = $cliente->foto;
             $fotoPath = $oldFotoPath;
 
