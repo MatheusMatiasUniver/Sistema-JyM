@@ -7,6 +7,24 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @property int $idEntrada
+ * @property int|null $idAcademia
+ * @property int $idCliente
+ * @property \Illuminate\Support\Carbon $dataHora
+ * @property string $metodo
+ * @property-read \App\Models\Academia|null $academia
+ * @property-read \App\Models\Cliente $cliente
+ * @method static Builder<static>|Entrada newModelQuery()
+ * @method static Builder<static>|Entrada newQuery()
+ * @method static Builder<static>|Entrada query()
+ * @method static Builder<static>|Entrada whereDataHora($value)
+ * @method static Builder<static>|Entrada whereIdAcademia($value)
+ * @method static Builder<static>|Entrada whereIdCliente($value)
+ * @method static Builder<static>|Entrada whereIdEntrada($value)
+ * @method static Builder<static>|Entrada whereMetodo($value)
+ * @mixin \Eloquent
+ */
 class Entrada extends Model
 {
     protected $table = 'entradas';

@@ -23,10 +23,78 @@ class PlanoAssinaturaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $planos = $this->planoAssinaturaService->getAllPlanos();
-        return view('planos.index', compact('planos'));
+        $query = PlanoAssinatura::with('academia');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nome', 'like', "%{$search}%")
+                  ->orWhere('descricao', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('categoria_id')) {
+            $query->where('idCategoria', $request->categoria_id);
+        }
+
+        if ($request->filled('valor_min')) {
+            $query->where('valor', '>=', $request->valor_min);
+        }
+
+        if ($request->filled('valor_max')) {
+            $query->where('valor', '<=', $request->valor_max);
+        }
+
+        if ($request->filled('duracao_min')) {
+            $query->where('duracaoMeses', '>=', $request->duracao_min);
+        }
+
+        if ($request->filled('duracao_max')) {
+            $query->where('duracaoMeses', '<=', $request->duracao_max);
+        }
+
+        $sortBy = $request->get('sort_by', 'nome');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        // Define default values for sorting
+        $sortField = 'nome';
+        $sortDirection = 'asc';
+        
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'nome_desc':
+                    $sortField = 'nome';
+                    $sortDirection = 'desc';
+                    break;
+                case 'valor_asc':
+                    $sortField = 'valor';
+                    $sortDirection = 'asc';
+                    break;
+                case 'valor_desc':
+                    $sortField = 'valor';
+                    $sortDirection = 'desc';
+                    break;
+                case 'duracao_asc':
+                    $sortField = 'duracaoDias';
+                    $sortDirection = 'asc';
+                    break;
+                case 'duracao_desc':
+                    $sortField = 'duracaoDias';
+                    $sortDirection = 'desc';
+                    break;
+                default:
+                    $sortField = 'nome';
+                    $sortDirection = 'asc';
+            }
+        }
+
+        $planos = $query->orderBy($sortField, $sortDirection)->get();
+        
+        $academias = \App\Models\Academia::all();
+        
+        return view('planos.index', compact('planos', 'academias'));
     }
 
     /**

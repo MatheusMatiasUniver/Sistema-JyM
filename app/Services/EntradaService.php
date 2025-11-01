@@ -16,28 +16,21 @@ class EntradaService
      * @return Entrada
      * @throws Exception
      */
-    public function registrarEntrada(int $idCliente, string $metodo, int $idAcademia = null): Entrada
+    public function registrarEntrada(Cliente $cliente, string $tipoEntrada = 'Manual'): Entrada
     {
         try {
-            // Se não foi fornecido idAcademia, tenta obter da sessão ou do usuário
-            if (!$idAcademia) {
-                $idAcademia = session('academia_selecionada') ?? auth()->user()->idAcademia ?? null;
-            }
-
-            if (!$idAcademia) {
-                throw new Exception("ID da academia é obrigatório para registrar entrada.");
-            }
-
             $entrada = Entrada::create([
-                'idCliente' => $idCliente,
-                'dataHora' => now(),
-                'metodo' => $metodo,
-                'idAcademia' => $idAcademia,
+                'idCliente' => $cliente->idCliente,
+                'dataEntrada' => now(),
+                'tipoEntrada' => $tipoEntrada,
+                'idAcademia' => $cliente->idAcademia,
             ]);
+
             return $entrada;
-        } catch (Exception $e) {
-            Log::error("Erro ao registrar entrada para cliente {$idCliente}: " . $e->getMessage());
-            throw new Exception("Falha ao registrar entrada: " . $e->getMessage());
+
+        } catch (\Exception $e) {
+            Log::error("Erro ao registrar entrada para cliente ID {$cliente->idCliente}: " . $e->getMessage());
+            throw new \Exception('Erro ao registrar entrada: ' . $e->getMessage());
         }
     }
 }

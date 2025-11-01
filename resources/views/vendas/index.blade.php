@@ -18,6 +18,59 @@
         </a>
     </div>
 
+    <!-- Filtros -->
+    <x-search-filter-dropdown 
+        placeholder="ID da venda ou nome do cliente..."
+        :filters="[
+            [
+                'name' => 'forma_pagamento',
+                'label' => 'Forma de Pagamento',
+                'type' => 'select',
+                'options' => [
+                    'Dinheiro' => 'Dinheiro',
+                    'Cartão de Crédito' => 'Cartão de Crédito',
+                    'Cartão de Débito' => 'Cartão de Débito',
+                    'PIX' => 'PIX',
+                    'Boleto' => 'Boleto'
+                ]
+            ],
+            [
+                'name' => 'data_inicial',
+                'label' => 'Data Inicial',
+                'type' => 'date'
+            ],
+            [
+                'name' => 'data_final',
+                'label' => 'Data Final',
+                'type' => 'date'
+            ],
+            [
+                'name' => 'valor_minimo',
+                'label' => 'Valor Mínimo',
+                'type' => 'number',
+                'placeholder' => '0.00',
+                'step' => '0.01',
+                'min' => '0'
+            ],
+            [
+                'name' => 'valor_maximo',
+                'label' => 'Valor Máximo',
+                'type' => 'number',
+                'placeholder' => '999.99',
+                'step' => '0.01',
+                'min' => '0'
+            ]
+        ]"
+        :sort-options="[
+            'data_desc' => 'Data (Recente)',
+            'data_asc' => 'Data (Antiga)',
+            'valor_desc' => 'Valor (Maior)',
+            'valor_asc' => 'Valor (Menor)',
+            'id_desc' => 'ID (Maior)',
+            'id_asc' => 'ID (Menor)'
+        ]"
+    />
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <table class="min-w-full leading-normal">
             <thead>

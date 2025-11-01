@@ -11,11 +11,77 @@ use Illuminate\Support\Facades\Auth;
 
 class VendaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $vendas = VendaProduto::with(['cliente', 'itens'])
-                              ->orderBy('dataVenda', 'desc')
-                              ->paginate(15);
+        $query = VendaProduto::with(['cliente', 'itens']);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('idVenda', 'like', "%{$search}%")
+                  ->orWhereHas('cliente', function($clienteQuery) use ($search) {
+                      $clienteQuery->where('nome', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        if ($request->filled('forma_pagamento')) {
+            $query->where('formaPagamento', $request->forma_pagamento);
+        }
+
+        if ($request->filled('data_inicial')) {
+            $query->whereDate('dataVenda', '>=', $request->data_inicial);
+        }
+
+        if ($request->filled('data_final')) {
+            $query->whereDate('dataVenda', '<=', $request->data_final);
+        }
+
+        // Filtro por valor mínimo
+        if ($request->filled('valor_min')) {
+            $query->where('valor_total', '>=', $request->valor_min);
+        }
+
+        if ($request->filled('valor_max')) {
+            $query->where('valor_total', '<=', $request->valor_max);
+        }
+
+        $sortBy = $request->get('sort_by', 'created_at');
+        $sortDirection = $request->get('sort_direction', 'desc');
+        
+        // Define default values for sorting
+        $sortField = 'dataVenda';
+        $sortDirection = 'desc';
+        
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'data_asc':
+                    $sortField = 'dataVenda';
+                    $sortDirection = 'asc';
+                    break;
+                case 'valor_asc':
+                    $sortField = 'valorTotal';
+                    $sortDirection = 'asc';
+                    break;
+                case 'valor_desc':
+                    $sortField = 'valorTotal';
+                    $sortDirection = 'desc';
+                    break;
+                case 'id_asc':
+                    $sortField = 'idVenda';
+                    $sortDirection = 'asc';
+                    break;
+                case 'id_desc':
+                    $sortField = 'idVenda';
+                    $sortDirection = 'desc';
+                    break;
+                default:
+                    $sortField = 'dataVenda';
+                    $sortDirection = 'desc';
+            }
+        }
+
+        $vendas = $query->orderBy($sortField, $sortDirection)->paginate(15);
         
         return view('vendas.index', compact('vendas'));
     }

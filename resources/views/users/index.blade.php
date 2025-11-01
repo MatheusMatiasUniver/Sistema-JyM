@@ -3,7 +3,12 @@
 @section('title', 'Gerenciar Usuários - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Gerenciar Usuários</h1>
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold text-gray-800">Gerenciar Usuários</h1>
+        <a href="{{ route('register') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            Cadastrar Novo Usuário
+        </a>
+    </div>
 
     @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
@@ -16,14 +21,36 @@
             {{ session('error') }}
         </div>
     @endif
-  
-    <div class="mb-4">
-        <a href="{{ route('register') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-            Cadastrar Novo Usuário
-        </a>
-    </div>
 
-    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+    <!-- Filtros Compactos -->
+    <x-table-filter 
+        :action="route('users.index')"
+        search-placeholder="Nome, usuário ou email..."
+        :search-value="request('search')"
+        :filters="[
+            [
+                'type' => 'select',
+                'name' => 'nivel_acesso',
+                'label' => 'Nível de Acesso',
+                'options' => [
+                    'Administrador' => 'Administrador',
+                    'Funcionário' => 'Funcionário'
+                ]
+            ]
+        ]"
+        :sort-options="[
+            'nome_asc' => 'Nome (A-Z)',
+            'nome_desc' => 'Nome (Z-A)',
+            'usuario_asc' => 'Usuário (A-Z)',
+            'usuario_desc' => 'Usuário (Z-A)',
+            'email_asc' => 'Email (A-Z)',
+            'email_desc' => 'Email (Z-A)',
+            'nivelAcesso_asc' => 'Nível (A-Z)',
+            'nivelAcesso_desc' => 'Nível (Z-A)'
+        ]"
+    />
+
+    <div class="bg-white shadow-md rounded-lg overflow-hidden mt-6">
         <table class="min-w-full leading-normal">
         <thead>
             <tr>

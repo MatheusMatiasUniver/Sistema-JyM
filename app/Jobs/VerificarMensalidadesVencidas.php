@@ -36,7 +36,6 @@ class VerificarMensalidadesVencidas implements ShouldQueue
             $clientesAtualizados = 0;
             
             foreach ($clientesAtivos as $cliente) {
-                // Verificar se o cliente tem mensalidades vencidas não pagas
                 $mensalidadeVencida = Mensalidade::where('idCliente', $cliente->idCliente)
                     ->where('status', 'Pendente')
                     ->where('dataVencimento', '<', Carbon::today())

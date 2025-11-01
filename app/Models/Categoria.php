@@ -7,6 +7,31 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 
+/**
+ * @property int $idCategoria
+ * @property string $nome
+ * @property string|null $descricao
+ * @property string $status
+ * @property int $idAcademia
+ * @property \Illuminate\Support\Carbon|null $created_at
+ * @property \Illuminate\Support\Carbon|null $updated_at
+ * @property-read \App\Models\Academia $academia
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
+ * @property-read int|null $produtos_count
+ * @method static Builder<static>|Categoria ativas()
+ * @method static Builder<static>|Categoria newModelQuery()
+ * @method static Builder<static>|Categoria newQuery()
+ * @method static Builder<static>|Categoria porAcademia(int $academiaId)
+ * @method static Builder<static>|Categoria query()
+ * @method static Builder<static>|Categoria whereCreatedAt($value)
+ * @method static Builder<static>|Categoria whereDescricao($value)
+ * @method static Builder<static>|Categoria whereIdAcademia($value)
+ * @method static Builder<static>|Categoria whereIdCategoria($value)
+ * @method static Builder<static>|Categoria whereNome($value)
+ * @method static Builder<static>|Categoria whereStatus($value)
+ * @method static Builder<static>|Categoria whereUpdatedAt($value)
+ * @mixin \Eloquent
+ */
 class Categoria extends Model
 {
     protected $table = 'categorias';

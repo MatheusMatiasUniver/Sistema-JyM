@@ -23,6 +23,20 @@
         </a>
     </div>
 
+    <!-- Filtros -->
+    <x-search-filter-dropdown 
+        placeholder="Nome, CNPJ, email ou responsável..."
+        :filters="[]"
+        :sort-options="[
+            'nome_asc' => 'Nome (A-Z)',
+            'nome_desc' => 'Nome (Z-A)',
+            'cnpj_asc' => 'CNPJ (A-Z)',
+            'cnpj_desc' => 'CNPJ (Z-A)',
+            'responsavel_asc' => 'Responsável (A-Z)',
+            'responsavel_desc' => 'Responsável (Z-A)'
+        ]"
+    />
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <table class="min-w-full leading-normal">
             <thead>

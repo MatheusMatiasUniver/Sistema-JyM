@@ -33,6 +33,7 @@ let detectionStarted = false;
 let isKioskRegistering = false;
 let kioskRegistrationMessage = '';
 let failedFaceAttempts = 0;
+let isDetectionPaused = false;
 
 const COOLDOWN_DURATION = 5000;
 const MESSAGE_DURATION = 3000;
@@ -43,6 +44,12 @@ const CODIGO_ACESSO_LENGTH = 6;
 
 const isKioskPage = window.location.pathname.includes('/reconhecimento');
 const isCaptureFacePage = window.location.pathname.includes('/clientes/') && window.location.pathname.includes('/capturar-rosto');
+
+
+
+if (document.body.classList.contains('capture-page')) {
+    document.body.classList.add('capture-funcionario');
+}
 
 if (document.querySelector('#produtos-data')) {
     initVendasCreate();
@@ -64,7 +71,6 @@ function showMessage(type, mainMessage, subMessage = '') {
         resultsDiv.classList.remove('alert-info', 'alert-success', 'alert-error');
         resultsDiv.classList.add(`alert-${type}`);
         
-        // Adiciona classe específica para tela de captura de rosto
         if (isCaptureFacePage) {
             resultsDiv.classList.add('face-capture-alert');
         }
@@ -133,7 +139,7 @@ function initializeWebSocket() {
             setTimeout(() => {
                 if (!webSocketManager.isWebSocketConnected()) {
                     console.log('Fallback: iniciando polling HTTP');
-                    startPollingFallback();
+                    fallbackToPolling();
                 }
             }, 5000);
         }
@@ -144,7 +150,7 @@ function initializeWebSocket() {
 }
 
 // Função de fallback para polling HTTP em caso de falha do WebSocket
-function startPollingFallback() {
+function fallbackToPolling() {
     if (kioskStatusPollingId) {
         clearInterval(kioskStatusPollingId);
     }
@@ -200,8 +206,14 @@ async function loadModels() {
             startVideo();
             initializeWebSocket();
         } else if (isCaptureFacePage) {
-            if (startCameraButton) startCameraButton.disabled = false;
+            showMessage('info', 'Iniciando câmera automaticamente...');
+            if (startCameraButton) startCameraButton.style.display = 'none';
             if (registerFaceButton) registerFaceButton.disabled = false;
+            startVideo();
+        }
+
+        if (window.location.pathname === '/captura') {
+            startCamera();
         }
 
     } catch (err) {
@@ -226,6 +238,31 @@ async function startVideo() {
     showMessage('info', 'Iniciando webcam...');
 
     try {
+        if (isCaptureFacePage) {
+            const currentCsrfToken = getCsrfToken();
+            if (currentCsrfToken) {
+                await fetch('/face/set-kiosk-registering', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': currentCsrfToken
+                    },
+                    body: JSON.stringify({
+                        is_registering: true,
+                        message: 'Câmera sendo preparada para cadastro de rosto...',
+                        duration_seconds: 300 // 5 minutos de timeout
+                    })
+                });
+            }
+        }
+
+        if (window.location.pathname === '/captura') {
+            websocketManager.sendMessage('kiosk-status', {
+                status: 'registering',
+                message: 'Iniciando registro de funcionário'
+            });
+        }
+
         const stream = await navigator.mediaDevices.getUserMedia({
             video: {
                 width: { ideal: 1280 },
@@ -243,6 +280,23 @@ async function startVideo() {
         showMessage('error', 'Erro!', `Ao iniciar webcam: ${err.name} - ${err.message}. Verifique permissões e se a câmera não está em uso por outro aplicativo.`);
 
         if (startCameraButton) startCameraButton.disabled = true;
+        
+        // Se houve erro, liberar o kiosk
+        if (isCaptureFacePage) {
+            const currentCsrfToken = getCsrfToken();
+            if (currentCsrfToken) {
+                fetch('/face/set-kiosk-registering', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': currentCsrfToken
+                    },
+                    body: JSON.stringify({
+                        is_registering: false
+                    })
+                });
+            }
+        }
     }
 }
 
@@ -314,6 +368,10 @@ function startDetectionLoop() {
                 return;
             }
 
+            if (isRegistering) {
+                return;
+            }
+
             const detections = await faceapi.detectSingleFace(video, new faceapi.TinyFaceDetectorOptions())
                 .withFaceLandmarks()
                 .withFaceDescriptor();
@@ -336,6 +394,7 @@ function startDetectionLoop() {
 
                         setTimeout(() => {
                             authenticationCooldown = false;
+                            isDetectionPaused = false;
                             if (!lastDetectedDescriptor || video.paused || video.ended) {
                                 if (!isKioskRegistering) {
                                     showMessage('info', 'Aguardando detecção de rosto.');
@@ -378,7 +437,6 @@ async function authenticateFace(descriptor) {
         return;
     }
 
-    // Previne autenticação durante registro
     if (isKioskRegistering) {
         showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
         return;
@@ -419,6 +477,7 @@ async function authenticateFace(descriptor) {
             failedFaceAttempts = 0;
             if (data.status === 'Ativo') {
                 showMessage('success', 'ACESSO LIBERADO!', `Bom treino, ${data.user_name}!`);
+                isDetectionPaused = false;
             } else {
                 showMessage('error', 'ACESSO NEGADO!', `Status: ${data.status} para ${data.user_name}.`);
 
@@ -429,6 +488,7 @@ async function authenticateFace(descriptor) {
                 } else {
                     showMessage('error', 'ROSTO NÃO AUTORIZADO!', `Tentativas: ${failedFaceAttempts}/${MAX_FAILED_FACE_ATTEMPTS}. Por favor, tente novamente.`);
                 }
+                isDetectionPaused = false;
             }
         } else {
             failedFaceAttempts++;
@@ -439,6 +499,7 @@ async function authenticateFace(descriptor) {
                 let errorMessage = (data && data.message) ? data.message : 'Falha na autenticação facial.';
                 showMessage('error', 'ROSTO NÃO RECONHECIDO!', `${errorMessage} Tentativas: ${failedFaceAttempts}/${MAX_FAILED_FACE_ATTEMPTS}.`);
             }
+            isDetectionPaused = false;
         }
     } catch (error) {
         lastAuthenticatedClientId = null;
@@ -469,7 +530,6 @@ async function registerFace(descriptor) {
         return;
     }
 
-    // Pausa o loop de detecção durante o registro para evitar sobreposição de mensagens
     if (detectionIntervalId) {
         clearInterval(detectionIntervalId);
         detectionIntervalId = null;
@@ -626,7 +686,7 @@ async function submitAccessCode() {
         return;
     }
 
-    if (!code || code.length !== CODIGO_ACESSO_LENGTH || isNaN(code)) { // Validação básica
+    if (!code || code.length !== CODIGO_ACESSO_LENGTH || isNaN(code)) {
         showMessage('error', 'Código inválido!', `Por favor, digite um código de ${CODIGO_ACESSO_LENGTH} dígitos numéricos.`);
         accessCodeInput.focus();
         return;
@@ -663,6 +723,13 @@ async function submitAccessCode() {
             showMessage('error', data.message || 'Falha ao autenticar com CPF e código.');
             accessCodeInput.value = '';
             accessCodeInput.focus();
+        }
+
+        if (window.location.pathname === '/captura') {
+            websocketManager.sendMessage('kiosk-status', {
+                status: 'idle',
+                message: 'Kiosk liberado'
+            });
         }
     } catch (error) {
         showMessage('error', 'Erro!', `Falha na autenticação: ${error.message}`);
@@ -712,20 +779,156 @@ if (accessCodeInput) {
 }
 
 
-window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', function() {
     if (detectionIntervalId) clearInterval(detectionIntervalId);
     if (kioskStatusPollingId) clearInterval(kioskStatusPollingId);
     
-    // Cleanup do WebSocket
     if (webSocketManager) {
         webSocketManager.disconnect();
     }
     
-    if (isCaptureFacePage && detectionStarted) {
-         fetch('/face/set-kiosk-registering', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': getCsrfToken() },
-            body: JSON.stringify({ is_registering: false })
+    if (isCaptureFacePage) {
+        const currentCsrfToken = getCsrfToken();
+        if (currentCsrfToken) {
+            fetch('/face/set-kiosk-registering', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json', 
+                    'X-CSRF-TOKEN': currentCsrfToken 
+                },
+                body: JSON.stringify({ is_registering: false })
+            });
+        }
+    }
+
+    if (window.location.pathname === '/captura') {
+        websocketManager.sendMessage('kiosk-status', {
+            status: 'idle',
+            message: 'Kiosk liberado'
         });
     }
 });
+
+window.addEventListener('pagehide', () => {
+    if (isCaptureFacePage) {
+        const currentCsrfToken = getCsrfToken();
+        if (currentCsrfToken) {
+            navigator.sendBeacon('/face/set-kiosk-registering', JSON.stringify({
+                is_registering: false,
+                _token: currentCsrfToken
+            }));
+        }
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const userDropdown = document.querySelector('.user-dropdown');
+    const userDropdownToggle = document.querySelector('.user-dropdown-toggle');
+    const userDropdownMenu = document.querySelector('.user-dropdown-menu');
+    
+    if (userDropdownToggle && userDropdownMenu) {
+        userDropdownToggle.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdownMenu.classList.toggle('show');
+            
+            const arrow = userDropdownToggle.querySelector('.dropdown-arrow i');
+            if (arrow) {
+                arrow.classList.toggle('rotated');
+            }
+        });
+        
+        document.addEventListener('click', (e) => {
+            if (!userDropdown.contains(e.target)) {
+                userDropdownMenu.classList.remove('show');
+                const arrow = userDropdownToggle.querySelector('.dropdown-arrow i');
+                if (arrow) {
+                    arrow.classList.remove('rotated');
+                }
+            }
+        });
+        
+        userDropdownMenu.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+    }
+});
+
+let notificationContainer = null;
+
+function createNotificationContainer() {
+    if (!notificationContainer) {
+        notificationContainer = document.createElement('div');
+        notificationContainer.className = 'notification-container';
+        document.body.appendChild(notificationContainer);
+    }
+    return notificationContainer;
+}
+
+function showNotification(message, type = 'info', duration = 5000) {
+    const container = createNotificationContainer();
+    
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    
+    const iconMap = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-exclamation-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+    
+    notification.innerHTML = `
+        <div class="notification-content">
+            <i class="${iconMap[type]}"></i>
+            <span>${message}</span>
+        </div>
+        <button class="notification-close">&times;</button>
+    `;
+    
+    const closeBtn = notification.querySelector('.notification-close');
+    closeBtn.addEventListener('click', () => {
+        notification.remove();
+    });
+    
+    container.appendChild(notification);
+    
+    setTimeout(() => {
+        notification.remove();
+    }, duration);
+    
+    return notification;
+}
+
+function showSuccess(message, duration = 5000) {
+    return showNotification(message, 'success', duration);
+}
+
+function showError(message, duration = 5000) {
+    return showNotification(message, 'error', duration);
+}
+
+function showWarning(message, duration = 5000) {
+    return showNotification(message, 'warning', duration);
+}
+
+function showInfo(message, duration = 5000) {
+    return showNotification(message, 'info', duration);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sessionMessages = document.querySelectorAll('[data-session-message]');
+    
+    sessionMessages.forEach(element => {
+        const type = element.dataset.sessionType || 'info';
+        const message = element.textContent.trim();
+        
+        if (message) {
+            showNotification(message, type);
+            element.style.display = 'none';
+        }
+    });
+});
+
+if (currentPath.includes('/clientes/capturar-rosto')) {
+    document.body.classList.add('face-capture-page');
+}

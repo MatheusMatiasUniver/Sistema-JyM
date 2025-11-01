@@ -9,6 +9,49 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
+/**
+ * @property int $idCliente
+ * @property int|null $idAcademia
+ * @property string $nome
+ * @property string $cpf
+ * @property \Illuminate\Support\Carbon $dataNascimento
+ * @property string|null $email
+ * @property string|null $telefone
+ * @property string $status
+ * @property string|null $codigo_acesso
+ * @property string|null $foto
+ * @property int|null $idUsuario
+ * @property int|null $idPlano
+ * @property-read \App\Models\Academia|null $academia
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Entrada> $entradas
+ * @property-read int|null $entradas_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\FaceDescriptor> $faceDescriptors
+ * @property-read int|null $face_descriptors_count
+ * @property-read string $status_badge_class
+ * @property-read string $status_color
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mensalidade> $mensalidades
+ * @property-read int|null $mensalidades_count
+ * @property-read \App\Models\PlanoAssinatura|null $plano
+ * @property-read \App\Models\User|null $usuario
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendaProduto> $vendas
+ * @property-read int|null $vendas_count
+ * @method static Builder<static>|Cliente newModelQuery()
+ * @method static Builder<static>|Cliente newQuery()
+ * @method static Builder<static>|Cliente query()
+ * @method static Builder<static>|Cliente whereCodigoAcesso($value)
+ * @method static Builder<static>|Cliente whereCpf($value)
+ * @method static Builder<static>|Cliente whereDataNascimento($value)
+ * @method static Builder<static>|Cliente whereEmail($value)
+ * @method static Builder<static>|Cliente whereFoto($value)
+ * @method static Builder<static>|Cliente whereIdAcademia($value)
+ * @method static Builder<static>|Cliente whereIdCliente($value)
+ * @method static Builder<static>|Cliente whereIdPlano($value)
+ * @method static Builder<static>|Cliente whereIdUsuario($value)
+ * @method static Builder<static>|Cliente whereNome($value)
+ * @method static Builder<static>|Cliente whereStatus($value)
+ * @method static Builder<static>|Cliente whereTelefone($value)
+ * @mixin \Eloquent
+ */
 class Cliente extends Model
 {
     protected $table = 'clientes';

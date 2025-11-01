@@ -7,6 +7,29 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @property int $idPlano
+ * @property string|null $nome
+ * @property string|null $descricao
+ * @property numeric|null $valor
+ * @property int|null $duracaoDias
+ * @property int|null $idAcademia
+ * @property-read \App\Models\Academia|null $academia
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Cliente> $clientes
+ * @property-read int|null $clientes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Mensalidade> $mensalidades
+ * @property-read int|null $mensalidades_count
+ * @method static Builder<static>|PlanoAssinatura newModelQuery()
+ * @method static Builder<static>|PlanoAssinatura newQuery()
+ * @method static Builder<static>|PlanoAssinatura query()
+ * @method static Builder<static>|PlanoAssinatura whereDescricao($value)
+ * @method static Builder<static>|PlanoAssinatura whereDuracaoDias($value)
+ * @method static Builder<static>|PlanoAssinatura whereIdAcademia($value)
+ * @method static Builder<static>|PlanoAssinatura whereIdPlano($value)
+ * @method static Builder<static>|PlanoAssinatura whereNome($value)
+ * @method static Builder<static>|PlanoAssinatura whereValor($value)
+ * @mixin \Eloquent
+ */
 class PlanoAssinatura extends Model
 {
     protected $table = 'plano_assinaturas';

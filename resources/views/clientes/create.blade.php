@@ -59,7 +59,7 @@
             <div class="mb-4">
                 <label for="codigo_acesso" class="block text-gray-700 text-sm font-bold mb-2">Código de Acesso (6 dígitos, opcional):</label>
                 <input type="password" id="codigo_acesso" name="codigo_acesso" placeholder="Apenas números"
-                    value="" {{-- Não pré-preencha o valor do hash por segurança --}}
+                    value=""
                     class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('codigo_acesso') border-red-500 @enderror"
                     maxlength="6" inputmode="numeric" pattern="\d*" 
                     oninput="this.value=this.value.slice(0,this.maxLength)"

@@ -10,10 +10,98 @@ use Illuminate\Support\Facades\Auth;
 
 class ProdutoController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $produtos = Produto::with('categoria')->get();
-        return view('produtos.index', compact('produtos'));
+        $academiaId = $this->getAcademiaId();
+        
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
+
+        $query = Produto::with('categoria')
+            ->where('idAcademia', $academiaId);
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nome', 'like', "%{$search}%")
+                  ->orWhere('descricao', 'like', "%{$search}%");
+            });
+        }
+
+        if ($request->filled('categoria_id')) {
+            $query->where('idCategoria', $request->categoria_id);
+        }
+
+        if ($request->filled('preco_min')) {
+            $query->where('preco', '>=', $request->preco_min);
+        }
+
+        if ($request->filled('preco_max')) {
+            $query->where('preco', '<=', $request->preco_max);
+        }
+
+        if ($request->filled('estoque_min')) {
+            $query->where('estoque', '>=', $request->estoque_min);
+        }
+
+        if ($request->filled('estoque_max')) {
+            $query->where('estoque', '<=', $request->estoque_max);
+        }
+
+        $sortBy = $request->get('sort_by', 'nome');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        // Define default values for sorting
+        $sortField = 'nome';
+        $sortDirection = 'asc';
+        
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'nome_desc':
+                    $sortField = 'nome';
+                    $sortDirection = 'desc';
+                    break;
+                case 'preco_asc':
+                    $sortField = 'preco';
+                    $sortDirection = 'asc';
+                    break;
+                case 'preco_desc':
+                    $sortField = 'preco';
+                    $sortDirection = 'desc';
+                    break;
+                case 'estoque_asc':
+                    $sortField = 'estoque';
+                    $sortDirection = 'asc';
+                    break;
+                case 'estoque_desc':
+                    $sortField = 'estoque';
+                    $sortDirection = 'desc';
+                    break;
+                case 'categoria_asc':
+                    $query->join('categorias', 'produtos.idCategoria', '=', 'categorias.idCategoria');
+                    $sortField = 'categorias.nome';
+                    $sortDirection = 'asc';
+                    break;
+                case 'categoria_desc':
+                    $query->join('categorias', 'produtos.idCategoria', '=', 'categorias.idCategoria');
+                    $sortField = 'categorias.nome';
+                    $sortDirection = 'desc';
+                    break;
+                default:
+                    $sortField = 'nome';
+                    $sortDirection = 'asc';
+            }
+        }
+
+        $produtos = $query->orderBy($sortField, $sortDirection)->get();
+
+        $categorias = \App\Models\Categoria::where('idAcademia', $academiaId)
+            ->where('status', 'Ativo')
+            ->orderBy('nome')
+            ->get();
+
+        return view('produtos.index', compact('produtos', 'categorias'));
     }
 
     public function create()

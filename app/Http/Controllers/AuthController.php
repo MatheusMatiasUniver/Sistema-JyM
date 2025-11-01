@@ -58,7 +58,6 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        // Verifica se é administrador
         if (!Auth::check() || Auth::user()->nivelAcesso !== 'Administrador') {
             return redirect()->route('dashboard')->with('error', 'Acesso negado. Apenas administradores podem cadastrar novos usuários.');
         }
@@ -71,7 +70,6 @@ class AuthController extends Controller
             'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
         ];
 
-        // Se for funcionário, a academia é obrigatória
         if ($request->nivelAcesso === 'Funcionário') {
             $validationRules['idAcademia'] = ['required', 'exists:academias,idAcademia'];
         }
@@ -98,7 +96,6 @@ class AuthController extends Controller
                 $academiaId = $request->idAcademia;
                 $admin = Auth::user();
                 
-                // Verificar se o administrador tem acesso à academia selecionada
                 if (!$admin->temAcessoAcademia($academiaId)) {
                     DB::rollBack();
                     Log::error("Admin {$admin->idUsuario} tentou cadastrar funcionário em academia {$academiaId} sem acesso.");

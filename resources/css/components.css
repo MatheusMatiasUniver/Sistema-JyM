@@ -34,31 +34,39 @@
   }
 
   .user-info-section {
-    @apply bg-primary-dark rounded-lg p-4 mb-6 border border-border-light;
+    @apply bg-primary-dark rounded-lg border border-border-light relative cursor-pointer transition-all duration-300 hover:bg-opacity-80;
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+  }
+
+  .user-info-content {
+    @apply flex items-center p-3 gap-3;
   }
 
   .user-avatar {
-    @apply text-center mb-3;
+    @apply flex-shrink-0;
   }
 
   .user-avatar i {
-    @apply text-4xl text-accent-blue;
+    @apply text-2xl text-accent-blue;
   }
 
   .user-details {
-    @apply text-center;
+    @apply flex-1 min-w-0;
   }
 
   .user-name {
-    @apply text-text-white font-bold text-lg mb-2;
+    @apply text-text-white font-medium text-sm mb-1 truncate;
   }
 
   .user-role {
-    @apply mb-2;
+    @apply mb-0;
   }
 
   .role-badge {
-    @apply px-2 py-1 rounded text-xs font-semibold;
+    @apply px-2 py-0.5 rounded text-xs font-medium;
   }
 
   .role-badge.admin {
@@ -67,6 +75,30 @@
 
   .role-badge.funcionario {
     @apply bg-accent-blue text-text-black;
+  }
+
+  .dropdown-arrow {
+    @apply flex-shrink-0 text-text-white transition-transform duration-300;
+  }
+
+  .dropdown-arrow i.rotated {
+    @apply rotate-180;
+  }
+
+  .user-dropdown-menu {
+    @apply absolute bottom-full left-0 right-0 mb-2 bg-secondary-dark border border-border-light rounded-lg shadow-lg opacity-0 invisible transform translate-y-2 transition-all duration-300;
+  }
+
+  .user-dropdown-menu.show {
+    @apply opacity-100 visible translate-y-0;
+  }
+
+  .dropdown-item {
+    @apply flex items-center gap-3 px-4 py-3 text-text-white no-underline transition-all duration-300 hover:bg-accent-blue hover:text-text-black rounded-lg;
+  }
+
+  .dropdown-item i {
+    @apply text-sm;
   }
 
   .user-academia {
@@ -106,11 +138,126 @@
     @apply text-2xl md:text-3xl lg:text-4xl font-semibold mt-4;
   }
 
-  /* Estilos específicos para tela de captura de rosto (funcionários) */
   .face-capture-alert .main-message {
     @apply text-xl md:text-2xl font-bold;
   }
   .face-capture-alert .sub-message {
     @apply text-base md:text-lg font-medium mt-2;
   }
+  .notification-container {
+    @apply fixed top-5 right-5 z-50 space-y-3;
+    max-width: 400px;
+  }
+
+  .notification-popup {
+    @apply bg-white border-l-4 rounded-lg shadow-lg p-4 transform transition-all duration-300 ease-in-out;
+    animation: slideInRight 0.3s ease-out;
+  }
+
+  .notification-popup.removing {
+    animation: slideOutRight 0.3s ease-in forwards;
+  }
+
+  .notification-popup.success {
+    @apply border-l-green-500 bg-green-50;
+  }
+
+  .notification-popup.error {
+    @apply border-l-red-500 bg-red-50;
+  }
+
+  .notification-popup.info {
+    @apply border-l-blue-500 bg-blue-50;
+  }
+
+  .notification-popup.warning {
+    @apply border-l-yellow-500 bg-yellow-50;
+  }
+
+  .notification-header {
+    @apply flex items-center justify-between mb-2;
+  }
+
+  .notification-title {
+    @apply font-semibold text-gray-800 flex items-center gap-2;
+  }
+
+  .notification-title.success {
+    @apply text-green-800;
+  }
+
+  .notification-title.error {
+    @apply text-red-800;
+  }
+
+  .notification-title.info {
+    @apply text-blue-800;
+  }
+
+  .notification-title.warning {
+    @apply text-yellow-800;
+  }
+
+  .notification-icon {
+    @apply text-lg;
+  }
+
+  .notification-close {
+    @apply text-gray-400 hover:text-gray-600 cursor-pointer transition-colors duration-200;
+  }
+
+  .notification-message {
+    @apply text-gray-700 text-sm leading-relaxed;
+  }
+
+  .notification-progress {
+    @apply absolute bottom-0 left-0 h-1 bg-current opacity-30 transition-all duration-100 ease-linear;
+  }
+
+  @keyframes slideInRight {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  @keyframes slideOutRight {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+}
+
+.face-capture-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    color: white;
+}
+
+.popup-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 15px 20px;
+    border-radius: 8px;
+    color: white;
+    font-weight: 500;
+    z-index: 9999;
+    min-width: 300px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
 }

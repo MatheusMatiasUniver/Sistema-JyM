@@ -18,31 +18,40 @@
                 <a href="{{ route('register') }}" class="sidebar-nav-link">Cadastrar Usuário</a>
             @endif
         @endauth
-        <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="sidebar-nav-link">Logout</a>
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
-            @csrf
-        </form>
     </nav>
 
     @auth
-        <div class="user-info-section">
-            <div class="user-avatar">
-                <i class="fas fa-user-circle"></i>
-            </div>
-            <div class="user-details">
-                <div class="user-name">{{ Auth::user()->nome }}</div>
-                <div class="user-role">
-                    @if(Auth::user()->isAdministrador())
-                        <span class="role-badge admin">Administrador</span>
-                    @elseif(Auth::user()->isFuncionario())
-                        <span class="role-badge funcionario">Funcionário</span>
-                    @endif
+        <div class="user-info-section" id="userDropdown">
+            <div class="user-info-content">
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
                 </div>
-                @if(Auth::user()->isFuncionario() && Auth::user()->usuario_academia)
-                    <div class="user-academia">{{ Auth::user()->usuario_academia->nome }}</div>
-                @endif
+                <div class="user-details">
+                    <div class="user-name">{{ Auth::user()->nome }}</div>
+                    <div class="user-role">
+                        @if(Auth::user()->isAdministrador())
+                            <span class="role-badge admin">Admin</span>
+                        @elseif(Auth::user()->isFuncionario())
+                            <span class="role-badge funcionario">Funcionário</span>
+                        @endif
+                    </div>
+                </div>
+                <div class="dropdown-arrow">
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+            </div>
+            
+            <div class="user-dropdown-menu" id="userDropdownMenu">
+                <a href="{{ route('logout') }}" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="dropdown-item">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </a>
             </div>
         </div>
+        
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+            @csrf
+        </form>
     @endauth
 
 </aside>

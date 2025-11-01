@@ -15,9 +15,35 @@ class UserController extends Controller
         $this->middleware(['auth', 'admin']);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $users = User::all();
+        $query = User::query();
+
+        // Search functionality
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nome', 'like', "%{$search}%")
+                  ->orWhere('usuario', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter by access level
+        if ($request->filled('nivel_acesso')) {
+            $query->where('nivelAcesso', $request->nivel_acesso);
+        }
+
+        // Sorting
+        $sortField = $request->get('sort', 'nome');
+        $sortDirection = $request->get('direction', 'asc');
+        
+        $allowedSorts = ['nome', 'usuario', 'email', 'nivelAcesso'];
+        if (in_array($sortField, $allowedSorts)) {
+            $query->orderBy($sortField, $sortDirection);
+        }
+
+        $users = $query->get();
         return view('users.index', compact('users'));
     }
 

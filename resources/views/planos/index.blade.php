@@ -11,6 +11,57 @@
         </a>
     </div>
 
+    <!-- Filtros -->
+    <x-search-filter-dropdown 
+        placeholder="Nome ou descrição do plano..."
+        :filters="[
+            [
+                'name' => 'academia',
+                'label' => 'Academia',
+                'type' => 'select',
+                'options' => $academias->pluck('nome', 'idAcademia')->toArray()
+            ],
+            [
+                'name' => 'valor_minimo',
+                'label' => 'Valor Mínimo',
+                'type' => 'number',
+                'placeholder' => '0.00',
+                'step' => '0.01',
+                'min' => '0'
+            ],
+            [
+                'name' => 'valor_maximo',
+                'label' => 'Valor Máximo',
+                'type' => 'number',
+                'placeholder' => '999.99',
+                'step' => '0.01',
+                'min' => '0'
+            ],
+            [
+                'name' => 'duracao_minima',
+                'label' => 'Duração Mínima (dias)',
+                'type' => 'number',
+                'placeholder' => '1',
+                'min' => '1'
+            ],
+            [
+                'name' => 'duracao_maxima',
+                'label' => 'Duração Máxima (dias)',
+                'type' => 'number',
+                'placeholder' => '365',
+                'min' => '1'
+            ]
+        ]"
+        :sort-options="[
+            'nome_asc' => 'Nome (A-Z)',
+            'nome_desc' => 'Nome (Z-A)',
+            'valor_asc' => 'Valor (Menor)',
+            'valor_desc' => 'Valor (Maior)',
+            'duracao_asc' => 'Duração (Menor)',
+            'duracao_desc' => 'Duração (Maior)'
+        ]"
+    />
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <table class="min-w-full leading-normal">
             <thead>

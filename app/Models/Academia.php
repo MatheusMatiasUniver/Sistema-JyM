@@ -4,6 +4,40 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $idAcademia
+ * @property string|null $nome
+ * @property string|null $CNPJ
+ * @property string|null $telefone
+ * @property string|null $email
+ * @property string|null $endereco
+ * @property string|null $responsavel
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $administradores
+ * @property-read int|null $administradores_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Cliente> $clientes
+ * @property-read int|null $clientes_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Entrada> $entradas
+ * @property-read int|null $entradas_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\User> $funcionarios
+ * @property-read int|null $funcionarios_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\PlanoAssinatura> $planos
+ * @property-read int|null $planos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\Produto> $produtos
+ * @property-read int|null $produtos_count
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\VendaProduto> $vendas
+ * @property-read int|null $vendas_count
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia newModelQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia newQuery()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia query()
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia whereCNPJ($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia whereEmail($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia whereEndereco($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia whereIdAcademia($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia whereNome($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia whereResponsavel($value)
+ * @method static \Illuminate\Database\Eloquent\Builder<static>|Academia whereTelefone($value)
+ * @mixin \Eloquent
+ */
 class Academia extends Model
 {
     protected $table = 'academias';

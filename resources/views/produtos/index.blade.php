@@ -11,6 +11,59 @@
         </a>
     </div>
 
+    <!-- Filtros -->
+    <x-search-filter-dropdown 
+        placeholder="Nome ou descrição do produto..."
+        :filters="[
+            [
+                'name' => 'categoria',
+                'label' => 'Categoria',
+                'type' => 'select',
+                'options' => $categorias->pluck('nome', 'idCategoria')->toArray()
+            ],
+            [
+                'name' => 'preco_minimo',
+                'label' => 'Preço Mínimo',
+                'type' => 'number',
+                'placeholder' => '0.00',
+                'step' => '0.01',
+                'min' => '0'
+            ],
+            [
+                'name' => 'preco_maximo',
+                'label' => 'Preço Máximo',
+                'type' => 'number',
+                'placeholder' => '999.99',
+                'step' => '0.01',
+                'min' => '0'
+            ],
+            [
+                'name' => 'estoque_minimo',
+                'label' => 'Estoque Mínimo',
+                'type' => 'number',
+                'placeholder' => '0',
+                'min' => '0'
+            ],
+            [
+                'name' => 'estoque_maximo',
+                'label' => 'Estoque Máximo',
+                'type' => 'number',
+                'placeholder' => '999',
+                'min' => '0'
+            ]
+        ]"
+        :sort-options="[
+            'nome_asc' => 'Nome (A-Z)',
+            'nome_desc' => 'Nome (Z-A)',
+            'preco_asc' => 'Preço (Menor)',
+            'preco_desc' => 'Preço (Maior)',
+            'estoque_asc' => 'Estoque (Menor)',
+            'estoque_desc' => 'Estoque (Maior)',
+            'categoria_asc' => 'Categoria (A-Z)',
+            'categoria_desc' => 'Categoria (Z-A)'
+        ]"
+    />
+
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <table class="min-w-full leading-normal">
             <thead>

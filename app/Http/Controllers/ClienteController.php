@@ -158,7 +158,6 @@ class ClienteController extends Controller
         try {
             $validated = $request->validated();
 
-            // Verificar código de acesso antigo se um novo código foi fornecido
             if (!empty($validated['codigo_acesso'])) {
                 if (empty($validated['codigo_acesso_antigo'])) {
                     return back()
@@ -250,18 +249,15 @@ class ClienteController extends Controller
     public function renewPlan(Cliente $cliente, PlanoAssinaturaService $planoService)
     {
         try {
-            // Verifica se o cliente pertence à academia selecionada
             $academiaId = session('academia_selecionada');
             if (!$academiaId || $cliente->idAcademia != $academiaId) {
                 return back()->with('error', 'Cliente não encontrado ou não pertence à academia selecionada.');
             }
 
-            // Verifica se o cliente tem um plano associado
             if (!$cliente->plano) {
                 return back()->with('error', 'Cliente não possui plano de assinatura associado.');
             }
 
-            // Renova o plano usando o serviço
             $novaMensalidade = $planoService->renewClientPlan($cliente, $cliente->plano);
 
             return redirect()

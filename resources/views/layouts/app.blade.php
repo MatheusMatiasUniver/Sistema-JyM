@@ -25,19 +25,30 @@
     @include('partials.sidebar')
 
     <div class="main-content-area">
+
         @if(session('success'))
-            <div class="alert-success" role="alert">
-                <strong class="font-bold">Sucesso!</strong>
-                <span class="block sm:inline">{{ session('success') }}</span>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showNotification('{{ session('success') }}', 'success');
+                });
+            </script>
         @endif
         @if(session('error'))
-            <div class="alert-error" role="alert">
-                <strong class="font-bold">Erro!</strong>
-                <span class="block sm:inline">{{ session('error') }}</span>
-            </div>
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    showNotification('{{ session('error') }}', 'error');
+                });
+            </script>
         @endif
-
+        @if($errors->any())
+            <script>
+                document.addEventListener('DOMContentLoaded', function() {
+                    @foreach($errors->all() as $error)
+                        showNotification('{{ $error }}', 'error');
+                    @endforeach
+                });
+            </script>
+        @endif
         @yield('content')
     </div>
     @stack('body_scripts')

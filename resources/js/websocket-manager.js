@@ -14,23 +14,19 @@ class WebSocketManager {
         };
     }
 
-    /**
-     * Inicializa a conexão WebSocket
-     */
     init() {
         try {
-            // Configuração do Pusher para Reverb
             this.pusher = new Pusher(window.pusherConfig.key, {
                 cluster: window.pusherConfig.cluster,
                 wsHost: window.pusherConfig.host,
                 wsPort: window.pusherConfig.port,
                 wssPort: window.pusherConfig.port,
-                forceTLS: window.pusherConfig.scheme === 'https',
+                forceTLS: false,
                 enabledTransports: ['ws', 'wss'],
                 disableStats: true,
             });
 
-            // Eventos de conexão
+
             this.pusher.connection.bind('connected', () => {
                 console.log('WebSocket conectado');
                 this.isConnected = true;
@@ -55,7 +51,7 @@ class WebSocketManager {
                 }
             });
 
-            // Subscrever aos canais
+
             this.subscribeToChannels();
 
         } catch (error) {
@@ -63,11 +59,7 @@ class WebSocketManager {
         }
     }
 
-    /**
-     * Subscreve aos canais necessários
-     */
     subscribeToChannels() {
-        // Canal de status do kiosk
         this.kioskStatusChannel = this.pusher.subscribe('kiosk-status');
         
         this.kioskStatusChannel.bind('status.changed', (data) => {
@@ -77,7 +69,7 @@ class WebSocketManager {
             }
         });
 
-        // Canal de registro de cliente
+
         this.clientRegistrationChannel = this.pusher.subscribe('client-registration');
         
         this.clientRegistrationChannel.bind('registration.started', (data) => {
@@ -95,44 +87,32 @@ class WebSocketManager {
         });
     }
 
-    /**
-     * Define callback para mudanças de status do kiosk
-     */
+
     onKioskStatusChanged(callback) {
         this.callbacks.onKioskStatusChanged = callback;
     }
 
-    /**
-     * Define callback para início de registro de cliente
-     */
+
     onClientRegistrationStarted(callback) {
         this.callbacks.onClientRegistrationStarted = callback;
     }
 
-    /**
-     * Define callback para conclusão de registro de cliente
-     */
+
     onClientRegistrationCompleted(callback) {
         this.callbacks.onClientRegistrationCompleted = callback;
     }
 
-    /**
-     * Define callback para mudanças no estado da conexão
-     */
+
     onConnectionStateChange(callback) {
         this.callbacks.onConnectionStateChange = callback;
     }
 
-    /**
-     * Verifica se está conectado
-     */
+
     isWebSocketConnected() {
         return this.isConnected;
     }
 
-    /**
-     * Desconecta do WebSocket
-     */
+
     disconnect() {
         if (this.pusher) {
             this.pusher.disconnect();
@@ -140,9 +120,7 @@ class WebSocketManager {
         }
     }
 
-    /**
-     * Reconecta ao WebSocket
-     */
+
     reconnect() {
         if (this.pusher) {
             this.pusher.connect();
@@ -150,5 +128,5 @@ class WebSocketManager {
     }
 }
 
-// Exporta uma instância singleton
+
 export default new WebSocketManager();

@@ -43,6 +43,11 @@ class DashboardController extends Controller
         $faturamentoMes = VendaProduto::whereBetween('dataVenda', [$primeiroDiaMes, $ultimoDiaMes])
                                       ->sum('valorTotal');
 
+        // Additional variables for dashboard cards
+        $entradasHoje = Entrada::whereDate('dataHora', Carbon::today())->count();
+        $totalClientes = Cliente::count();
+        $vendasHoje = VendaProduto::whereDate('dataVenda', Carbon::today())->sum('valorTotal');
+
         return view('dashboard', compact(
             'acessosHoje',
             'clientesAtivos',
@@ -50,7 +55,10 @@ class DashboardController extends Controller
             'mensalidadesProximas',
             'ultimasVendas',
             'produtosBaixoEstoque',
-            'faturamentoMes'
+            'faturamentoMes',
+            'entradasHoje',
+            'totalClientes',
+            'vendasHoje'
         ));
     }
 }

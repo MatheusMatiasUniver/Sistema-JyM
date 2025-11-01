@@ -91,49 +91,26 @@ class PlanoAssinaturaService
     public function renewClientPlan(Cliente $cliente, PlanoAssinatura $plano): Mensalidade
     {
         DB::beginTransaction();
+
         try {
-            $ultimaMensalidade = $cliente->mensalidades()->latest('dataVencimento')->first();
+            $dataVencimento = Carbon::now()->addDays($plano->duracaoDias);
 
-            $dataInicioNovoPeriodo = Carbon::now();
-
-            if ($ultimaMensalidade) {
-                if ($ultimaMensalidade->dataVencimento->isFuture()) {
-                    $dataInicioNovoPeriodo = $ultimaMensalidade->dataVencimento->addDay(); 
-                } else {
-                    $dataInicioNovoPeriodo = Carbon::now();
-                }
-            } else {
-                $dataInicioNovoPeriodo = Carbon::now();
-            }
-
-            $novaDataVencimento = $dataInicioNovoPeriodo->addDays($plano->duracaoDias);
-
-            $novaMensalidade = Mensalidade::create([
+            $mensalidade = Mensalidade::create([
                 'idCliente' => $cliente->idCliente,
                 'idPlano' => $plano->idPlano,
-                'idAcademia' => $cliente->idAcademia,
-                'dataVencimento' => $novaDataVencimento,
                 'valor' => $plano->valor,
-                'status' => 'Paga',
-                'dataPagamento' => Carbon::now(),
+                'dataVencimento' => $dataVencimento,
+                'status' => 'Pendente',
+                'idAcademia' => $cliente->idAcademia,
             ]);
 
-            if ($cliente->status !== 'Ativo') {
-                $cliente->status = 'Ativo';
-                $cliente->save();
-            }
-
             DB::commit();
-            return $novaMensalidade;
+
+            return $mensalidade;
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Erro ao renovar plano para cliente ID {$cliente->idCliente}: " . $e->getMessage(), [
-                'cliente_id' => $cliente->idCliente,
-                'plano_id' => $plano->idPlano,
-                'erro_detalhes' => $e->getTraceAsString(),
-            ]);
-            throw new \Exception("Falha ao renovar plano: " . $e->getMessage());
+            throw new \Exception('Erro ao renovar plano: ' . $e->getMessage());
         }
     }
 
@@ -144,7 +121,6 @@ class PlanoAssinaturaService
      */
     public function podeAtivarCliente(Cliente $cliente): bool
     {
-        // Verificar se há mensalidades vencidas não pagas
         $mensalidadeVencida = Mensalidade::where('idCliente', $cliente->idCliente)
             ->where('status', 'Pendente')
             ->where('dataVencimento', '<', Carbon::today())

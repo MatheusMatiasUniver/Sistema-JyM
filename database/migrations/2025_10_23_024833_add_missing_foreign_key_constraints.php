@@ -11,7 +11,6 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // Adicionar onDelete e onUpdate nas foreign keys que estão faltando
         
         // Tabela itens_vendas - adicionar onDelete cascade
         if (Schema::hasTable('itens_vendas')) {
@@ -59,7 +58,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Reverter as alterações
         if (Schema::hasTable('itens_vendas')) {
             Schema::table('itens_vendas', function (Blueprint $table) {
                 $table->dropForeign(['idVenda']);

@@ -11,13 +11,25 @@ use App\Http\Requests\UpdateAcademiaRequest;
 
 class AcademiaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         if (Auth::user()->isAdministrador()) {
-            $academias = Auth::user()->academias;
+            $query = Auth::user()->academias();
         } else {
-            $academias = Academia::where('idAcademia', Auth::user()->idAcademia)->get();
+            $query = Academia::where('idAcademia', Auth::user()->idAcademia);
         }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where(function($q) use ($search) {
+                $q->where('nome', 'like', "%{$search}%")
+                  ->orWhere('CNPJ', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('responsavel', 'like', "%{$search}%");
+            });
+        }
+
+        $academias = $query->orderBy('nome')->paginate(10);
         
         return view('academias.index', compact('academias'));
     }

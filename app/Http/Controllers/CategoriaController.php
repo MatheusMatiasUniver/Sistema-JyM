@@ -14,7 +14,7 @@ class CategoriaController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
         $academiaId = $this->getAcademiaId();
         
@@ -22,11 +22,55 @@ class CategoriaController extends Controller
             return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
         }
 
-        $categorias = Categoria::with('academia')
+        $query = Categoria::with('academia')
             ->porAcademia($academiaId)
-            ->withCount('produtos')
-            ->orderBy('nome')
-            ->paginate(15);
+            ->withCount('produtos');
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('nome', 'like', "%{$search}%");
+        }
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $sortBy = $request->get('sort_by', 'nome');
+        $sortDirection = $request->get('sort_direction', 'asc');
+        
+        // Define default values for sorting
+        $sortField = 'nome';
+        $sortDirection = 'asc';
+        
+        if ($request->filled('sort')) {
+            switch ($request->sort) {
+                case 'nome_desc':
+                    $sortField = 'nome';
+                    $sortDirection = 'desc';
+                    break;
+                case 'produtos_asc':
+                    $sortField = 'produtos_count';
+                    $sortDirection = 'asc';
+                    break;
+                case 'produtos_desc':
+                    $sortField = 'produtos_count';
+                    $sortDirection = 'desc';
+                    break;
+                case 'status_asc':
+                    $sortField = 'status';
+                    $sortDirection = 'asc';
+                    break;
+                case 'status_desc':
+                    $sortField = 'status';
+                    $sortDirection = 'desc';
+                    break;
+                default:
+                    $sortField = 'nome';
+                    $sortDirection = 'asc';
+            }
+        }
+
+        $categorias = $query->orderBy($sortField, $sortDirection)->paginate(15);
 
         return view('categorias.index', compact('categorias'));
     }

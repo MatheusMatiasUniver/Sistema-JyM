@@ -11,6 +11,30 @@
         </a>
     </div>
 
+    <!-- Filtros -->
+    <x-search-filter-dropdown 
+        placeholder="Nome ou descrição da categoria..."
+        :filters="[
+            [
+                'name' => 'status',
+                'label' => 'Status',
+                'type' => 'select',
+                'options' => [
+                    'Ativo' => 'Ativo',
+                    'Inativo' => 'Inativo'
+                ]
+            ]
+        ]"
+        :sort-options="[
+            'nome_asc' => 'Nome (A-Z)',
+            'nome_desc' => 'Nome (Z-A)',
+            'produtos_asc' => 'Produtos (Menor)',
+            'produtos_desc' => 'Produtos (Maior)',
+            'status_asc' => 'Status (A-Z)',
+            'status_desc' => 'Status (Z-A)'
+        ]"
+    />
+
     @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
             {{ session('success') }}

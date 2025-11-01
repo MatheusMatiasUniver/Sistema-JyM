@@ -163,9 +163,8 @@
                 @endforelse
             </tbody>
         </table>
-        {{-- Paginação --}}
-        <div class="px-5 py-5 bg-white border-t flex flex-col xs:flex-row items-center xs:justify-between">
-            {{ $clientes->appends(request()->except('page'))->links() }}
+        <div class="mt-6">
+            {{ $clientes->appends(request()->query())->links() }}
         </div>
     </div>
 @endsection

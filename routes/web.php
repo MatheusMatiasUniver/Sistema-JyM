@@ -46,8 +46,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/face/kiosk-status', [FaceRecognitionController::class, 'getKioskStatus']);
     Route::post('/face/set-kiosk-registering', [FaceRecognitionController::class, 'setKioskRegistering']);
 
-    // --- MÓDULOS DE GERENCIAMENTO ---
-
     Route::resource('clientes', ClienteController::class)->middleware('funcionario');
 
     Route::resource('produtos', ProdutoController::class)->middleware('funcionario');
@@ -64,4 +62,8 @@ Route::middleware('auth')->group(function () {
     Route::resource('academias', AcademiaController::class)->middleware('admin');
 
     Route::resource('planos', PlanoAssinaturaController::class);
+    
+    Route::get('/test-notifications', function () {
+        return view('test-notifications');
+    })->name('test.notifications');
 });

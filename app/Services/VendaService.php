@@ -71,4 +71,40 @@ class VendaService
             throw new \Exception("Falha ao registrar venda: " . $e->getMessage());
         }
     }
+    public function processarVenda(array $dadosVenda): Venda
+    {
+        DB::beginTransaction();
+
+        try {
+            $venda = Venda::create([
+                'idCliente' => $dadosVenda['idCliente'],
+                'idTipoPagamento' => $dadosVenda['idTipoPagamento'],
+                'valorTotal' => $dadosVenda['valorTotal'],
+                'dataVenda' => now(),
+                'idAcademia' => $dadosVenda['idAcademia'],
+                'idUsuario' => $dadosVenda['idUsuario'],
+            ]);
+
+            foreach ($dadosVenda['produtos'] as $produto) {
+                VendaProduto::create([
+                    'idVenda' => $venda->idVenda,
+                    'idProduto' => $produto['idProduto'],
+                    'quantidade' => $produto['quantidade'],
+                    'precoUnitario' => $produto['precoUnitario'],
+                    'subtotal' => $produto['subtotal'],
+                ]);
+
+                $produtoModel = Produto::find($produto['idProduto']);
+                $produtoModel->baixarEstoque($produto['quantidade']);
+            }
+
+            DB::commit();
+
+            return $venda;
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+            throw new \Exception('Erro ao processar venda: ' . $e->getMessage());
+        }
+    }
 }

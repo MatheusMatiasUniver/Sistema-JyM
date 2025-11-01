@@ -7,6 +7,32 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * @property int $idProduto
+ * @property int|null $idAcademia
+ * @property string|null $nome
+ * @property int|null $idCategoria
+ * @property numeric|null $preco
+ * @property int|null $estoque
+ * @property string|null $descricao
+ * @property string|null $imagem
+ * @property-read \App\Models\Academia|null $academia
+ * @property-read \App\Models\Categoria|null $categoria
+ * @property-read \Illuminate\Database\Eloquent\Collection<int, \App\Models\ItemVenda> $itensVenda
+ * @property-read int|null $itens_venda_count
+ * @method static Builder<static>|Produto newModelQuery()
+ * @method static Builder<static>|Produto newQuery()
+ * @method static Builder<static>|Produto query()
+ * @method static Builder<static>|Produto whereDescricao($value)
+ * @method static Builder<static>|Produto whereEstoque($value)
+ * @method static Builder<static>|Produto whereIdAcademia($value)
+ * @method static Builder<static>|Produto whereIdCategoria($value)
+ * @method static Builder<static>|Produto whereIdProduto($value)
+ * @method static Builder<static>|Produto whereImagem($value)
+ * @method static Builder<static>|Produto whereNome($value)
+ * @method static Builder<static>|Produto wherePreco($value)
+ * @mixin \Eloquent
+ */
 class Produto extends Model
 {
     protected $table = 'produtos';
