@@ -1,3 +1,5 @@
+let __formattersInitialized = false;
+
 export function formatCPF(value) {
     if (!value) return '';
     
@@ -94,7 +96,11 @@ export function validarCNPJ(cnpj) {
 }
 
 export function initFormatters() {
-    document.querySelectorAll('[data-format="cpf"]').forEach(input => {
+    // Prevent multiple initializations
+    if (__formattersInitialized) return;
+    __formattersInitialized = true;
+
+    const bindCPF = (input) => {
         input.addEventListener('input', function(e) {
             const cursorPosition = e.target.selectionStart;
             const oldValue = e.target.value;
@@ -112,8 +118,16 @@ export function initFormatters() {
         if (input.value) {
             input.value = formatCPF(input.value);
         }
-    });
+    };
 
+    const cpfInputs = [
+        ...document.querySelectorAll('[data-format="cpf"]'),
+        ...document.querySelectorAll('#cpf'),
+        ...document.querySelectorAll('input[name="cpf"]')
+    ];
+    cpfInputs.forEach(bindCPF);
+
+    // Keep CNPJ mask handled by cnpj-mask.js; support data-format="cnpj" if present
     document.querySelectorAll('[data-format="cnpj"]').forEach(input => {
         input.addEventListener('input', function(e) {
             const cursorPosition = e.target.selectionStart;
@@ -134,7 +148,7 @@ export function initFormatters() {
         }
     });
 
-    document.querySelectorAll('[data-format="telefone"]').forEach(input => {
+    const bindTelefone = (input) => {
         input.addEventListener('input', function(e) {
             const cursorPosition = e.target.selectionStart;
             const oldValue = e.target.value;
@@ -152,9 +166,18 @@ export function initFormatters() {
         if (input.value) {
             input.value = formatTelefone(input.value);
         }
-    });
+    };
+
+    const telefoneInputs = [
+        ...document.querySelectorAll('[data-format="telefone"]'),
+        ...document.querySelectorAll('#telefone'),
+        ...document.querySelectorAll('input[name="telefone"]')
+    ];
+    telefoneInputs.forEach(bindTelefone);
 }
 
 document.addEventListener('DOMContentLoaded', initFormatters);
 
-export { formatCPF, formatCNPJ, formatTelefone, validarCPF, validarCNPJ, initFormatters };
+export function applyFormatting() {
+    initFormatters();
+}

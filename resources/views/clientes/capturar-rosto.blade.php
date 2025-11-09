@@ -22,42 +22,26 @@
             Iniciar Câmera
         </button>
         <button id="registerFaceButton" disabled
-                class="bg-accent-blue-btn hover:bg-accent-blue-btn-hover text-text-white disabled:opacity-50 disabled:cursor-not-allowed
+                class="bg-grip-6-btn hover:bg-grip-red-dark text-text-white disabled:opacity-50 disabled:cursor-not-allowed
                        font-bold py-2 px-4 rounded-lg shadow-md transition-all duration-300 w-full sm:w-auto">
             Cadastrar Rosto
         </button>
     </div>
 
-    <div class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-        <p class="text-blue-800 text-sm">
+<div class="mb-4 p-4 bg-grip-4 border border-border-light rounded-lg">
+    <p class="text-grip-3 text-sm">
             <strong>Importante:</strong> Durante o cadastro de rosto, o sistema de reconhecimento do kiosk será pausado automaticamente para evitar interferências.
         </p>
     </div>
 
-    <div id="result" class="mt-4 p-4 rounded-lg hidden"></div>
+    <div id="results" class="mt-4 p-4 rounded-lg hidden"></div>
 
     <div class="mt-6">
         <a href="{{ route('clientes.edit', $cliente->idCliente) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
             Voltar para Edição do Cliente
         </a>
     </div>
-    <div class="text-center mb-6">
-        <h1 class="text-3xl font-bold mb-2">Captura de Rosto</h1>
-        <p class="text-lg opacity-90">Cliente: {{ $cliente->nome }}</p>
-    </div>
-
-    <div class="bg-white bg-opacity-10 backdrop-blur-sm rounded-lg p-6 w-full max-w-md">
-        <video id="video" autoplay muted class="w-full h-64 bg-black rounded-lg mb-4"></video>
-        
-        <div class="text-center">
-            <button id="capture-btn" class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200 mr-3">
-                Capturar Rosto
-            </button>
-            <a href="{{ route('clientes.index') }}" class="bg-gray-600 hover:bg-gray-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-200">
-                Cancelar
-            </a>
-        </div>
-    </div>
+    
 @endsection
 
 @push('body_scripts')

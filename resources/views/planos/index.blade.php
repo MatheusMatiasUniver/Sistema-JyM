@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Gerenciar Planos de Assinatura</h1>
 
     <div class="mb-4">
-        <a href="{{ route('planos.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    <a href="{{ route('planos.create') }}" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">
             Cadastrar Novo Plano
         </a>
     </div>
@@ -106,12 +106,12 @@
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
-                                <a href="{{ route('planos.edit', $plano->idPlano) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
+                                <a href="{{ route('planos.edit', $plano->idPlano) }}" class="text-grip-1 hover:text-grip-red-light">Editar</a>
                                 @if($plano->podeDeletar())
                                     <form action="{{ route('planos.destroy', $plano->idPlano) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este plano?');">
                                         @csrf
                                         @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
+                                <button type="submit" class="text-grip-2 hover:text-grip-red-dark">Excluir</button>
                                     </form>
                                 @else
                                     <span class="text-gray-400 cursor-not-allowed" 

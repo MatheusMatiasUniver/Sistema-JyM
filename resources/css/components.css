@@ -4,7 +4,7 @@
   }
 
   h1, h2 {
-    @apply text-accent-blue;
+    @apply text-grip-1;
   }
 
   table {
@@ -16,7 +16,13 @@
   }
 
   table th {
-    @apply bg-accent-blue text-text-black;
+    @apply bg-grip-4 text-text-black;
+  }
+  a {
+    @apply text-grip-1;
+  }
+  a:hover {
+    @apply text-grip-red-light;
   }
 }
 
@@ -30,7 +36,7 @@
   }
 
   .sidebar-nav-link {
-    @apply block text-text-white no-underline my-2.5 p-2.5 rounded transition-all duration-300 hover:bg-accent-blue hover:text-text-black;
+    @apply block text-text-white no-underline my-2.5 p-2.5 rounded transition-all duration-300 hover:bg-grip-2 hover:text-text-white;
   }
 
   .user-info-section {
@@ -50,7 +56,7 @@
   }
 
   .user-avatar i {
-    @apply text-2xl text-accent-blue;
+    @apply text-2xl text-grip-1;
   }
 
   .user-details {
@@ -70,11 +76,11 @@
   }
 
   .role-badge.admin {
-    @apply bg-accent-purple text-text-white;
+    @apply bg-grip-2 text-text-white;
   }
 
   .role-badge.funcionario {
-    @apply bg-accent-blue text-text-black;
+    @apply bg-grip-1 text-text-white;
   }
 
   .dropdown-arrow {
@@ -94,7 +100,7 @@
   }
 
   .dropdown-item {
-    @apply flex items-center gap-3 px-4 py-3 text-text-white no-underline transition-all duration-300 hover:bg-accent-blue hover:text-text-black rounded-lg;
+    @apply flex items-center gap-3 px-4 py-3 text-text-white no-underline transition-all duration-300 hover:bg-grip-red-light hover:text-text-white rounded-lg;
   }
 
   .dropdown-item i {
@@ -110,21 +116,21 @@
   }
 
   .btn-quick-action-purple {
-    @apply p-15px px-30px text-lg bg-accent-purple text-text-white border-none rounded-lg cursor-pointer font-bold transition-all duration-300 shadow-md;
+    @apply p-15px px-30px text-lg bg-grip-2 text-text-white border-none rounded-lg cursor-pointer font-bold transition-all duration-300 shadow-md;
   }
 
   .btn-quick-action-blue {
-    @apply p-15px px-30px text-lg bg-accent-blue-btn text-text-white border-none rounded-lg cursor-pointer font-bold transition-all duration-300 shadow-md hover:bg-accent-blue-btn-hover;
+    @apply p-15px px-30px text-lg bg-grip-1 text-text-white border-none rounded-lg cursor-pointer font-bold transition-all duration-300 shadow-md hover:bg-grip-2;
   }
 
   .alert-success {
-    @apply bg-success-bg border border-success-border text-success-text px-6 py-8 rounded relative mb-4;
+    @apply bg-white border border-grip-1 text-grip-1 px-6 py-8 rounded relative mb-4;
   }
   .alert-error {
-    @apply bg-red-100 border border-error-text text-error-text px-6 py-8 rounded relative mb-4;
+    @apply bg-white border border-grip-red-dark text-grip-red-dark px-6 py-8 rounded relative mb-4;
   }
   .alert-info {
-    @apply bg-blue-100 border border-blue-400 text-blue-700 px-6 py-8 rounded relative mb-4;
+    @apply bg-grip-4 border border-border-light text-grip-3 px-6 py-8 rounded relative mb-4;
   }
 
   .alert-success .main-message,
@@ -159,19 +165,19 @@
   }
 
   .notification-popup.success {
-    @apply border-l-green-500 bg-green-50;
+    @apply border-l-grip-1 bg-white;
   }
 
   .notification-popup.error {
-    @apply border-l-red-500 bg-red-50;
+    @apply border-l-grip-red-dark bg-white;
   }
 
   .notification-popup.info {
-    @apply border-l-blue-500 bg-blue-50;
+    @apply border-l-grip-3 bg-grip-4;
   }
 
   .notification-popup.warning {
-    @apply border-l-yellow-500 bg-yellow-50;
+    @apply border-l-grip-red-light bg-white;
   }
 
   .notification-header {
@@ -183,19 +189,19 @@
   }
 
   .notification-title.success {
-    @apply text-green-800;
+    @apply text-grip-1;
   }
 
   .notification-title.error {
-    @apply text-red-800;
+    @apply text-grip-red-dark;
   }
 
   .notification-title.info {
-    @apply text-blue-800;
+    @apply text-grip-3;
   }
 
   .notification-title.warning {
-    @apply text-yellow-800;
+    @apply text-grip-red-light;
   }
 
   .notification-icon {
@@ -242,7 +248,7 @@
     flex-direction: column;
     align-items: center;
     padding: 20px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #565959 0%, #0D0D0D 100%);
     min-height: 100vh;
     color: white;
 }

@@ -6,14 +6,14 @@
     <h1 class="text-3xl font-bold mb-6 text-gray-800">Histórico de Vendas</h1>
    
     @if(session('info'))
-        <div class="bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative mb-4" role="alert">
+    <div class="bg-grip-4 border border-border-light text-grip-3 px-4 py-3 rounded relative mb-4" role="alert">
             <strong class="font-bold">Info!</strong>
             <span class="block sm:inline">{{ session('info') }}</span>
         </div>
     @endif
 
     <div class="mb-4">
-        <a href="{{ route('vendas.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <a href="{{ route('vendas.create') }}" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">
             Registrar Nova Venda
         </a>
     </div>
@@ -115,11 +115,11 @@
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
-                                <a href="{{ route('vendas.show', $venda->idVenda) }}" class="text-blue-600 hover:text-blue-900">Ver Detalhes</a>
+                                <a href="{{ route('vendas.show', $venda->idVenda) }}" class="text-grip-1 hover:text-grip-red-light">Ver Detalhes</a>
                                 <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja estornar esta venda? Esta ação irá retornar os produtos ao estoque.');">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="text-red-600 hover:text-red-900">Estornar</button>
+                                <button type="submit" class="text-grip-2 hover:text-grip-red-dark">Estornar</button>
                                 </form>
                             </div>
                         </td>

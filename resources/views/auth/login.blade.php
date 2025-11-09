@@ -5,11 +5,11 @@
     <title>Login - Sistema JyM</title>
     @vite(['resources/css/app.css'])
 </head>
-<body class="bg-primary-dark text-white flex justify-center items-center min-h-screen">
-    <div class="bg-black/80 p-8 rounded-lg shadow-2xl w-[350px] text-center">
+<body class="bg-grip-7 text-white flex justify-center items-center min-h-screen">
+    <div class="bg-grip-5 p-8 rounded-lg shadow-2xl w-[350px] text-center">
         <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="w-[120px] mb-5 mx-auto">
 
-        <h2 class="mb-5 text-accent-blue text-2xl font-bold">Login</h2>
+        <h2 class="mb-5 text-grip-6 text-2xl font-bold">Login</h2>
         
         <form id="loginForm" method="POST" action="{{ route('login.submit') }}">
             @csrf
@@ -24,7 +24,7 @@
                 <span class="text-error-text text-sm">{{ $message }}</span>
             @enderror
 
-            <button type="submit" class="w-[95%] p-3 my-2.5 bg-accent-blue text-black cursor-pointer transition-all duration-300 rounded hover:bg-accent-blue-hover font-bold">Entrar</button>
+            <button type="submit" class="w-[95%] p-3 my-2.5 bg-grip-6 text-black cursor-pointer transition-all duration-300 rounded hover:bg-grip-red-dark hover:text-white font-bold">Entrar</button>
         </form>
         
         @if(session('success'))

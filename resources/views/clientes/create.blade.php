@@ -3,7 +3,7 @@
 @section('title', 'Cadastrar Cliente - Sistema JyM')
 
 @section('content')
-        <h1 class="text-3xl font-bold mb-6 text-accent-blue">Cadastrar Novo Cliente</h1>
+        <h1 class="text-3xl font-bold mb-6 text-grip-6">Cadastrar Novo Cliente</h1>
     
         @if ($errors->any())
             <div class="alert alert-danger mb-4 p-4 rounded-lg bg-red-100 text-red-700">
@@ -129,7 +129,6 @@
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
                 
-                <!-- Preview da imagem -->
                 <div id="imagePreview" class="mt-3 hidden">
                     <p class="text-sm text-gray-600 mb-2">Preview da imagem:</p>
                     <img id="preview" src="" alt="Preview" class="max-w-xs max-h-48 rounded border shadow">
@@ -139,7 +138,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button type="submit" class="bg-grip-6 text-black hover:bg-grip-red-dark hover:text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 Cadastrar Cliente
             </button>
         </form>    

@@ -2,7 +2,7 @@
 <div x-data="{ open: false }" class="fixed top-4 right-4 z-[9999]">
     <button @click="open = !open" 
             type="button"
-            class="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg shadow-lg transition-colors">
+            class="flex items-center gap-2 px-4 py-2 bg-grip-1 hover:bg-grip-2 text-white rounded-lg shadow-lg transition-colors">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
                   d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
@@ -26,11 +26,11 @@
             <button type="button"
                     data-academia-id="{{ $academia->idAcademia }}"
                     onclick="trocarAcademia(this.getAttribute('data-academia-id'))"
-                    class="w-full text-left px-4 py-3 hover:bg-gray-100 transition-colors {{ session('academia_selecionada') == $academia->idAcademia ? 'bg-blue-50 text-blue-700 font-semibold' : 'text-gray-700' }}">
+                    class="w-full text-left px-4 py-3 hover:bg-grip-4 transition-colors {{ session('academia_selecionada') == $academia->idAcademia ? 'bg-grip-4 text-grip-3 font-semibold' : 'text-grip-3' }}">
                 <div class="flex items-center justify-between">
                     <span>{{ $academia->nome }}</span>
                     @if(session('academia_selecionada') == $academia->idAcademia)
-                        <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                        <svg class="w-5 h-5 text-grip-1" fill="currentColor" viewBox="0 0 20 20">
                             <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                         </svg>
                     @endif

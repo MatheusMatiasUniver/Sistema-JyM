@@ -65,7 +65,7 @@
             <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" class="ml-3" onsubmit="return confirm('Tem certeza que deseja estornar esta venda? Esta ação irá retornar os produtos ao estoque.');">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">Estornar Venda</button>
+<button type="submit" class="bg-grip-2 hover:bg-grip-red-dark text-white font-bold py-2 px-4 rounded">Estornar Venda</button>
             </form>
         </div>
     </div>

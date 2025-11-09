@@ -1,11 +1,11 @@
 import './bootstrap';
 import * as faceapi from 'face-api.js';
 import { initVendasCreate } from './vendas-create';
-import { applyFormatting } from './formatters';
+import * as formatters from './formatters';
 import './cnpj-mask';
 import webSocketManager from './websocket-manager';
 
-window.applyFormatting = applyFormatting;
+window.applyFormatting = formatters.applyFormatting;
 
 const video = document.getElementById('videoElement');
 const canvas = document.getElementById('overlayCanvas');
@@ -365,10 +365,6 @@ function startDetectionLoop() {
                 detectionIntervalId = null;
                 detectionStarted = false;
                 showMessage('info', kioskRegistrationMessage || 'Registro de rosto em andamento...');
-                return;
-            }
-
-            if (isRegistering) {
                 return;
             }
 
@@ -822,11 +818,11 @@ window.addEventListener('pagehide', () => {
 });
 
 document.addEventListener('DOMContentLoaded', () => {
-    const userDropdown = document.querySelector('.user-dropdown');
-    const userDropdownToggle = document.querySelector('.user-dropdown-toggle');
-    const userDropdownMenu = document.querySelector('.user-dropdown-menu');
+    const userDropdown = document.querySelector('.user-info-section') || document.getElementById('userDropdown');
+    const userDropdownToggle = document.querySelector('.user-info-content') || document.querySelector('.user-dropdown-toggle');
+    const userDropdownMenu = document.querySelector('.user-dropdown-menu') || document.getElementById('userDropdownMenu');
     
-    if (userDropdownToggle && userDropdownMenu) {
+    if (userDropdown && userDropdownToggle && userDropdownMenu) {
         userDropdownToggle.addEventListener('click', (e) => {
             e.stopPropagation();
             userDropdownMenu.classList.toggle('show');
@@ -864,38 +860,80 @@ function createNotificationContainer() {
     return notificationContainer;
 }
 
-function showNotification(message, type = 'info', duration = 5000) {
+function showNotification(...args) {
+    // Support both signatures:
+    // 1) showNotification(message, type = 'info', duration = 5000)
+    // 2) showNotification(type, title, message, duration = 5000)
+    let type = 'info';
+    let title = null;
+    let message = '';
+    let duration = 5000;
+
+    const knownTypes = ['success', 'error', 'warning', 'info'];
+
+    if (typeof args[0] === 'string' && knownTypes.includes(args[0])) {
+        // type-first signature
+        type = args[0];
+        title = typeof args[1] === 'string' ? args[1] : null;
+        message = typeof args[2] === 'string' ? args[2] : '';
+        duration = typeof args[3] === 'number' ? args[3] : 5000;
+    } else {
+        // message-first signature
+        message = typeof args[0] === 'string' ? args[0] : '';
+        type = typeof args[1] === 'string' && knownTypes.includes(args[1]) ? args[1] : 'info';
+        duration = typeof args[2] === 'number' ? args[2] : 5000;
+    }
+
     const container = createNotificationContainer();
-    
+
     const notification = document.createElement('div');
-    notification.className = `notification ${type}`;
-    
+    notification.className = `notification-popup ${type}`;
+
     const iconMap = {
         success: 'fas fa-check-circle',
         error: 'fas fa-exclamation-circle',
         warning: 'fas fa-exclamation-triangle',
         info: 'fas fa-info-circle'
     };
-    
+
+    const titleText = title || ({
+        success: 'Sucesso',
+        error: 'Erro',
+        warning: 'Aviso',
+        info: 'Informação'
+    }[type]);
+
     notification.innerHTML = `
-        <div class="notification-content">
-            <i class="${iconMap[type]}"></i>
-            <span>${message}</span>
+        <div class="notification-header">
+            <div class="notification-title ${type}">
+                <i class="${iconMap[type]} notification-icon"></i>
+                <span>${titleText}</span>
+            </div>
+            <button class="notification-close" aria-label="Fechar">&times;</button>
         </div>
-        <button class="notification-close">&times;</button>
+        <div class="notification-message">${message}</div>
+        <div class="notification-progress"></div>
     `;
-    
+
     const closeBtn = notification.querySelector('.notification-close');
+    let removeTimer = null;
+
+    const removeWithAnimation = () => {
+        notification.classList.add('removing');
+        setTimeout(() => notification.remove(), 300);
+    };
+
     closeBtn.addEventListener('click', () => {
-        notification.remove();
+        if (removeTimer) clearTimeout(removeTimer);
+        removeWithAnimation();
     });
-    
+
     container.appendChild(notification);
-    
-    setTimeout(() => {
-        notification.remove();
+
+    removeTimer = setTimeout(() => {
+        removeWithAnimation();
     }, duration);
-    
+
     return notification;
 }
 
@@ -915,6 +953,13 @@ function showInfo(message, duration = 5000) {
     return showNotification(message, 'info', duration);
 }
 
+// Expose notification helpers globally for views that call them directly
+window.showNotification = showNotification;
+window.showSuccess = showSuccess;
+window.showError = showError;
+window.showWarning = showWarning;
+window.showInfo = showInfo;
+
 document.addEventListener('DOMContentLoaded', function() {
     const sessionMessages = document.querySelectorAll('[data-session-message]');
     
@@ -929,6 +974,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-if (currentPath.includes('/clientes/capturar-rosto')) {
+// Use existing flag instead of undefined currentPath
+if (isCaptureFacePage) {
     document.body.classList.add('face-capture-page');
 }
