@@ -68,12 +68,12 @@ class Mensalidade extends Model
 
     public function estaVencida(): bool
     {
-        return $this->status !== 'Pago' && $this->dataVencimento < Carbon::today();
+        return $this->status !== 'Paga' && $this->dataVencimento < Carbon::today();
     }
 
     public function estaPaga(): bool
     {
-        return $this->status === 'Pago';
+        return $this->status === 'Paga';
     }
 
     public function diasAteVencimento(): int

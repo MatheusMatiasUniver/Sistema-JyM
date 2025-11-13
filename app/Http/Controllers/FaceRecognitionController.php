@@ -110,8 +110,19 @@ class FaceRecognitionController extends Controller
             $cliente = Cliente::find($bestMatch->cliente_id);
 
             if ($cliente) {
+                if ($cliente->status !== 'Ativo') {
+                    Log::warning("Acesso negado por reconhecimento para cliente ID {$cliente->idCliente}: Status {$cliente->status}.");
+                    return response()->json([
+                        'authenticated' => false,
+                        'client_id' => $cliente->idCliente,
+                        'user_name' => $cliente->nome,
+                        'status' => $cliente->status,
+                        'message' => 'ACESSO NEGADO! Status: ' . $cliente->status . '.',
+                    ], 403);
+                }
+
                 try {
-                    $this->entradaService->registrarEntrada($cliente->idCliente, 'Reconhecimento Facial');
+                    $this->entradaService->registrarEntrada($cliente, 'Reconhecimento Facial');
                     Log::info("Acesso registrado para cliente {$cliente->idCliente} via reconhecimento facial.");
                 } catch (\Exception $e) {
                     Log::error("Falha ao registrar entrada para cliente {$cliente->idCliente}: " . $e->getMessage());
@@ -122,7 +133,7 @@ class FaceRecognitionController extends Controller
                     'client_id' => $cliente->idCliente,
                     'user_name' => $cliente->nome,
                     'status' => $cliente->status,
-                    'message' => 'Autenticado com sucesso!',
+                    'message' => 'ACESSO LIBERADO! Bom treino, ' . $cliente->nome . '!',
                 ]);
             }
         }
@@ -159,10 +170,10 @@ class FaceRecognitionController extends Controller
         }
 
         try {
-            $this->entradaService->registrarEntrada($cliente->idCliente, 'Código Numérico');
-            Log::info("Acesso registrado para cliente {$cliente->idCliente} via Código Numérico.");
+            $this->entradaService->registrarEntrada($cliente, 'CPF/Senha');
+            Log::info("Acesso registrado para cliente {$cliente->idCliente} via CPF/Senha.");
         } catch (\Exception $e) {
-            Log::error("Falha ao registrar entrada para cliente {$cliente->idCliente} via Código Numérico: " . $e->getMessage());
+            Log::error("Falha ao registrar entrada para cliente {$cliente->idCliente} via CPF/Senha: " . $e->getMessage());
         }
 
         return response()->json([

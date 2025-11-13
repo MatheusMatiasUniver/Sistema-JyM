@@ -3,7 +3,7 @@
 @section('title', 'Capturar Rosto - {{ $cliente->nome }} (ID: {{ $cliente->idCliente }})')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Capturar Rosto do Cliente</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Capturar Rosto do Cliente</h1>
 
     <div class="cliente-info mb-4 text-lg text-gray-700">
         Cliente: <strong>{{ $cliente->nome }}</strong> (ID: {{ $cliente->idCliente }})

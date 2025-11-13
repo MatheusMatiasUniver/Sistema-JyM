@@ -3,7 +3,7 @@
 @section('title', 'Detalhes da Venda #' . $venda->idVenda . ' - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Detalhes da Venda #{{ $venda->idVenda }}</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Detalhes da Venda #{{ $venda->idVenda }}</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto">
         <div class="mb-4">

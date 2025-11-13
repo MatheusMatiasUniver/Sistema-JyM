@@ -10,6 +10,7 @@ use App\Http\Controllers\AcademiaController;
 use App\Http\Controllers\PlanoAssinaturaController;
 use App\Http\Controllers\FaceRecognitionController;
 use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\MensalidadeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -53,6 +54,10 @@ Route::middleware('auth')->group(function () {
     Route::resource('categorias', CategoriaController::class)->middleware('funcionario');
 
     Route::resource('vendas', VendaController::class)->middleware('funcionario');
+
+    Route::post('/mensalidades/{mensalidade}/pagar', [MensalidadeController::class, 'pagar'])
+        ->name('mensalidades.pagar')
+        ->middleware('funcionario');
 
     Route::get('/users', [UserController::class, 'index'])->name('users.index');
     Route::get('/users/{user}/edit', [UserController::class, 'edit'])->name('users.edit');

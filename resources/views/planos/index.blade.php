@@ -3,7 +3,7 @@
 @section('title', 'Gerenciar Planos de Assinatura - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Gerenciar Planos de Assinatura</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Gerenciar Planos de Assinatura</h1>
 
     <div class="mb-4">
     <a href="{{ route('planos.create') }}" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">

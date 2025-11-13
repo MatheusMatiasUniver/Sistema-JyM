@@ -88,7 +88,10 @@ class VendaController extends Controller
 
     public function create()
     {
-        $academiaId = config('app.academia_atual');
+        $academiaId = session('academia_selecionada');
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
         $produtos = Produto::where('idAcademia', $academiaId)
                            ->where('estoque', '>', 0)
                            ->get();
@@ -114,9 +117,14 @@ class VendaController extends Controller
 
             DB::beginTransaction();
             
+            $academiaId = session('academia_selecionada');
+            if (!$academiaId) {
+                return back()->with('error', 'Selecione uma academia primeiro.')->withInput();
+            }
+
             $dados = [
                 'idCliente' => $request->idCliente,
-                'idAcademia' => config('app.academia_atual'),
+                'idAcademia' => $academiaId,
                 'dataVenda' => now(),
                 'formaPagamento' => $request->formaPagamento,
                 'valorTotal' => 0,
@@ -129,7 +137,7 @@ class VendaController extends Controller
             foreach ($request->produtos as $item) {
                 $produto = Produto::findOrFail($item['idProduto']);
                 
-                if ($produto->idAcademia != config('app.academia_atual')) {
+                if ($produto->idAcademia != $academiaId) {
                     throw new \Exception('Produto não pertence a esta academia.');
                 }
 

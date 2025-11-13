@@ -3,7 +3,7 @@
 @section('title', 'Detalhes da Categoria - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Detalhes da Categoria</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Detalhes da Categoria</h1>
 
     <div class="mb-4 flex space-x-2">
         <a href="{{ route('categorias.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">

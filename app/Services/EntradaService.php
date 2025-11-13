@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Entrada;
+use App\Models\Cliente;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -11,18 +12,18 @@ class EntradaService
     /**
      * Registra um novo acesso para o cliente.
      *
-     * @param int $idCliente
+     * @param Cliente $cliente
      * @param string $metodo
      * @return Entrada
      * @throws Exception
      */
-    public function registrarEntrada(Cliente $cliente, string $tipoEntrada = 'Manual'): Entrada
+    public function registrarEntrada(Cliente $cliente, string $metodo = 'Manual'): Entrada
     {
         try {
             $entrada = Entrada::create([
                 'idCliente' => $cliente->idCliente,
-                'dataEntrada' => now(),
-                'tipoEntrada' => $tipoEntrada,
+                'dataHora' => now(),
+                'metodo' => $metodo,
                 'idAcademia' => $cliente->idAcademia,
             ]);
 

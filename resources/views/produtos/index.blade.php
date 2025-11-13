@@ -3,7 +3,7 @@
 @section('title', 'Gerenciar Produtos - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Gerenciar Produtos</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Gerenciar Produtos</h1>
 
     <div class="mb-4">
         <a href="{{ route('produtos.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

@@ -3,7 +3,7 @@
 @section('title', 'Cadastrar Plano de Assinatura - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Cadastrar Novo Plano de Assinatura</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Cadastrar Novo Plano de Assinatura</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('planos.store') }}" method="POST">

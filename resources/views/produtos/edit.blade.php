@@ -3,7 +3,7 @@
 @section('title', 'Editar Produto - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Editar Produto: {{ $produto->nome }}</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Editar Produto: {{ $produto->nome }}</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
         <form action="{{ route('produtos.update', $produto->idProduto) }}" method="POST" enctype="multipart/form-data">

@@ -3,7 +3,7 @@
 @section('title', 'Histórico de Vendas - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Histórico de Vendas</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Histórico de Vendas</h1>
    
     @if(session('info'))
     <div class="bg-grip-4 border border-border-light text-grip-3 px-4 py-3 rounded relative mb-4" role="alert">

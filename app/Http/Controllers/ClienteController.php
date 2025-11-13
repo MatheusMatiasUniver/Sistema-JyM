@@ -36,10 +36,27 @@ class ClienteController extends Controller
 
         $allPlanos = PlanoAssinatura::where('idAcademia', $academiaId)->get();
 
-        $clientes = Cliente::where('idAcademia', $academiaId)
-            ->with('plano')
-            ->orderBy('nome')
-            ->paginate(15);
+        $query = Cliente::where('idAcademia', $academiaId)->with('plano');
+
+        if (request()->filled('search')) {
+            $search = request('search');
+            $cpfSearch = preg_replace('/[^0-9]/', '', $search);
+            $query->where(function ($q) use ($search, $cpfSearch) {
+                $q->where('nome', 'like', "%{$search}%")
+                  ->orWhere('email', 'like', "%{$search}%")
+                  ->orWhere('cpf', 'like', "%{$cpfSearch}%");
+            });
+        }
+
+        if (request()->filled('status_filter') && request('status_filter') !== '') {
+            $query->where('status', request('status_filter'));
+        }
+
+        if (request()->filled('plano_id') && request('plano_id') !== '') {
+            $query->where('idPlano', request('plano_id'));
+        }
+
+        $clientes = $query->orderBy('nome')->paginate(15)->appends(request()->query());
 
         return view('clientes.index', compact('clientes', 'allPlanos'));
     }

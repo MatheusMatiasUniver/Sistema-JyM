@@ -3,7 +3,7 @@
 @section('title', 'Gerenciar Academias - Sistema JyM')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-gray-800">Gerenciar Academias</h1>
+    <h1 class="text-3xl font-bold mb-6 text-grip-6">Gerenciar Academias</h1>
 
     @if(session('success'))
         <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
