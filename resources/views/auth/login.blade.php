@@ -24,7 +24,7 @@
                 <span class="text-error-text text-sm">{{ $message }}</span>
             @enderror
 
-            <button type="submit" class="w-[95%] p-3 my-2.5 bg-grip-6 text-black cursor-pointer transition-all duration-300 rounded hover:bg-grip-red-dark hover:text-white font-bold">Entrar</button>
+            <button type="submit" class="w-[95%] p-3 my-2.5 bg-grip-1 hover:bg-grip-2 text-white cursor-pointer transition-all duration-300 rounded font-bold">Entrar</button>
         </form>
         
         @if(session('success'))

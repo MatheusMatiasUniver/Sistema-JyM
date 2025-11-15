@@ -37,7 +37,7 @@
                     <!-- Botão de Pesquisar -->
                     <button 
                         type="submit" 
-                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                        class="px-4 py-2 bg-grip-1 hover:bg-grip-2 hover:text-white text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         Pesquisar
                     </button>
@@ -47,7 +47,7 @@
                 <div class="flex items-end">
                     <button 
                         type="submit" 
-                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                        class="px-4 py-2 bg-grip-1 hover:bg-grip-2 hover:text-white text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         Pesquisar
                     </button>
@@ -127,13 +127,13 @@
                 <div class="flex flex-wrap gap-2 mt-4 pt-4 border-t">
                     <button 
                         type="submit" 
-                        class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
+                        class="px-4 py-2 bg-grip-1 hover:bg-grip-2 hover:text-white text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         Aplicar Filtros
                     </button>
                     <a 
                         href="{{ request()->url() }}" 
-                        class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200"
+                        class="px-4 py-2 bg-grip-1 hover:bg-grip-2 hover:text-white text-white rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition-colors duration-200"
                     >
                         Limpar Filtros
                     </a>

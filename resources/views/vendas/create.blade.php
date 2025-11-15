@@ -218,7 +218,7 @@
                                 </button>
                                 
                                 <a href="{{ route('vendas.index') }}" 
-                                   class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg text-center block transition-colors duration-200">
+                                   class="w-full bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-3 px-4 rounded-lg text-center block transition-colors duration-200">
                                     <svg class="inline-block w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
                                     </svg>

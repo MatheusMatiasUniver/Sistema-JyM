@@ -18,7 +18,7 @@
     @endif
 
     <div class="mb-4">
-        <a href="{{ route('academias.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <a href="{{ route('academias.create') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
             Cadastrar Nova Academia
         </a>
     </div>

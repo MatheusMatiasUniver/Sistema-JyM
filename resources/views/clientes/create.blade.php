@@ -138,7 +138,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="bg-grip-6 text-black hover:bg-grip-red-dark hover:text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+            <button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                 Cadastrar Cliente
             </button>
         </form>    

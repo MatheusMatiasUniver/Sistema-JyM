@@ -18,11 +18,11 @@
     </div>
 
     <div class="controls flex flex-col sm:flex-row justify-center items-center gap-4 mb-6">
-        <button id="startCameraButton" class="btn-quick-action-blue disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto" style="display: none;">
+        <button id="startCameraButton" class="bg-grip-1 hover:bg-grip-2 text-white disabled:opacity-50 disabled:cursor-not-allowed w-full sm:w-auto" style="display: none;">
             Iniciar Câmera
         </button>
         <button id="registerFaceButton" disabled
-                class="bg-grip-6-btn hover:bg-grip-red-dark text-text-white disabled:opacity-50 disabled:cursor-not-allowed
+                class="bg-grip-1 hover:bg-grip-2 text-white disabled:opacity-50 disabled:cursor-not-allowed
                        font-bold py-2 px-4 rounded-lg shadow-md transition-all duration-300 w-full sm:w-auto">
             Cadastrar Rosto
         </button>
@@ -37,7 +37,7 @@
     <div id="results" class="mt-4 p-4 rounded-lg hidden"></div>
 
     <div class="mt-6">
-        <a href="{{ route('clientes.edit', $cliente->idCliente) }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+        <a href="{{ route('clientes.edit', $cliente->idCliente) }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
             Voltar para Edição do Cliente
         </a>
     </div>

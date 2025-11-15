@@ -6,10 +6,10 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Detalhes da Categoria</h1>
 
     <div class="mb-4 flex space-x-2">
-        <a href="{{ route('categorias.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+        <a href="{{ route('categorias.index') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
             Voltar para Lista
         </a>
-        <a href="{{ route('categorias.edit', $categoria) }}" class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">
+        <a href="{{ route('categorias.edit', $categoria) }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
             Editar Categoria
         </a>
         @if($categoria->podeDeletar())
@@ -19,7 +19,7 @@
                   onsubmit="return confirm('Tem certeza que deseja excluir esta categoria?')">
                 @csrf
                 @method('DELETE')
-                <button type="submit" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                <button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">
                     Excluir Categoria
                 </button>
             </form>

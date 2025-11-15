@@ -84,7 +84,7 @@
 
             <div class="flex items-center justify-between">
                 <button type="submit"
-                        class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
+                        class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
                     Cadastrar
                 </button>
             </div>

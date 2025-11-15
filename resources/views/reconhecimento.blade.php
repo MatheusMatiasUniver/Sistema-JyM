@@ -21,10 +21,10 @@
             <input type="password" id="accessCodeInput" placeholder="Digite seu código de acesso (6 dígitos)"
                    class="w-full p-4 text-center text-4xl font-bold bg-gray-800 text-white rounded-lg"
                    maxlength="6" pattern="\\d*" inputmode="numeric">
-            <button id="submitCodeBtn" class="mt-4 bg-green-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-2xl">
+            <button id="submitCodeBtn" class="mt-4 bg-grip-1 hover:bg-grip-2 text-white font-bold py-3 px-6 rounded-lg text-2xl">
                 Confirmar
             </button>
-            <button id="cancelCodeBtn" class="mt-4 ml-4 bg-red-500 hover:bg-green-700 text-white font-bold py-3 px-6 rounded-lg text-2xl">
+            <button id="cancelCodeBtn" class="mt-4 ml-4 bg-grip-1 hover:bg-grip-2 text-white font-bold py-3 px-6 rounded-lg text-2xl">
                 Cancelar
             </button>
         </div>

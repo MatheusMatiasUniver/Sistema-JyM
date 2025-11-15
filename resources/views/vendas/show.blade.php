@@ -59,13 +59,13 @@
         </div>
 
         <div class="flex justify-end">
-            <a href="{{ route('vendas.index') }}" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+            <a href="{{ route('vendas.index') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
                 Voltar ao Histórico de Vendas
             </a>
             <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" class="ml-3" onsubmit="return confirm('Tem certeza que deseja estornar esta venda? Esta ação irá retornar os produtos ao estoque.');">
                 @csrf
                 @method('DELETE')
-<button type="submit" class="bg-grip-2 hover:bg-grip-red-dark text-white font-bold py-2 px-4 rounded">Estornar Venda</button>
+<button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">Estornar Venda</button>
             </form>
         </div>
     </div>

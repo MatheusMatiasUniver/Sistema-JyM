@@ -155,7 +155,7 @@
             </div>
 
             <div class="flex items-center justify-between">
-                <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
+                <button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline">
                     Atualizar Cliente
                 </button>
                 <a href="{{ route('clientes.index') }}" class="inline-block align-baseline font-bold text-sm text-blue-500 hover:text-blue-800">

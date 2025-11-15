@@ -6,9 +6,9 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Gerenciar Planos de Assinatura</h1>
 
     <div class="mb-4">
-    <a href="{{ route('planos.create') }}" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">
-            Cadastrar Novo Plano
-        </a>
+    <a href="{{ route('planos.create') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
+        Cadastrar Novo Plano
+    </a>
     </div>
 
     <!-- Filtros -->

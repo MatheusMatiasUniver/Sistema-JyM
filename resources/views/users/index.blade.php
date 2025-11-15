@@ -5,7 +5,7 @@
 @section('content')
     <div class="flex justify-between items-center mb-6">
         <h1 class="text-3xl font-bold text-grip-6">Gerenciar Usuários</h1>
-        <a href="{{ route('register') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <a href="{{ route('register') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
             Cadastrar Novo Usuário
         </a>
     </div>
