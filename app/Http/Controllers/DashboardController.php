@@ -14,17 +14,25 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        $acessosHoje = Entrada::whereDate('dataHora', Carbon::today())->count();
+        $academiaId = config('app.academia_atual');
 
-        $clientesAtivos = Cliente::where('status', 'Ativo')->count();
+        $acessosHoje = Entrada::whereDate('dataHora', Carbon::today())
+            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->count();
+
+        $clientesAtivos = Cliente::where('status', 'Ativo')
+            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->count();
 
         $mensalidadesAtrasadas = Mensalidade::where('dataVencimento', '<', Carbon::today())
                                             ->where('status', 'Pendente')
+                                            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
                                             ->with('cliente')
                                             ->get();
 
         $mensalidadesProximas = Mensalidade::whereBetween('dataVencimento', [Carbon::today(), Carbon::today()->addDays(7)])
                                             ->where('status', 'Pendente')
+                                            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
                                             ->with('cliente')
                                             ->get();
 
@@ -35,18 +43,25 @@ class DashboardController extends Controller
 
         $limiteBaixoEstoque = 5;                             
         $produtosBaixoEstoque = Produto::where('estoque', '<=', $limiteBaixoEstoque)
+                                        ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
                                         ->orderBy('estoque', 'asc')
                                         ->get();
 
         $primeiroDiaMes = Carbon::now()->startOfMonth();
         $ultimoDiaMes = Carbon::now()->endOfMonth();
         $faturamentoMes = VendaProduto::whereBetween('dataVenda', [$primeiroDiaMes, $ultimoDiaMes])
+                                      ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
                                       ->sum('valorTotal');
 
         // Additional variables for dashboard cards
-        $entradasHoje = Entrada::whereDate('dataHora', Carbon::today())->count();
-        $totalClientes = Cliente::count();
-        $vendasHoje = VendaProduto::whereDate('dataVenda', Carbon::today())->sum('valorTotal');
+        $entradasHoje = Entrada::whereDate('dataHora', Carbon::today())
+            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->count();
+        $totalClientes = Cliente::when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->count();
+        $vendasHoje = VendaProduto::whereDate('dataVenda', Carbon::today())
+            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->sum('valorTotal');
 
         return view('dashboard', compact(
             'acessosHoje',

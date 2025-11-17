@@ -156,10 +156,12 @@ class ClienteController extends Controller
      */
     public function edit(Cliente $cliente)
     {
-        $academiaId = session('academia_selecionada');
+        $academiaId = session('academia_selecionada') ?? $cliente->idAcademia;
         
-        if (!$academiaId) {
-            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        if (!\Illuminate\Support\Facades\Auth::user()->isAdministrador()) {
+            if (!$academiaId) {
+                return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+            }
         }
 
         $planos = PlanoAssinatura::where('idAcademia', $academiaId)->get();

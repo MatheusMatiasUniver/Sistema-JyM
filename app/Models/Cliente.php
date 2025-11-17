@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 /**
  * @property int $idCliente
@@ -88,7 +89,8 @@ class Cliente extends Model
         
         static::creating(function ($cliente) {
             if (empty($cliente->codigo_acesso)) {
-                $cliente->codigo_acesso = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+                $rawCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                $cliente->codigo_acesso = Hash::make($rawCode);
             }
         });
     }

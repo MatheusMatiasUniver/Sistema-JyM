@@ -16,18 +16,16 @@ class MensalidadeController extends Controller
     {
         $this->middleware(['auth', 'funcionario']);
     }
-
-    /**
-     * Registra o pagamento de uma mensalidade.
-     */
+    
     public function pagar(Request $request, Mensalidade $mensalidade, PlanoAssinaturaService $planoService)
     {
         $academiaId = session('academia_selecionada');
-        if (!$academiaId || $mensalidade->idAcademia != $academiaId) {
-            return back()->with('error', 'Mensalidade não pertence à academia selecionada.');
+        if (!(\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->isAdministrador())) {
+            if (!$academiaId || $mensalidade->idAcademia != $academiaId) {
+                return back()->with('error', 'Mensalidade não pertence à academia selecionada.');
+            }
         }
 
-        // Validar forma de pagamento
         $request->validate([
             'formaPagamento' => 'required|in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto',
             'dataPagamento' => 'nullable|date',

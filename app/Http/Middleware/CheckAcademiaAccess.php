@@ -17,13 +17,13 @@ class CheckAcademiaAccess
     public function handle(Request $request, Closure $next): Response
     {
         $user = Auth::user();
+        $academiaId = null;
         
         if (!$user) {
             return redirect('/login')->with('error', 'Você precisa estar logado para acessar esta área.');
         }
 
-        // Administradores têm acesso a todas as academias
-        if ($user->isAdmin()) {
+        if ($user->isAdministrador()) {
             return $next($request);
         }
 

@@ -11,17 +11,11 @@ use App\Models\User;
 
 class AuthController extends Controller
 {
-    /**
-     * Exibe o formulário de login
-     */
     public function showLoginForm()
     {
         return view('auth.login');
     }
 
-    /**
-     * Processa o login do usuário
-     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -42,9 +36,6 @@ class AuthController extends Controller
         ])->onlyInput('usuario');
     }
 
-    /**
-     * Exibe o formulário de cadastro de usuário
-     */
     public function showRegisterForm()
     {
         if (Auth::check() && Auth::user()->nivelAcesso === 'Administrador') {

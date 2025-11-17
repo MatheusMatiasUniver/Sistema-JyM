@@ -172,7 +172,7 @@ class ProdutoController extends Controller
 
     public function show(Produto $produto)
     {
-        if ($produto->idAcademia !== config('app.academia_atual')) {
+        if (!\Illuminate\Support\Facades\Auth::user()->isAdministrador() && $produto->idAcademia !== config('app.academia_atual')) {
             abort(403, 'Você não tem permissão para visualizar este produto.');
         }
 
@@ -183,8 +183,10 @@ class ProdutoController extends Controller
     {
         $academiaId = $this->getAcademiaId();
         
-        if (!$academiaId || $produto->idAcademia !== $academiaId) {
-            abort(403, 'Você não tem permissão para editar este produto.');
+        if (!Auth::user()->isAdministrador()) {
+            if (!$academiaId || $produto->idAcademia !== $academiaId) {
+                abort(403, 'Você não tem permissão para editar este produto.');
+            }
         }
 
         $categorias = Categoria::ativas()
@@ -199,8 +201,10 @@ class ProdutoController extends Controller
     {
         $academiaId = $this->getAcademiaId();
         
-        if (!$academiaId || $produto->idAcademia !== $academiaId) {
-            abort(403, 'Você não tem permissão para editar este produto.');
+        if (!Auth::user()->isAdministrador()) {
+            if (!$academiaId || $produto->idAcademia !== $academiaId) {
+                abort(403, 'Você não tem permissão para editar este produto.');
+            }
         }
 
         $validated = $request->validate([
@@ -248,7 +252,7 @@ class ProdutoController extends Controller
 
     public function destroy(Produto $produto)
     {
-        if ($produto->idAcademia !== config('app.academia_atual')) {
+        if (!Auth::user()->isAdministrador() && $produto->idAcademia !== config('app.academia_atual')) {
             abort(403, 'Você não tem permissão para excluir este produto.');
         }
 
@@ -273,12 +277,17 @@ class ProdutoController extends Controller
 
     public function ajustarEstoque(Request $request, Produto $produto)
     {
-        if ($produto->idAcademia !== config('app.academia_atual')) {
+        if (!Auth::user()->isAdministrador() && $produto->idAcademia !== config('app.academia_atual')) {
             abort(403, 'Você não tem permissão para ajustar o estoque deste produto.');
         }
 
         $validated = $request->validate([
             'tipo' => 'required|in:adicionar,remover',
+            'quantidade' => 'required|integer|min:1',
+        ], [
+            'quantidade.required' => 'Informe a quantidade.',
+            'quantidade.integer' => 'A quantidade deve ser um número inteiro.',
+            'quantidade.min' => 'A quantidade deve ser pelo menos 1.',
         ]);
 
         if ($validated['tipo'] === 'adicionar') {

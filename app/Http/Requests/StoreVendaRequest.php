@@ -26,7 +26,7 @@ class StoreVendaRequest extends FormRequest
     {
         $rules = [
             'idCliente' => ['required', 'exists:clientes,idCliente'],
-            'formaPagamento' => ['required', 'string', 'in:Dinheiro,Cartão de Crédito,Cartão de Débito,Pix'],
+            'formaPagamento' => ['required', 'string', 'in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto'],
             'produtos' => ['required', 'array', 'min:1'],
             'produtos.*.idProduto' => ['required', 'exists:produtos,idProduto'],
             'produtos.*.quantidade' => ['required', 'integer', 'min:1'],

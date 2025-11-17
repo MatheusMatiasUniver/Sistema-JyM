@@ -93,9 +93,6 @@ class User extends Authenticatable
         return $this->senha;
     }
 
-    /**
-     * Relacionamento com academias (Many-to-Many)
-     */
     public function academias(): BelongsToMany
     {
         return $this->belongsToMany(

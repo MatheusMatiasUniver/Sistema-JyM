@@ -19,7 +19,6 @@ class UserController extends Controller
     {
         $query = User::query();
 
-        // Search functionality
         if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function($q) use ($search) {
@@ -29,12 +28,10 @@ class UserController extends Controller
             });
         }
 
-        // Filter by access level
         if ($request->filled('nivel_acesso')) {
             $query->where('nivelAcesso', $request->nivel_acesso);
         }
 
-        // Sorting
         $sortField = $request->get('sort', 'nome');
         $sortDirection = $request->get('direction', 'asc');
         

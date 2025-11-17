@@ -262,6 +262,10 @@ class CategoriaController extends Controller
     {
         $academiaId = $this->getAcademiaId();
         
+        if (\Illuminate\Support\Facades\Auth::check() && \Illuminate\Support\Facades\Auth::user()->isAdministrador()) {
+            return;
+        }
+
         if (!$academiaId || $categoria->idAcademia !== $academiaId) {
             abort(403, 'Você não tem permissão para acessar esta categoria.');
         }

@@ -102,16 +102,12 @@ class VendaController extends Controller
         return view('vendas.create', compact('produtos', 'clientes', 'tiposPagamento'));
     }
 
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreVendaRequest $request)
     {
         try {
-            $request->validate([
-                'idCliente' => 'nullable|exists:clientes,idCliente',
-                'formaPagamento' => 'required|in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto',
-                'produtos.*.idProduto' => 'required|exists:produtos,idProduto',
-            ]);
+            $dadosValidados = $request->validated();
 
-            if (empty($request->produtos)) {
+            if (empty($dadosValidados['produtos'])) {
                 return back()->with('error', 'Adicione pelo menos um produto à venda!')->withInput();
             }
 
@@ -123,10 +119,10 @@ class VendaController extends Controller
             }
 
             $dados = [
-                'idCliente' => $request->idCliente,
+                'idCliente' => $dadosValidados['idCliente'] ?? null,
                 'idAcademia' => $academiaId,
                 'dataVenda' => now(),
-                'formaPagamento' => $request->formaPagamento,
+                'formaPagamento' => $dadosValidados['formaPagamento'],
                 'valorTotal' => 0,
             ];
 
@@ -134,7 +130,7 @@ class VendaController extends Controller
 
             $valorTotal = 0;
 
-            foreach ($request->produtos as $item) {
+            foreach ($dadosValidados['produtos'] as $item) {
                 $produto = Produto::findOrFail($item['idProduto']);
                 
                 if ($produto->idAcademia != $academiaId) {

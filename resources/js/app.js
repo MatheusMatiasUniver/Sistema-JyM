@@ -125,7 +125,6 @@ function handleClientRegistrationCompleted(data) {
 function initializeWebSocket() {
     if (!isKioskPage) return;
 
-    // Configurar callbacks do WebSocket
     webSocketManager.onKioskStatusChanged(handleKioskStatusChange);
     webSocketManager.onClientRegistrationStarted(handleClientRegistrationStarted);
     webSocketManager.onClientRegistrationCompleted(handleClientRegistrationCompleted);
@@ -135,7 +134,6 @@ function initializeWebSocket() {
             console.log('WebSocket conectado - polling desabilitado');
         } else {
             console.log('WebSocket desconectado - tentando reconectar...');
-            // Fallback para polling se WebSocket falhar
             setTimeout(() => {
                 if (!webSocketManager.isWebSocketConnected()) {
                     console.log('Fallback: iniciando polling HTTP');
@@ -145,11 +143,9 @@ function initializeWebSocket() {
         }
     });
 
-    // Inicializar WebSocket
     webSocketManager.init();
 }
 
-// Função de fallback para polling HTTP em caso de falha do WebSocket
 function fallbackToPolling() {
     if (kioskStatusPollingId) {
         clearInterval(kioskStatusPollingId);
@@ -250,7 +246,7 @@ async function startVideo() {
                     body: JSON.stringify({
                         is_registering: true,
                         message: 'Câmera sendo preparada para cadastro de rosto...',
-                        duration_seconds: 300 // 5 minutos de timeout
+                        duration_seconds: 300
                     })
                 });
             }
@@ -281,7 +277,6 @@ async function startVideo() {
 
         if (startCameraButton) startCameraButton.disabled = true;
         
-        // Se houve erro, liberar o kiosk
         if (isCaptureFacePage) {
             const currentCsrfToken = getCsrfToken();
             if (currentCsrfToken) {
