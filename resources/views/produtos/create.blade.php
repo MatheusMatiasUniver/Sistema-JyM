@@ -12,7 +12,7 @@
             <div class="mb-4">
                 <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome do Produto:</label>
                 <input type="text" id="nome" name="nome" value="{{ old('nome') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
                 @error('nome')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -42,9 +42,54 @@
             </div>
 
             <div class="mb-4">
+                <label for="idMarca" class="block text-gray-700 text-sm font-bold mb-2">Marca:</label>
+                <select id="idMarca" name="idMarca" required
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idMarca') border-red-500 @enderror">
+                    <option value="">Selecione uma marca</option>
+                    @isset($marcas)
+                        @foreach($marcas as $marca)
+                            <option value="{{ $marca->idMarca }}" {{ old('idMarca') == $marca->idMarca ? 'selected' : '' }}>
+                                {{ $marca->nome }}
+                            </option>
+                        @endforeach
+                    @endisset
+                </select>
+                @error('idMarca')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="idFornecedor" class="block text-gray-700 text-sm font-bold mb-2">Fornecedor (opcional):</label>
+                <select id="idFornecedor" name="idFornecedor"
+                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idFornecedor') border-red-500 @enderror">
+                    <option value="">Selecione um fornecedor</option>
+                    @isset($fornecedores)
+                        @foreach($fornecedores as $fornecedor)
+                            <option value="{{ $fornecedor->idFornecedor }}" {{ old('idFornecedor') == $fornecedor->idFornecedor ? 'selected' : '' }}>
+                                {{ $fornecedor->razaoSocial }}
+                            </option>
+                        @endforeach
+                    @endisset
+                </select>
+                @error('idFornecedor')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
+                <label for="precoCompra" class="block text-gray-700 text-sm font-bold mb-2">Preço de Compra (Fornecedor):</label>
+                <input type="number" step="0.01" id="precoCompra" name="precoCompra" value="{{ old('precoCompra') }}"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('precoCompra') border-red-500 @enderror">
+                @error('precoCompra')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label for="preco" class="block text-gray-700 text-sm font-bold mb-2">Preço:</label>
                 <input type="number" step="0.01" id="preco" name="preco" value="{{ old('preco') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('preco') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('preco') border-red-500 @enderror">
                 @error('preco')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -53,7 +98,7 @@
             <div class="mb-4">
                 <label for="estoque" class="block text-gray-700 text-sm font-bold mb-2">Estoque:</label>
                 <input type="number" id="estoque" name="estoque" value="{{ old('estoque') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('estoque') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('estoque') border-red-500 @enderror">
                 @error('estoque')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -71,7 +116,7 @@
             <div class="mb-6">
                 <label for="imagem" class="block text-gray-700 text-sm font-bold mb-2">Imagem do Produto (Opcional):</label>
                 <input type="file" id="imagem" name="imagem"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('imagem') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('imagem') border-red-500 @enderror">
                 @error('imagem')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror

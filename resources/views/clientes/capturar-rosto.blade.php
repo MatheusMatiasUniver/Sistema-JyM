@@ -9,7 +9,14 @@
         Cliente: <strong>{{ $cliente->nome }}</strong> (ID: {{ $cliente->idCliente }})
     </div>
 
-    <input type="hidden" id="clientIdInput" value="{{ $cliente->idCliente }}">
+    @if(session('access_code'))
+        <div class="mb-4 p-4 bg-green-100 text-green-800 rounded">
+            <strong>Código de acesso gerado:</strong>
+            <span class="ml-2 text-black">{{ session('access_code') }}</span>
+        </div>
+    @endif
+
+    <input type="hidden" id="clientIdInput" value="{{ $cliente->idCliente }}" class="text-black">
 
 
     <div class="relative w-full max-w-[640px] aspect-video mx-auto mb-6 border-4 border-gray-600 rounded-lg overflow-hidden bg-black shadow-xl">

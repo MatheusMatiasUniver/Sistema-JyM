@@ -4,11 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+ 
 
 /**
  * @property int $idCliente
@@ -55,6 +56,7 @@ use Illuminate\Support\Facades\Hash;
  */
 class Cliente extends Model
 {
+    use SoftDeletes;
     protected $table = 'clientes';
     protected $primaryKey = 'idCliente';
     
@@ -66,7 +68,6 @@ class Cliente extends Model
         'dataNascimento',
         'telefone',
         'email',
-        'codigo_acesso',
         'status',
         'foto',
         'idUsuario',
@@ -77,10 +78,11 @@ class Cliente extends Model
     protected $casts = [
         'dataNascimento' => 'date',
         'codigo_acesso' => 'string',
+        'deleted_at' => 'datetime',
     ];
     
     protected $attributes = [
-        'status' => 'Pendente',
+        'status' => 'Inativo',
     ];
     
     public static function boot()
@@ -89,8 +91,10 @@ class Cliente extends Model
         
         static::creating(function ($cliente) {
             if (empty($cliente->codigo_acesso)) {
-                $rawCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
-                $cliente->codigo_acesso = Hash::make($rawCode);
+                do {
+                    $rawCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+                } while (static::where('codigo_acesso', $rawCode)->exists());
+                $cliente->codigo_acesso = $rawCode;
             }
         });
     }
@@ -135,11 +139,6 @@ class Cliente extends Model
         return $this->status === 'Ativo';
     }
 
-    public function isSuspenso(): bool
-    {
-        return $this->status === 'Suspenso';
-    }
-
     public function isInadimplente(): bool
     {
         return $this->status === 'Inadimplente';
@@ -148,11 +147,6 @@ class Cliente extends Model
     public function isInativo(): bool
     {
         return $this->status === 'Inativo';
-    }
-
-    public function isPendente(): bool
-    {
-        return $this->status === 'Pendente';
     }
 
     public function podeAcessarAcademia(): bool
@@ -171,10 +165,8 @@ class Cliente extends Model
     {
         return match($this->status) {
             'Ativo' => 'green',
-            'Suspenso' => 'yellow',
             'Inadimplente' => 'orange',
             'Inativo' => 'red',
-            'Pendente' => 'blue',
             default => 'gray'
         };
     }
@@ -183,10 +175,8 @@ class Cliente extends Model
     {
         return match($this->status) {
             'Ativo' => 'bg-green-100 text-green-800',
-            'Suspenso' => 'bg-yellow-100 text-yellow-800',
             'Inadimplente' => 'bg-orange-100 text-orange-800',
             'Inativo' => 'bg-red-100 text-red-800',
-            'Pendente' => 'bg-blue-100 text-blue-800',
             default => 'bg-gray-100 text-gray-800'
         };
     }

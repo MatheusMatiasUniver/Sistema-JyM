@@ -50,7 +50,7 @@ class Entrada extends Model
 
     public function cliente(): BelongsTo
     {
-        return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente');
+        return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente')->withTrashed();
     }
 
     protected static function booted()

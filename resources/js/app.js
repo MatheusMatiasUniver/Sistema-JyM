@@ -16,7 +16,6 @@ const registerFaceButton = document.getElementById('registerFaceButton');
 const context = canvas ? canvas.getContext('2d') : null;
 
 const codeInputArea = document.getElementById('code-input-area');
-const cpfInput = document.getElementById('cpfInput');
 const accessCodeInput = document.getElementById('accessCodeInput');
 const submitCodeBtn = document.getElementById('submitCodeBtn');
 const cancelCodeBtn = document.getElementById('cancelCodeBtn');
@@ -68,7 +67,8 @@ let modelsLoaded = false;
 
 function showMessage(type, mainMessage, subMessage = '') {
     if (resultsDiv) {
-        resultsDiv.classList.remove('alert-info', 'alert-success', 'alert-error');
+        resultsDiv.classList.remove('alert-info', 'alert-success', 'alert-error', 'hidden');
+        resultsDiv.style.display = 'block';
         resultsDiv.classList.add(`alert-${type}`);
         
         if (isCaptureFacePage) {
@@ -83,7 +83,7 @@ function showMessage(type, mainMessage, subMessage = '') {
 }
 
 function handleKioskStatusChange(data) {
-    const newIsRegistering = data.isRegistering || false;
+    const newIsRegistering = (typeof data.isRegistering !== 'undefined' ? data.isRegistering : data.is_registering) || false;
     const newMessage = data.message || '';
 
     if (newIsRegistering !== isKioskRegistering || newMessage !== kioskRegistrationMessage) {
@@ -132,10 +132,14 @@ function initializeWebSocket() {
     webSocketManager.onConnectionStateChange((isConnected) => {
         if (isConnected) {
             console.log('WebSocket conectado - polling desabilitado');
+            if (kioskStatusPollingId) {
+                clearInterval(kioskStatusPollingId);
+                kioskStatusPollingId = null;
+            }
         } else {
             console.log('WebSocket desconectado - tentando reconectar...');
             setTimeout(() => {
-                if (!webSocketManager.isWebSocketConnected()) {
+                if (!webSocketManager.isWebSocketConnected() && !kioskStatusPollingId) {
                     console.log('Fallback: iniciando polling HTTP');
                     fallbackToPolling();
                 }
@@ -151,13 +155,11 @@ function fallbackToPolling() {
         clearInterval(kioskStatusPollingId);
     }
     
+    if (webSocketManager.isWebSocketConnected()) {
+        return;
+    }
+
     kioskStatusPollingId = setInterval(async () => {
-        if (webSocketManager.isWebSocketConnected()) {
-            clearInterval(kioskStatusPollingId);
-            kioskStatusPollingId = null;
-            return;
-        }
-        
         try {
             const csrfToken = getCsrfToken();
             if (!csrfToken) return;
@@ -241,6 +243,7 @@ async function startVideo() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': currentCsrfToken
                     },
                     body: JSON.stringify({
@@ -259,12 +262,7 @@ async function startVideo() {
             });
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                width: { ideal: 1280 },
-                height: { ideal: 720 }
-            }
-        });
+        const stream = await ensureCameraStream();
         video.srcObject = stream;
 
         video.removeEventListener('play', setupVideoAndDetection);
@@ -273,7 +271,8 @@ async function startVideo() {
         video.play();
 
     } catch (err) {
-        showMessage('error', 'Erro!', `Ao iniciar webcam: ${err.name} - ${err.message}. Verifique permissões e se a câmera não está em uso por outro aplicativo.`);
+        const friendly = formatCameraError(err);
+        showMessage('error', 'Erro!', friendly);
 
         if (startCameraButton) startCameraButton.disabled = true;
         
@@ -284,6 +283,7 @@ async function startVideo() {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                         'X-CSRF-TOKEN': currentCsrfToken
                     },
                     body: JSON.stringify({
@@ -293,6 +293,43 @@ async function startVideo() {
             }
         }
     }
+}
+
+async function ensureCameraStream() {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        throw new Error('Navegador sem suporte a câmera ou em contexto não seguro. Use HTTPS ou localhost.');
+    }
+
+    const devices = await navigator.mediaDevices.enumerateDevices();
+    const cameras = devices.filter(d => d.kind === 'videoinput');
+    if (cameras.length === 0) {
+        throw new Error('Nenhuma câmera detectada. Verifique conexões e permissões do sistema.');
+    }
+
+    const preferred = cameras[0];
+    try {
+        return await navigator.mediaDevices.getUserMedia({
+            video: {
+                deviceId: { ideal: preferred.deviceId },
+                width: { ideal: 1280 },
+                height: { ideal: 720 }
+            }
+        });
+    } catch (e) {
+        if (e && (e.name === 'OverconstrainedError' || e.name === 'NotFoundError')) {
+            return await navigator.mediaDevices.getUserMedia({ video: true });
+        }
+        throw e;
+    }
+}
+
+function formatCameraError(err) {
+    if (!err || !err.name) return 'Falha ao acessar a câmera. Verifique permissões e feche outros aplicativos que possam estar usando a câmera.';
+    if (err.name === 'NotFoundError') return 'Nenhum dispositivo de câmera foi encontrado. Verifique se uma câmera está conectada e reconhecida pelo sistema.';
+    if (err.name === 'NotAllowedError') return 'Permissão de câmera negada. Autorize o uso da câmera no navegador.';
+    if (err.name === 'OverconstrainedError') return 'As configurações de vídeo solicitadas não são suportadas pela câmera. Ajuste as configurações e tente novamente.';
+    if (err.name === 'SecurityError') return 'Acesso à câmera bloqueado por políticas de segurança. Use HTTPS ou localhost.';
+    return 'Erro ao iniciar câmera. Verifique permissões e se a câmera não está em uso por outro aplicativo.';
 }
 
 function setupVideoAndDetection() {
@@ -351,7 +388,7 @@ function startDetectionLoop() {
 
     if (codeInputArea) codeInputArea.style.display = 'none';
     if (video) video.style.display = 'block';
-    if (canvas) overlayCanvas.style.display = 'block';
+    if (canvas) canvas.style.display = 'block';
 
     detectionIntervalId = setInterval(async () => {
         if (modelsLoaded && !video.paused && !video.ended && displaySize.width > 0 && displaySize.height > 0) {
@@ -539,6 +576,7 @@ async function registerFace(descriptor) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
+                'Accept': 'application/json',
                 'X-CSRF-TOKEN': currentCsrfToken
             },
             body: JSON.stringify({
@@ -575,37 +613,45 @@ async function registerFace(descriptor) {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': currentCsrfToken
                 },
                 body: JSON.stringify({
                     is_registering: true,
-                    message: `REGISTRO CONCLUÍDO! Rosto de ${data.user_name || 'o cliente'} foi registrado.`,
+                    message: 'Cadastro concluído. Reiniciando kiosk em 10s...',
                     duration_seconds: Math.ceil(REGISTER_COOLDOWN_DURATION / 1000)
                 })
             });
 
-            setTimeout(() => {
-                fetch('/face/set-kiosk-registering', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': currentCsrfToken },
-                    body: JSON.stringify({ is_registering: false })
-                });
+            setTimeout(async () => {
+                try {
+                    await fetch('/face/set-kiosk-registering', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-CSRF-TOKEN': currentCsrfToken
+                        },
+                        body: JSON.stringify({ is_registering: false })
+                    });
+                } catch (e) {}
+            }, REGISTER_COOLDOWN_DURATION);
 
+            setTimeout(() => {
                 if (isCaptureFacePage) {
                     window.location.href = '/clientes';
                 } else if (isKioskPage) {
                     showMessage('info', 'Aguardando detecção de rosto.');
-                    // Reinicia o loop de detecção se estivermos no kiosk
                     if (!detectionIntervalId && modelsLoaded && video && !video.paused && !video.ended) {
                         startDetectionLoop();
                     }
                 }
-            }, REGISTER_COOLDOWN_DURATION);
+            }, 2500);
         } else {
             showMessage('error', 'Erro no Registro!', `${data.message || 'Falha ao registrar o rosto.'}`);
             fetch('/face/set-kiosk-registering', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': currentCsrfToken },
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': currentCsrfToken },
                 body: JSON.stringify({ is_registering: false })
             });
 
@@ -619,11 +665,14 @@ async function registerFace(descriptor) {
         }
     } catch (error) {
         showMessage('error', 'Erro!', `Falha no registro: ${error.message}`);
-        fetch('/face/set-kiosk-registering', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': currentCsrfToken },
-            body: JSON.stringify({ is_registering: false })
-        });
+        const csrfToken = getCsrfToken();
+        if (csrfToken) {
+            fetch('/face/set-kiosk-registering', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrfToken },
+                body: JSON.stringify({ is_registering: false })
+            });
+        }
         setTimeout(() => {
             showMessage('info', 'Aguardando detecção de rosto.');
             // Reinicia o loop de detecção após exceção
@@ -638,14 +687,11 @@ function showCodeInput() {
     if (video) video.style.display = 'none';
     if (canvas) canvas.style.display = 'none';
     if (codeInputArea) codeInputArea.style.display = 'block';
-    if (cpfInput) {
-        cpfInput.value = '';
-        cpfInput.focus();
-    }
     if (accessCodeInput) {
         accessCodeInput.value = '';
+        accessCodeInput.focus();
     }
-    showMessage('info', 'Rosto não reconhecido!', 'Por favor, digite seu CPF e código de acesso.');
+    showMessage('info', 'Rosto não reconhecido!', 'Por favor, digite seu código de acesso.');
     if (detectionIntervalId) {
         clearInterval(detectionIntervalId);
         detectionIntervalId = null;
@@ -666,16 +712,7 @@ function hideCodeInput() {
 }
 
 async function submitAccessCode() {
-    let cpf = cpfInput.value;
     const code = accessCodeInput.value;
-
-    cpf = cpf.replace(/[^0-9]/g, '');
-
-    if (!cpf || cpf.length !== 11 || isNaN(cpf)) {
-        showMessage('error', 'CPF inválido!', 'Por favor, digite um CPF válido (11 dígitos numéricos).');
-        cpfInput.focus();
-        return;
-    }
 
     if (!code || code.length !== CODIGO_ACESSO_LENGTH || isNaN(code)) {
         showMessage('error', 'Código inválido!', `Por favor, digite um código de ${CODIGO_ACESSO_LENGTH} dígitos numéricos.`);
@@ -683,7 +720,7 @@ async function submitAccessCode() {
         return;
     }
 
-    showMessage('info', 'Verificando CPF e código...');
+    showMessage('info', 'Verificando código...');
 
     try {
         const currentCsrfToken = getCsrfToken();
@@ -700,7 +737,6 @@ async function submitAccessCode() {
                 'X-CSRF-TOKEN': currentCsrfToken
             },
             body: JSON.stringify({
-                cpf: cpf,
                 code: code
             })
         });
@@ -711,7 +747,7 @@ async function submitAccessCode() {
             showMessage('success', data.message);
             setTimeout(hideCodeInput, MESSAGE_DURATION);
         } else {
-            showMessage('error', data.message || 'Falha ao autenticar com CPF e código.');
+            showMessage('error', data.message || 'Falha ao autenticar com código de acesso.');
             accessCodeInput.value = '';
             accessCodeInput.focus();
         }
@@ -751,14 +787,6 @@ if (cancelCodeBtn) {
     cancelCodeBtn.addEventListener('click', hideCodeInput);
 }
 
-if (cpfInput) {
-    cpfInput.addEventListener('keyup', function(event) {
-        this.value = this.value.replace(/[^0-9]/g, '').substring(0, 11);
-        if (event.key === 'Enter') {
-            accessCodeInput.focus();
-        }
-    });
-}
 if (accessCodeInput) {
     accessCodeInput.addEventListener('keyup', function(event) {
         this.value = this.value.replace(/[^0-9]/g, '');
@@ -785,6 +813,7 @@ window.addEventListener('beforeunload', function() {
                 method: 'POST',
                 headers: { 
                     'Content-Type': 'application/json', 
+                    'Accept': 'application/json', 
                     'X-CSRF-TOKEN': currentCsrfToken 
                 },
                 body: JSON.stringify({ is_registering: false })

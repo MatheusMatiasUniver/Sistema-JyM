@@ -67,15 +67,26 @@ class FaceRecognitionController extends Controller
             event(new ClientRegistrationCompleted($request->cliente_id, $cliente->nome, true, $message));
             event(new KioskStatusChanged(false, null));
 
+            \App\Models\ActivityLog::create([
+                'usuarioId' => null,
+                'modulo' => 'ReconhecimentoFacial',
+                'acao' => 'registrar_descritor',
+                'entidade' => 'Cliente',
+                'entidadeId' => $request->cliente_id,
+                'dados' => [
+                    'status' => 'sucesso',
+                ],
+            ]);
+
             return response()->json(['success' => true, 'message' => $message, 'user_name' => $cliente->nome]);
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error("Erro ao registrar/atualizar descritor facial: " . $e->getMessage(), ['cliente_id' => $request->cliente_id]);
+            Log::error('Erro ao registrar/atualizar descritor facial', ['error' => $e->getMessage(), 'cliente_id' => $request->cliente_id]);
             
             KioskStatus::where('id', 1)->update(['is_registering' => false, 'message' => null, 'expires_at' => null]);
             
             $cliente = Cliente::find($request->cliente_id);
-            $errorMessage = 'Falha ao registrar/atualizar descritor facial: ' . $e->getMessage();
+            $errorMessage = 'Falha ao registrar descritor facial.';
             
             event(new ClientRegistrationCompleted($request->cliente_id, $cliente ? $cliente->nome : 'Cliente', false, $errorMessage));
             event(new KioskStatusChanged(false, null));
@@ -147,20 +158,13 @@ class FaceRecognitionController extends Controller
     public function authenticateByCode(Request $request)
     {
         $request->validate([
-            'cpf' => 'required|string|digits:11',
             'code' => 'required|integer|digits:6',
         ]);
 
-        $cliente = Cliente::where('cpf', $request->cpf)->first();
+        $cliente = Cliente::where('codigo_acesso', $request->code)->first();
 
-         if (!$cliente) {
-            Log::warning("Tentativa de acesso por código falhou: CPF {$request->cpf} não encontrado.");
-            return response()->json(['authenticated' => false, 'message' => 'CPF não encontrado.'], 404);
-        }
-
-
-        if (!$cliente->codigo_acesso || !Hash::check($request->code, $cliente->codigo_acesso)) {
-            Log::warning("Tentativa de acesso por código falhou para CPF {$request->cpf}: Código inválido.");
+        if (!$cliente) {
+            Log::warning('Tentativa de acesso por código falhou: Código não encontrado.');
             return response()->json(['authenticated' => false, 'message' => 'Código de acesso inválido.'], 401);
         }
 
@@ -170,12 +174,12 @@ class FaceRecognitionController extends Controller
         }
 
         try {
-            $this->entradaService->registrarEntrada($cliente, 'CPF/Senha');
-            Log::info("Acesso registrado para cliente {$cliente->idCliente} via CPF/Senha.");
+            $this->entradaService->registrarEntrada($cliente, 'CodigoAcesso');
+            Log::info("Acesso registrado para cliente {$cliente->idCliente} via Código de Acesso.");
         } catch (\Exception $e) {
-            Log::error("Falha ao registrar entrada para cliente {$cliente->idCliente} via CPF/Senha: " . $e->getMessage());
+            Log::error('Falha ao registrar entrada por código', ['error' => $e->getMessage(), 'cliente_id' => $cliente->idCliente]);
         }
-
+    
         return response()->json([
             'authenticated' => true,
             'client_id' => $cliente->idCliente,
@@ -202,56 +206,57 @@ class FaceRecognitionController extends Controller
 
     public function setKioskRegistering(Request $request)
     {
-        if ($request->getContentType() === 'json' || $request->header('Content-Type') === 'application/json') {
+        try {
             $data = $request->all();
-        } else {
-            $rawData = $request->getContent();
-            if (is_string($rawData) && !empty($rawData)) {
-                $data = json_decode($rawData, true) ?: $request->all();
-            } else {
-                $data = $request->all();
+
+            $validated = validator($data, [
+                'is_registering' => 'boolean',
+                'message' => 'nullable|string',
+                'duration_seconds' => 'nullable|integer|min:1',
+            ]);
+
+            if ($validated->fails()) {
+                return response()->json(['success' => false, 'errors' => $validated->errors()], 422);
             }
+
+            $isRegistering = (bool)($data['is_registering'] ?? false);
+            $durationSeconds = isset($data['duration_seconds']) ? (int)$data['duration_seconds'] : null;
+            $message = $data['message'] ?? null;
+
+            if ($isRegistering) {
+                $expiresAt = $durationSeconds ? Carbon::now()->addSeconds($durationSeconds) : null;
+                $message = $message ?: 'Rosto sendo registrado em outra estação...';
+
+                $kioskStatus = KioskStatus::updateOrCreate(
+                    ['id' => 1],
+                    [
+                        'is_registering' => true,
+                        'message' => $message,
+                        'expires_at' => $expiresAt,
+                    ]
+                );
+
+                event(new KioskStatusChanged(true, $message));
+                Log::info('Kiosk status set to registering', ['message' => $message, 'expires_at' => $expiresAt]);
+            } else {
+                $kioskStatus = KioskStatus::updateOrCreate(
+                    ['id' => 1],
+                    [
+                        'is_registering' => false,
+                        'message' => null,
+                        'expires_at' => null,
+                    ]
+                );
+
+                event(new KioskStatusChanged(false, null));
+                Log::info('Kiosk status set to not registering');
+            }
+
+            return response()->json(['success' => true, 'kiosk_status' => $kioskStatus]);
+        } catch (\Throwable $e) {
+            Log::error('Erro ao atualizar status do kiosk', ['error' => $e->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Falha ao atualizar status do kiosk.'], 500);
         }
-
-        $validator = validator($data, [
-            'is_registering' => 'boolean',
-            'message' => 'nullable|string',
-            'duration_seconds' => 'nullable|integer|min:1',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
-        }
-
-        $kioskStatus = KioskStatus::firstOrCreate(['id' => 1]);
-        $isRegistering = $data['is_registering'] ?? false;
-
-        if ($isRegistering) {
-            $expiresAt = isset($data['duration_seconds']) ? Carbon::now()->addSeconds($data['duration_seconds']) : null;
-            $message = $data['message'] ?? 'Rosto sendo registrado em outra estação...';
-            
-            $kioskStatus->update([
-                'is_registering' => true,
-                'message' => $message,
-                'expires_at' => $expiresAt,
-            ]);
-            
-            event(new KioskStatusChanged(true, $message));
-            
-            Log::info("Kiosk status set to registering", ['message' => $message, 'expires_at' => $expiresAt]);
-        } else {
-            $kioskStatus->update([
-                'is_registering' => false,
-                'message' => null,
-                'expires_at' => null,
-            ]);
-            
-            event(new KioskStatusChanged(false, null));
-            
-            Log::info("Kiosk status set to not registering");
-        }
-
-        return response()->json(['success' => true, 'kiosk_status' => $kioskStatus]);
     }
 
     private function calculateEuclideanDistance(array $desc1, array $desc2): float

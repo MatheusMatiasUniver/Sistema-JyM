@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
+ 
 
 class ClienteSeeder extends Seeder
 {
@@ -17,7 +17,7 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '1995-03-15',
                 'telefone' => '(44) 99876-5432',
                 'email' => 'pedro.alves@email.com',
-                'codigo_acesso' => Hash::make('123456'),
+                'codigo_acesso' => '123456',
                 'status' => 'Ativo',
                 'idPlano' => 1,
                 'idAcademia' => 1,
@@ -29,7 +29,7 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '1998-07-22',
                 'telefone' => '(44) 99765-4321',
                 'email' => 'juliana.costa@email.com',
-                'codigo_acesso' => Hash::make('654321'),
+                'codigo_acesso' => '654321',
                 'status' => 'Ativo',
                 'idPlano' => 2,
                 'idAcademia' => 1,
@@ -41,7 +41,7 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '1990-11-08',
                 'telefone' => '(44) 99654-3210',
                 'email' => 'roberto.souza@email.com',
-                'codigo_acesso' => Hash::make('789012'),
+                'codigo_acesso' => '789012',
                 'status' => 'Inadimplente',
                 'idPlano' => 1,
                 'idAcademia' => 1,
@@ -53,8 +53,8 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '2000-05-30',
                 'telefone' => '(44) 99543-2109',
                 'email' => 'fernanda.lima@email.com',
-                'codigo_acesso' => Hash::make('345678'),
-                'status' => 'Suspenso',
+                'codigo_acesso' => '345678',
+                'status' => 'Inativo',
                 'idPlano' => 3,
                 'idAcademia' => 1,
                 'idUsuario' => 2,
@@ -65,7 +65,7 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '1992-09-12',
                 'telefone' => '(44) 99432-1098',
                 'email' => 'lucas.pereira@email.com',
-                'codigo_acesso' => Hash::make('901234'),
+                'codigo_acesso' => '901234',
                 'status' => 'Ativo',
                 'idPlano' => 4,
                 'idAcademia' => 2,
@@ -77,7 +77,7 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '1997-12-25',
                 'telefone' => '(44) 99321-0987',
                 'email' => 'camila.silva@email.com',
-                'codigo_acesso' => Hash::make('567890'),
+                'codigo_acesso' => '567890',
                 'status' => 'Ativo',
                 'idPlano' => 5,
                 'idAcademia' => 2,
@@ -89,8 +89,8 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '1988-04-18',
                 'telefone' => '(44) 99210-9876',
                 'email' => 'rafael.barbosa@email.com',
-                'codigo_acesso' => Hash::make('234567'),
-                'status' => 'Pendente',
+                'codigo_acesso' => '234567',
+                'status' => 'Inativo',
                 'idPlano' => 4,
                 'idAcademia' => 2,
                 'idUsuario' => 3,
@@ -101,7 +101,7 @@ class ClienteSeeder extends Seeder
                 'dataNascimento' => '1994-08-05',
                 'telefone' => '(44) 99109-8765',
                 'email' => 'mariana.lima@email.com',
-                'codigo_acesso' => Hash::make('890123'),
+                'codigo_acesso' => '890123',
                 'status' => 'Inativo',
                 'idPlano' => 1,
                 'idAcademia' => 1,

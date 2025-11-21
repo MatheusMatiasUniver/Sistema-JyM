@@ -42,7 +42,6 @@ class VerificarMensalidadesVencidas implements ShouldQueue
                     ->exists();
                 
                 if ($mensalidadeVencida) {
-                    // Atualizar status do cliente para Inadimplente
                     $cliente->update(['status' => 'Inadimplente']);
                     $clientesAtualizados++;
                     

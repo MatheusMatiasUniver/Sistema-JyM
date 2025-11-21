@@ -9,6 +9,13 @@
         <a href="{{ route('clientes.create') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
             Adicionar Novo Cliente
         </a>
+        @auth
+            @if(Auth::user()->isAdministrador())
+                <a href="{{ route('clientes.excluidos.index') }}" class="bg-red-600 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+                    Clientes Excluídos
+                </a>
+            @endif
+        @endauth
     </div>
 
     <div class="bg-white shadow-md rounded-lg p-6 mb-6">
@@ -17,7 +24,7 @@
                 <label for="search" class="block text-gray-700 text-sm font-bold mb-2">Pesquisar:</label>
                 <input type="text" id="search" name="search" placeholder="Nome, CPF ou Email"
                        value="{{ request('search') }}"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline">
             </div>
 
             <div>
@@ -26,6 +33,7 @@
                         class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                     <option value="">Todos</option>
                     <option value="Ativo" {{ request('status_filter') == 'Ativo' ? 'selected' : '' }}>Ativo</option>
+                    <option value="Inadimplente" {{ request('status_filter') == 'Inadimplente' ? 'selected' : '' }}>Inadimplente</option>
                     <option value="Inativo" {{ request('status_filter') == 'Inativo' ? 'selected' : '' }}>Inativo</option>
                 </select>
             </div>
@@ -94,9 +102,8 @@
                             {{ $cliente->email }}
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            <span class="relative inline-block px-3 py-1 font-semibold leading-tight {{ $cliente->status == 'Ativo' ? 'text-green-900' : 'text-red-900' }}">
-                                <span aria-hidden="true" class="absolute inset-0 opacity-50 rounded-full {{ $cliente->status == 'Ativo' ? 'bg-green-200' : 'bg-red-200' }}"></span>
-                                <span class="relative">{{ $cliente->status }}</span>
+                            <span class="inline-block px-3 py-1 rounded-full font-semibold {{ $cliente->status_badge_class }}">
+                                {{ $cliente->status }}
                             </span>
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
@@ -139,18 +146,11 @@
                                     </form>
                                 @endif
 
-                                @if($cliente->podeDeletar())
                                     <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
                                     </form>
-                                @else
-                                    <span class="text-gray-400 cursor-not-allowed" 
-                                          title="Não é possível excluir cliente com mensalidades, entradas ou vendas associadas">
-                                        Excluir
-                                    </span>
-                                @endif
                             </div>
                         </td>
                     </tr>

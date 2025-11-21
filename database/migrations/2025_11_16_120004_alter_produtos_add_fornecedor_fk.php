@@ -1,0 +1,27 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration {
+    public function up(): void
+    {
+        Schema::table('produtos', function (Blueprint $table) {
+            $table->unsignedInteger('idFornecedor')->nullable()->index();
+        });
+
+        Schema::table('produtos', function (Blueprint $table) {
+            $table->foreign('idFornecedor')->references('idFornecedor')->on('fornecedores')->onDelete('set null');
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('produtos', function (Blueprint $table) {
+            $table->dropForeign(['idFornecedor']);
+            $table->dropColumn('idFornecedor');
+        });
+    }
+};
+

@@ -106,12 +106,12 @@ class AuthController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            Log::error('Erro ao cadastrar usuário: ' . $e->getMessage());
-            Log::error('Stack trace: ' . $e->getTraceAsString());
+            Log::error('Erro ao cadastrar usuário', ['error' => $e->getMessage()]);
+            Log::error('Stack trace', ['trace' => $e->getTraceAsString()]);
             
             return back()
                 ->withInput()
-                ->withErrors(['error' => 'Erro ao cadastrar usuário: ' . $e->getMessage()]);
+                ->withErrors(['error' => 'Falha ao cadastrar usuário.']);
         }
     }
 

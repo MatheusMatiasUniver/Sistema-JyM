@@ -1,21 +1,59 @@
-<aside class="sidebar-layout">
+<aside class="sidebar-layout" x-data="{ activeCategory: null, hoveringFlyout: false, flyoutTop: 0, setFlyout(category, el) { this.activeCategory = category; if(!category) return; const rect = el.getBoundingClientRect(); let target = rect.top + rect.height / 2; const flyout = this.$refs.flyout; if (flyout) { const h = flyout.offsetHeight || 0; const half = h / 2; const min = 10 + half; const max = window.innerHeight - 10 - half; target = Math.max(min, Math.min(max, target)); } this.flyoutTop = target; } }" @mouseleave="if(!hoveringFlyout) activeCategory = null">
     <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="sidebar-logo">
         
-    <nav>
+    <nav class="sidebar-nav">
         @include('partials.academia-selector')
-        <a href="{{ route('dashboard') }}" class="sidebar-nav-link">Visão Geral</a>
-        <a href="{{ route('clientes.index') }}" class="sidebar-nav-link">Clientes</a>
-        <a href="{{ route('produtos.index') }}" class="sidebar-nav-link">Produtos</a>
-        <a href="{{ route('categorias.index') }}" class="sidebar-nav-link">Categorias</a>
-        <a href="{{ route('vendas.index') }}" class="sidebar-nav-link">Vendas</a>
-        <a href="{{ route('reconhecimento') }}" class="sidebar-nav-link" target="_blank" rel="noopener noreferrer">Acesso Clientes</a>
+        <a href="{{ route('dashboard') }}" class="sidebar-nav-link"><i class="fas fa-chart-line mr-2"></i>Visão Geral</a>
 
+        <div class="sidebar-section">
+            <div class="sidebar-section-title">Acesso Rápido</div>
+            <a href="{{ route('vendas.create') }}" class="sidebar-nav-link"><i class="fas fa-cash-register mr-2"></i>Registrar Nova Venda</a>
+            <a href="{{ route('reconhecimento') }}" class="sidebar-nav-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-user-check mr-2"></i>Acesso Clientes</a>
+        </div>
+
+        <div class="sidebar-section">
+            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('clientes', $el)" @click="setFlyout(activeCategory === 'clientes' ? null : 'clientes', $el)">
+                <span>Clientes</span>
+                <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'clientes' ? 'rotated' : ''"></i></div>
+            </button>
+        </div>
+
+        <div class="sidebar-section">
+            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('lancamentos', $el)" @click="setFlyout(activeCategory === 'lancamentos' ? null : 'lancamentos', $el)">
+                <span>Lançamentos</span>
+                <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'lancamentos' ? 'rotated' : ''"></i></div>
+            </button>
+        </div>
+
+        <div class="sidebar-section">
+            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('financeiro', $el)" @click="setFlyout(activeCategory === 'financeiro' ? null : 'financeiro', $el)">
+                <span>Financeiro</span>
+                <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'financeiro' ? 'rotated' : ''"></i></div>
+            </button>
+        </div>
+        
+        <div class="sidebar-section">
+            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('produtos', $el)" @click="setFlyout(activeCategory === 'produtos' ? null : 'produtos', $el)">
+                <span>Produtos</span>
+                <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'produtos' ? 'rotated' : ''"></i></div>
+            </button>
+        </div>
+        
+        <div class="sidebar-section">
+            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('relatorios', $el)" @click="setFlyout(activeCategory === 'relatorios' ? null : 'relatorios', $el)">
+                <span>Relatórios</span>
+                <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'relatorios' ? 'rotated' : ''"></i></div>
+            </button>
+        </div>
+                
         @auth
             @if(Auth::user()->isAdministrador())
-                <a href="{{ route('academias.index') }}" class="sidebar-nav-link">Academias</a>
-                <a href="{{ route('planos.index') }}" class="sidebar-nav-link">Planos de Assinatura</a>
-                <a href="{{ route('users.index') }}" class="sidebar-nav-link">Gerenciar Usuários</a>
-                <a href="{{ route('register') }}" class="sidebar-nav-link">Cadastrar Usuário</a>
+                <div class="sidebar-section">
+                    <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('administracao', $el)" @click="setFlyout(activeCategory === 'administracao' ? null : 'administracao', $el)">
+                        <span>Administração</span>
+                        <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'administracao' ? 'rotated' : ''"></i></div>
+                    </button>
+                </div>
             @endif
         @endauth
     </nav>
@@ -53,5 +91,58 @@
             @csrf
         </form>
     @endauth
+
+    <div class="sidebar-flyout" x-ref="flyout" x-show="activeCategory" x-transition @mouseenter="hoveringFlyout = true" @mouseleave="hoveringFlyout = false; activeCategory = null" :style="{ top: flyoutTop + 'px' }">
+        <div x-show="activeCategory === 'clientes'">
+            <a href="{{ route('clientes.index') }}" class="sidebar-nav-link"><i class="fas fa-users mr-2"></i>Clientes</a>
+            @auth
+                @if(Auth::user()->isAdministrador())
+                    <a href="{{ route('clientes.excluidos.index') }}" class="sidebar-nav-link"><i class="fas fa-user-slash mr-2"></i>Clientes Excluídos</a>
+                @endif
+            @endauth
+        </div>
+
+        <div x-show="activeCategory === 'lancamentos'">
+            <a href="{{ route('compras.index') }}" class="sidebar-nav-link"><i class="fas fa-shopping-cart mr-2"></i>Compras</a>
+            <a href="{{ route('vendas.index') }}" class="sidebar-nav-link"><i class="fas fa-receipt mr-2"></i>Vendas</a>
+        </div>
+
+        <div x-show="activeCategory === 'financeiro'">
+            <a href="{{ route('financeiro.contas_pagar.index') }}" class="sidebar-nav-link"><i class="fas fa-money-check-alt mr-2"></i>Contas a Pagar</a>
+            <a href="{{ route('financeiro.contas_receber.index') }}" class="sidebar-nav-link"><i class="fas fa-hand-holding-usd mr-2"></i>Contas a Receber</a>
+        </div>
+
+        <div x-show="activeCategory === 'produtos'">
+            <a href="{{ route('produtos.index') }}" class="sidebar-nav-link"><i class="fas fa-boxes mr-2"></i>Produtos</a>
+            <a href="{{ route('categorias.index') }}" class="sidebar-nav-link"><i class="fas fa-tags mr-2"></i>Categorias</a>
+            <a href="{{ route('fornecedores.index') }}" class="sidebar-nav-link"><i class="fas fa-truck mr-2"></i>Fornecedores</a>            
+            <a href="{{ route('equipamentos.index') }}" class="sidebar-nav-link"><i class="fas fa-tools mr-2"></i>Equipamentos</a>
+            <a href="{{ route('materiais.index') }}" class="sidebar-nav-link"><i class="fas fa-cubes mr-2"></i>Materiais</a>        
+    </div>
+
+    <div x-show="activeCategory === 'relatorios'">
+            <a href="{{ route('relatorios.compras') }}" class="sidebar-nav-link"><i class="fas fa-file-alt mr-2"></i>Relatórios de Compras</a>
+            <a href="{{ route('relatorios.margem') }}" class="sidebar-nav-link"><i class="fas fa-percentage mr-2"></i>Margem por Produto</a>
+            <a href="{{ route('relatorios.ruptura') }}" class="sidebar-nav-link"><i class="fas fa-exclamation-triangle mr-2"></i>Ruptura de Estoque</a>
+            <a href="{{ route('relatorios.faturamento') }}" class="sidebar-nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Faturamento e Lucro</a>
+            <a href="{{ route('relatorios.gastos') }}" class="sidebar-nav-link"><i class="fas fa-money-bill-wave mr-2"></i>Gastos</a>
+            <a href="{{ route('relatorios.inadimplencia') }}" class="sidebar-nav-link"><i class="fas fa-user-times mr-2"></i>Inadimplência</a>
+            <a href="{{ route('relatorios.frequencia') }}" class="sidebar-nav-link"><i class="fas fa-user-clock mr-2"></i>Frequência</a>
+            <a href="{{ route('relatorios.vendas') }}" class="sidebar-nav-link"><i class="fas fa-shopping-bag mr-2"></i>Vendas</a>
+            <a href="{{ route('relatorios.porFuncionario') }}" class="sidebar-nav-link"><i class="fas fa-id-badge mr-2"></i>Por Funcionário</a>
+        </div>
+
+    @auth
+        @if(Auth::user()->isAdministrador())
+            <div x-show="activeCategory === 'administracao'">
+                <a href="{{ route('academias.index') }}" class="sidebar-nav-link"><i class="fas fa-dumbbell mr-2"></i>Academias</a>
+                <a href="{{ route('planos.index') }}" class="sidebar-nav-link"><i class="fas fa-list-alt mr-2"></i>Planos de Assinatura</a>
+                <a href="{{ route('users.index') }}" class="sidebar-nav-link"><i class="fas fa-user-cog mr-2"></i>Gerenciar Usuários</a>
+                <a href="{{ route('register') }}" class="sidebar-nav-link"><i class="fas fa-user-plus mr-2"></i>Cadastrar Usuário</a>
+                <a href="{{ route('ajustes.index') }}" class="sidebar-nav-link"><i class="fas fa-sliders-h mr-2"></i>Ajustes do Sistema</a>
+            </div>
+        @endif
+        @endauth
+    </div>
 
 </aside>

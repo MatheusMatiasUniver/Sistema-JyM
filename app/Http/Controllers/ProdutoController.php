@@ -116,8 +116,10 @@ class ProdutoController extends Controller
             ->porAcademia($academiaId)
             ->orderBy('nome')
             ->get();
+        $fornecedores = \App\Models\Fornecedor::orderBy('razaoSocial')->get();
+        $marcas = \App\Models\Marca::orderBy('nome')->get();
 
-        return view('produtos.create', compact('categorias'));
+        return view('produtos.create', compact('categorias', 'fornecedores', 'marcas'));
     }
 
     public function store(Request $request)
@@ -131,20 +133,28 @@ class ProdutoController extends Controller
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'idCategoria' => 'required|exists:categorias,idCategoria',
+            'idMarca' => 'required|exists:marcas,idMarca',
+            'idFornecedor' => 'nullable|exists:fornecedores,idFornecedor',
             'preco' => 'required|numeric|min:0',
             'estoque' => 'required|integer|min:0',
+            'precoCompra' => 'nullable|numeric|min:0',
             'descricao' => 'nullable|string',
             'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'nome.required' => 'O nome do produto é obrigatório.',
             'idCategoria.required' => 'A categoria é obrigatória.',
             'idCategoria.exists' => 'A categoria selecionada não existe.',
+            'idMarca.required' => 'A marca é obrigatória.',
+            'idMarca.exists' => 'A marca selecionada não existe.',
+            'idFornecedor.exists' => 'O fornecedor selecionado não existe.',
             'preco.required' => 'O preço é obrigatório.',
             'preco.numeric' => 'O preço deve ser um número.',
             'preco.min' => 'O preço deve ser maior ou igual a zero.',
             'estoque.required' => 'O estoque é obrigatório.',
             'estoque.integer' => 'O estoque deve ser um número inteiro.',
             'estoque.min' => 'O estoque deve ser maior ou igual a zero.',
+            'precoCompra.numeric' => 'O preço de compra deve ser um número.',
+            'precoCompra.min' => 'O preço de compra deve ser maior ou igual a zero.',
             'imagem.image' => 'O arquivo deve ser uma imagem.',
             'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif.',
             'imagem.max' => 'A imagem não pode ser maior que 2MB.',
@@ -172,7 +182,7 @@ class ProdutoController extends Controller
 
     public function show(Produto $produto)
     {
-        if (!\Illuminate\Support\Facades\Auth::user()->isAdministrador() && $produto->idAcademia !== config('app.academia_atual')) {
+        if ($produto->idAcademia !== config('app.academia_atual')) {
             abort(403, 'Você não tem permissão para visualizar este produto.');
         }
 
@@ -183,10 +193,8 @@ class ProdutoController extends Controller
     {
         $academiaId = $this->getAcademiaId();
         
-        if (!Auth::user()->isAdministrador()) {
-            if (!$academiaId || $produto->idAcademia !== $academiaId) {
-                abort(403, 'Você não tem permissão para editar este produto.');
-            }
+        if (!$academiaId || $produto->idAcademia !== $academiaId) {
+            abort(403, 'Você não tem permissão para editar este produto.');
         }
 
         $categorias = Categoria::ativas()
@@ -194,36 +202,44 @@ class ProdutoController extends Controller
             ->orderBy('nome')
             ->get();
 
-        return view('produtos.edit', compact('produto', 'categorias'));
+        $fornecedores = \App\Models\Fornecedor::orderBy('razaoSocial')->get();
+        $marcas = \App\Models\Marca::orderBy('nome')->get();
+        return view('produtos.edit', compact('produto', 'categorias', 'fornecedores', 'marcas'));
     }
 
     public function update(Request $request, Produto $produto)
     {
         $academiaId = $this->getAcademiaId();
         
-        if (!Auth::user()->isAdministrador()) {
-            if (!$academiaId || $produto->idAcademia !== $academiaId) {
-                abort(403, 'Você não tem permissão para editar este produto.');
-            }
+        if (!$academiaId || $produto->idAcademia !== $academiaId) {
+            abort(403, 'Você não tem permissão para editar este produto.');
         }
 
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'idCategoria' => 'required|exists:categorias,idCategoria',
+            'idMarca' => 'required|exists:marcas,idMarca',
+            'idFornecedor' => 'nullable|exists:fornecedores,idFornecedor',
             'preco' => 'required|numeric|min:0',
             'estoque' => 'required|integer|min:0',
+            'precoCompra' => 'nullable|numeric|min:0',
             'descricao' => 'nullable|string',
             'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'nome.required' => 'O nome do produto é obrigatório.',
             'idCategoria.required' => 'A categoria é obrigatória.',
             'idCategoria.exists' => 'A categoria selecionada não existe.',
+            'idMarca.required' => 'A marca é obrigatória.',
+            'idMarca.exists' => 'A marca selecionada não existe.',
+            'idFornecedor.exists' => 'O fornecedor selecionado não existe.',
             'preco.required' => 'O preço é obrigatório.',
             'preco.numeric' => 'O preço deve ser um número.',
             'preco.min' => 'O preço deve ser maior ou igual a zero.',
             'estoque.required' => 'O estoque é obrigatório.',
             'estoque.integer' => 'O estoque deve ser um número inteiro.',
             'estoque.min' => 'O estoque deve ser maior ou igual a zero.',
+            'precoCompra.numeric' => 'O preço de compra deve ser um número.',
+            'precoCompra.min' => 'O preço de compra deve ser maior ou igual a zero.',
             'imagem.image' => 'O arquivo deve ser uma imagem.',
             'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif.',
             'imagem.max' => 'A imagem não pode ser maior que 2MB.',
@@ -252,7 +268,7 @@ class ProdutoController extends Controller
 
     public function destroy(Produto $produto)
     {
-        if (!Auth::user()->isAdministrador() && $produto->idAcademia !== config('app.academia_atual')) {
+        if ($produto->idAcademia !== config('app.academia_atual')) {
             abort(403, 'Você não tem permissão para excluir este produto.');
         }
 
@@ -271,33 +287,71 @@ class ProdutoController extends Controller
                              ->with('success', 'Produto excluído com sucesso!');
 
         } catch (\Exception $e) {
-            return back()->with('error', 'Erro ao excluir produto: ' . $e->getMessage());
+            return back()->with('error', 'Falha ao excluir produto.');
         }
     }
 
     public function ajustarEstoque(Request $request, Produto $produto)
     {
-        if (!Auth::user()->isAdministrador() && $produto->idAcademia !== config('app.academia_atual')) {
+        if ($produto->idAcademia !== config('app.academia_atual')) {
             abort(403, 'Você não tem permissão para ajustar o estoque deste produto.');
         }
 
         $validated = $request->validate([
             'tipo' => 'required|in:adicionar,remover',
             'quantidade' => 'required|integer|min:1',
-        ], [
-            'quantidade.required' => 'Informe a quantidade.',
-            'quantidade.integer' => 'A quantidade deve ser um número inteiro.',
-            'quantidade.min' => 'A quantidade deve ser pelo menos 1.',
         ]);
 
         if ($validated['tipo'] === 'adicionar') {
             $produto->adicionarEstoque($validated['quantidade']);
             $mensagem = 'Estoque adicionado com sucesso!';
+            \Illuminate\Support\Facades\DB::table('movimentacoes_estoque')->insert([
+                'idAcademia' => $this->getAcademiaId(),
+                'idProduto' => $produto->idProduto,
+                'tipo' => 'entrada',
+                'quantidade' => $validated['quantidade'],
+                'custoUnitario' => $produto->custoMedio ?? $produto->precoCompra ?? null,
+                'custoTotal' => ($produto->custoMedio ?? $produto->precoCompra ?? 0) * $validated['quantidade'],
+                'origem' => 'ajuste',
+                'referenciaId' => null,
+                'motivo' => 'ajuste_adicionar',
+                'dataMovimentacao' => now(),
+                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
+            ]);
+            \App\Models\ActivityLog::create([
+                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
+                'modulo' => 'Estoque',
+                'acao' => 'ajuste_adicionar',
+                'entidade' => 'Produto',
+                'entidadeId' => $produto->idProduto,
+                'dados' => ['quantidade' => $validated['quantidade']],
+            ]);
         } else {
             if (!$produto->baixarEstoque($validated['quantidade'])) {
                 return back()->with('error', 'Estoque insuficiente!');
             }
             $mensagem = 'Estoque removido com sucesso!';
+            \Illuminate\Support\Facades\DB::table('movimentacoes_estoque')->insert([
+                'idAcademia' => $this->getAcademiaId(),
+                'idProduto' => $produto->idProduto,
+                'tipo' => 'saida',
+                'quantidade' => $validated['quantidade'],
+                'custoUnitario' => $produto->custoMedio ?? $produto->precoCompra ?? null,
+                'custoTotal' => ($produto->custoMedio ?? $produto->precoCompra ?? 0) * $validated['quantidade'],
+                'origem' => 'ajuste',
+                'referenciaId' => null,
+                'motivo' => 'ajuste_remover',
+                'dataMovimentacao' => now(),
+                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
+            ]);
+            \App\Models\ActivityLog::create([
+                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
+                'modulo' => 'Estoque',
+                'acao' => 'ajuste_remover',
+                'entidade' => 'Produto',
+                'entidadeId' => $produto->idProduto,
+                'dados' => ['quantidade' => $validated['quantidade']],
+            ]);
         }
 
         return back()->with('success', $mensagem);

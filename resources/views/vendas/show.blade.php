@@ -8,7 +8,7 @@
     <div class="bg-white shadow-md rounded-lg p-6 max-w-4xl mx-auto">
         <div class="mb-4">
             <h2 class="text-xl font-semibold text-gray-800 mb-2">Informações da Venda</h2>
-            <p class="text-black"><strong>Cliente:</strong> {{ $venda->cliente ? $venda->cliente->nome : 'Cliente Removido' }} (CPF: {{ $venda->cliente ? $venda->cliente->cpfFormatado : 'N/A' }})</p>
+            <p class="text-black"><strong>Cliente:</strong> {{ $venda->cliente && !$venda->cliente->deleted_at ? $venda->cliente->nome : 'Cliente Deletado' }} (CPF: {{ $venda->cliente && !$venda->cliente->deleted_at ? $venda->cliente->cpfFormatado : 'N/A' }})</p>
             <p class="text-black"><strong>Data da Venda:</strong> {{ $venda->dataVenda->format('d/m/Y H:i:s') }}</p>
             <p class="text-black"><strong>Valor Total:</strong> R$ {{ number_format($venda->valorTotal, 2, ',', '.') }}</p>
             <p class="text-black"><strong>Tipo de Pagamento:</strong> {{ $venda->formaPagamento }}</p>

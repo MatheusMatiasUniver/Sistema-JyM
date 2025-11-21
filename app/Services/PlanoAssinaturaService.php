@@ -104,6 +104,18 @@ class PlanoAssinaturaService
                 'idAcademia' => $cliente->idAcademia,
             ]);
 
+            \Illuminate\Support\Facades\DB::table('contas_receber')->insert([
+                'idAcademia' => $cliente->idAcademia,
+                'idCliente' => $cliente->idCliente,
+                'documentoRef' => $mensalidade->idMensalidade ?? null,
+                'descricao' => 'Mensalidade Cliente #'.$cliente->idCliente,
+                'valorTotal' => $plano->valor,
+                'status' => 'aberta',
+                'dataVencimento' => $dataVencimento,
+                'dataRecebimento' => null,
+                'formaRecebimento' => null,
+            ]);
+
             DB::commit();
 
             return $mensalidade;

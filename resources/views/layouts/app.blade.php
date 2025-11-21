@@ -25,6 +25,7 @@
     @include('partials.sidebar')
 
     <div class="main-content-area">
+        <div class="content-container">
 
         @if(session('success'))
             <script>
@@ -50,6 +51,7 @@
             </script>
         @endif
         @yield('content')
+        </div>
     </div>
     @stack('body_scripts')
 </body>

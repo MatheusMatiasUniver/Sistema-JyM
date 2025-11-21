@@ -15,9 +15,6 @@
         </div>
 
         <div id="code-input-area" class="hidden mt-4">
-            <input type="text" id="cpfInput" placeholder="000.000.000-00"
-                   class="w-full p-4 text-center text-4xl font-bold bg-gray-800 text-white rounded-lg mb-4">
-
             <input type="password" id="accessCodeInput" placeholder="Digite seu código de acesso (6 dígitos)"
                    class="w-full p-4 text-center text-4xl font-bold bg-gray-800 text-white rounded-lg"
                    maxlength="6" pattern="\\d*" inputmode="numeric">

@@ -47,11 +47,11 @@ class UpdateClienteRequest extends FormRequest
             'email' => ['nullable', 'email', 'max:100', Rule::unique('clientes', 'email')->ignore($clienteId, 'idCliente')],
             'telefone' => ['nullable', 'string', 'max:15'],
             'dataNascimento' => ['required', 'date', 'before:today'],
-            'status' => ['required', Rule::in(['Ativo', 'Inativo', 'Inadimplente', 'Suspenso', 'Pendente'])],
+            'status' => ['required', Rule::in(['Ativo', 'Inativo', 'Inadimplente'])],
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'remover_foto' => ['nullable', 'boolean'],
             'idPlano' => ['nullable', 'integer', Rule::exists('plano_assinaturas', 'idPlano')],
-            'codigo_acesso' => 'nullable|sometimes|string|min:6|max:255',
+            
         ];
     }
 
@@ -74,14 +74,13 @@ class UpdateClienteRequest extends FormRequest
             'dataNascimento.date' => 'A Data de Nascimento deve ser uma data válida.',
             'dataNascimento.before' => 'A Data de Nascimento deve ser anterior à data atual.',
             'status.required' => 'O campo Status é obrigatório.',
-            'status.in' => 'O Status deve ser um dos: Ativo, Inativo, Inadimplente, Suspenso ou Pendente.',
+            'status.in' => 'O Status deve ser um dos: Ativo, Inativo ou Inadimplente.',
             'foto.image' => 'O arquivo enviado para Foto deve ser uma imagem.',
             'foto.mimes' => 'A Foto deve ser dos tipos: jpeg, png, jpg, gif ou svg.',
             'foto.max' => 'A Foto não pode ser maior que 2MB.',
             'idPlano.integer' => 'O Plano de Assinatura selecionado é inválido.',
             'idPlano.exists' => 'O Plano de Assinatura selecionado não existe.',
-            'codigo_acesso.digits' => 'O Código de Acesso deve ter exatamente :digits dígitos.',
-            'codigo_acesso.numeric' => 'O Código de Acesso deve conter apenas números.',
+            
         ];
     }
 }

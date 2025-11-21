@@ -12,7 +12,7 @@
             <div class="mb-4">
                 <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome do Plano:</label>
                 <input type="text" id="nome" name="nome" value="{{ old('nome') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
                 @error('nome')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -30,7 +30,7 @@
             <div class="mb-4">
                 <label for="valor" class="block text-gray-700 text-sm font-bold mb-2">Valor:</label>
                 <input type="number" step="0.01" id="valor" name="valor" value="{{ old('valor') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('valor') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('valor') border-red-500 @enderror">
                 @error('valor')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -39,7 +39,7 @@
             <div class="mb-4">
                 <label for="duracaoDias" class="block text-gray-700 text-sm font-bold mb-2">Duração (dias):</label>
                 <input type="number" id="duracaoDias" name="duracaoDias" value="{{ old('duracaoDias') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('duracaoDias') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('duracaoDias') border-red-500 @enderror">
                 @error('duracaoDias')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror

@@ -32,7 +32,7 @@
                     <label for="nome" class="block text-sm font-medium text-gray-700 mb-2">
                         Nome da Categoria <span class="text-red-500">*</span>
                     </label>
-                    <input type="text" id="nome" name="nome" value="{{ old('nome', $categoria->nome) }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white" placeholder="Digite o nome da categoria" maxlength="100" required>
+                    <input type="text" id="nome" name="nome" value="{{ old('nome', $categoria->nome) }}" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900 bg-white text-black" placeholder="Digite o nome da categoria" maxlength="100" required>
                     @error('nome')
                         <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                     @enderror

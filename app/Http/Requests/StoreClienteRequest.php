@@ -49,7 +49,7 @@ class StoreClienteRequest extends FormRequest
             'status' => ['required', 'in:Ativo,Inativo'],
             'foto' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
             'idPlano' => ['nullable', 'integer', Rule::exists('plano_assinaturas', 'idPlano')],
-            'codigo_acesso' => 'nullable|string|min:6|max:255', 
+            
         ];
     }
 
@@ -76,8 +76,7 @@ class StoreClienteRequest extends FormRequest
             'foto.image' => 'O arquivo da Foto deve ser uma imagem.',
             'foto.mimes' => 'A Foto deve ser um arquivo dos tipos: jpeg, png, jpg, gif, svg.',
             'foto.max' => 'A Foto não pode ter mais de 2MB.',
-            'codigo_acesso.digits' => 'O Código de Acesso deve ter exatamente :digits dígitos.',
-            'codigo_acesso.numeric' => 'O Código de Acesso deve conter apenas números.',
+            
         ];
     }
 }

@@ -35,23 +35,28 @@ class StoreProdutoRequest extends FormRequest
             'nome' => [
                 'required',
                 'string',
-                'max:100',
-                Rule::unique('produtos')->where(function ($query) {
-                    return $query->where('categoria', $this->categoria);
-                })
+                'max:255',
+                Rule::unique('produtos', 'nome')->where(function ($query) {
+                    return $query->where('idCategoria', $this->idCategoria);
+                }),
             ],
-            'categoria' => [
+            'idCategoria' => [
                 'required',
-                'string',
-                'max:50',
-                Rule::unique('produtos')->where(function ($query) {
-                    return $query->where('nome', $this->nome);
-                })
+                Rule::exists('categorias', 'idCategoria'),
             ],
-            'preco' => 'required|numeric|min:0.01',
+            'idMarca' => [
+                'required',
+                Rule::exists('marcas', 'idMarca'),
+            ],
+            'idFornecedor' => [
+                'nullable',
+                Rule::exists('fornecedores', 'idFornecedor'),
+            ],
+            'preco' => 'required|numeric|min:0',
             'estoque' => 'required|integer|min:0',
+            'precoCompra' => 'nullable|numeric|min:0',
             'descricao' => 'nullable|string',
-            'imagem' => 'nullable|image|max:2048',
+            'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ];
     }
 
@@ -65,23 +70,31 @@ class StoreProdutoRequest extends FormRequest
         return [
             'nome.required' => 'O nome do produto é obrigatório.',
             'nome.unique' => 'Já existe um produto com este nome nesta categoria.',
-            'nome.max' => 'O nome do produto não pode ter mais de 100 caracteres.',
+            'nome.max' => 'O nome do produto não pode ter mais de 255 caracteres.',
 
-            'categoria.required' => 'A categoria do produto é obrigatória.',
-            'categoria.unique' => 'Já existe um produto com esta categoria e nome.',
-            'categoria.max' => 'A categoria do produto não pode ter mais de 50 caracteres.',
+            'idCategoria.required' => 'A categoria do produto é obrigatória.',
+            'idCategoria.exists' => 'A categoria selecionada não existe.',
+
+            'idMarca.required' => 'A marca do produto é obrigatória.',
+            'idMarca.exists' => 'A marca selecionada não existe.',
+
+            'idFornecedor.exists' => 'O fornecedor selecionado não existe.',
 
             'preco.required' => 'O preço do produto é obrigatório.',
             'preco.numeric' => 'O preço do produto deve ser um número.',
-            'preco.min' => 'O preço do produto deve ser maior que zero.',
+            'preco.min' => 'O preço do produto deve ser maior ou igual a zero.',
 
             'estoque.required' => 'O estoque do produto é obrigatório.',
             'estoque.integer' => 'O estoque do produto deve ser um número inteiro.',
             'estoque.min' => 'O estoque do produto não pode ser negativo.',
 
+            'precoCompra.numeric' => 'O preço de compra deve ser um número.',
+            'precoCompra.min' => 'O preço de compra deve ser maior ou igual a zero.',
+
             'descricao.string' => 'A descrição deve ser um texto.',
 
             'imagem.image' => 'O arquivo deve ser uma imagem.',
+            'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif.',
             'imagem.max' => 'A imagem não pode ter mais de 2 MB (2048 KB).',
         ];
     }

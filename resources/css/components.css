@@ -28,7 +28,7 @@
 
 @layer components {
   .sidebar-layout {
-    @apply w-[220px] bg-secondary-dark h-screen p-5 box-border fixed top-0 left-0;
+    @apply w-[220px] bg-secondary-dark h-screen p-5 box-border fixed top-0 left-0 flex flex-col overflow-hidden;
   }
 
   .sidebar-logo {
@@ -39,12 +39,31 @@
     @apply block text-text-white no-underline my-2.5 p-2.5 rounded transition-all duration-300 hover:bg-grip-2 hover:text-text-white;
   }
 
+  .sidebar-section {
+    @apply mt-5 pt-2 border-t border-border-light;
+  }
+
+  .sidebar-section-title {
+    @apply text-text-white uppercase text-xs tracking-wide mb-2 opacity-80;
+  }
+
+  .sidebar-section-toggle {
+    @apply flex items-center justify-between w-full text-left text-text-white font-medium my-2.5 p-2.5 rounded transition-all duration-300 hover:bg-grip-2 hover:text-text-white;
+    background: none;
+    border: none;
+    width: 100%;
+  }
+
+  .sidebar-submenu {
+    @apply mt-1;
+  }
+
   .user-info-section {
-    @apply bg-primary-dark rounded-lg border border-border-light relative cursor-pointer transition-all duration-300 hover:bg-opacity-80;
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    right: 20px;
+    @apply bg-primary-dark rounded-lg border border-border-light relative cursor-pointer transition-all duration-300 hover:bg-opacity-80 mt-auto;
+  }
+
+  .sidebar-nav {
+    @apply flex-1 overflow-y-auto;
   }
 
   .user-info-content {
@@ -113,6 +132,27 @@
 
   .main-content-area {
     @apply ml-[220px] p-7.5;
+  }
+
+  .sidebar-flyout {
+    @apply fixed left-[220px] w-[260px] bg-secondary-dark border-l border-border-light p-5 box-border shadow-lg transition-all duration-300 -translate-y-1/2 max-h-[calc(100vh-20px)] overflow-y-auto;
+    z-index: 40;
+  }
+
+  .content-container {
+    @apply w-full max-w-screen-xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .card {
+    @apply bg-white text-text-black shadow-md rounded-lg overflow-hidden;
+  }
+
+  .section-title {
+    @apply text-xl font-semibold text-text-black mb-4;
+  }
+
+  .table-wrapper {
+    @apply overflow-x-auto;
   }
 
   .btn-quick-action-purple {
@@ -240,6 +280,14 @@
       transform: translateX(100%);
       opacity: 0;
     }
+  }
+}
+
+@layer base {
+  .text-white input,
+  .text-white select,
+  .text-white textarea {
+    color: theme('colors.gray.900');
   }
 }
 

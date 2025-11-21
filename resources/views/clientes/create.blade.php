@@ -21,7 +21,7 @@
 
             <div class="mb-4">
                 <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
-                <input type="text" id="nome" name="nome" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror" value="{{ old('nome') }}" required>
+                <input type="text" id="nome" name="nome" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror" value="{{ old('nome') }}" required>
                 @error('nome')
                     <div class="text-red-500 text-xs italic">{{ $message }}</div>
                 @enderror
@@ -30,7 +30,7 @@
             <div class="mb-4">
                 <label for="cpf" class="block text-gray-700 text-sm font-bold mb-2">CPF:</label>
                 <input type="text" id="cpf" name="cpf" value="{{ old('cpf') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('cpf') border-red-500 @enderror"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('cpf') border-red-500 @enderror"
                        placeholder="000.000.000-00">
                 @error('cpf')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
@@ -40,7 +40,7 @@
             <div class="mb-4">
                 <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
                 <input type="email" id="email" name="email" value="{{ old('email') }}"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('email') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('email') border-red-500 @enderror">
                 @error('email')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -49,32 +49,19 @@
             <div class="mb-4">
                 <label for="telefone" class="block text-gray-700 text-sm font-bold mb-2">Telefone:</label>
                 <input type="text" id="telefone" name="telefone" value="{{ old('telefone') }}"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror"
                        placeholder="(00) 00000-0000">
                 @error('telefone')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
             </div>
 
-            <div class="mb-4">
-                <label for="codigo_acesso" class="block text-gray-700 text-sm font-bold mb-2">Código de Acesso (6 dígitos, opcional):</label>
-                <input type="password" id="codigo_acesso" name="codigo_acesso" placeholder="Apenas números"
-                    value=""
-                    class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('codigo_acesso') border-red-500 @enderror"
-                    maxlength="6" inputmode="numeric" pattern="\d*" 
-                    oninput="this.value=this.value.slice(0,this.maxLength)"
-                    oncopy="return false" onpaste="return false" oncut="return false"
-                    oncontextmenu="return false" onselectstart="return false" ondragstart="return false">
-                @error('codigo_acesso')
-                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
-                @enderror
-                <p class="text-gray-500 text-xs mt-1">Será utilizado como fallback no Kiosk. Se deixado em branco, não será alterado.</p>
-            </div>
+
 
             <div class="mb-4">
                 <label for="dataNascimento" class="block text-gray-700 text-sm font-bold mb-2">Data de Nascimento:</label>
                 <input type="date" id="dataNascimento" name="dataNascimento" value="{{ old('dataNascimento') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('dataNascimento') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('dataNascimento') border-red-500 @enderror">
                 @error('dataNascimento')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -83,17 +70,8 @@
             <div class="mb-4">
                 <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Status:</label>
                 <select id="status" name="status" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 bg-white leading-tight focus:outline-none focus:shadow-outline @error('status') border-red-500 @enderror">
-                    <option value="Pendente" {{ old('status', $cliente->status ?? '') == 'Pendente' ? 'selected' : '' }}>
-                        Pendente
-                    </option>
                     <option value="Ativo" {{ old('status', $cliente->status ?? '') == 'Ativo' ? 'selected' : '' }}>
                         Ativo
-                    </option>
-                    <option value="Suspenso" {{ old('status', $cliente->status ?? '') == 'Suspenso' ? 'selected' : '' }}>
-                        Suspenso
-                    </option>
-                    <option value="Inadimplente" {{ old('status', $cliente->status ?? '') == 'Inadimplente' ? 'selected' : '' }}>
-                        Inadimplente
                     </option>
                     <option value="Inativo" {{ old('status', $cliente->status ?? '') == 'Inativo' ? 'selected' : '' }}>
                         Inativo
@@ -123,7 +101,7 @@
             <div class="mb-6">
                 <label for="foto" class="block text-gray-700 text-sm font-bold mb-2">Foto (Opcional):</label>
                 <input type="file" id="foto" name="foto" accept="image/*"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('foto') border-red-500 @enderror"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('foto') border-red-500 @enderror"
                        onchange="previewImage(this)">
                 @error('foto')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>

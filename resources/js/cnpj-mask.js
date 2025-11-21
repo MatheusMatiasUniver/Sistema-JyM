@@ -3,6 +3,9 @@ function initCNPJMask() {
     const cnpjInputs = document.querySelectorAll('input[name="CNPJ"]');
     
     cnpjInputs.forEach(input => {
+        if (input.dataset.boundMask === 'true') {
+            return;
+        }
         input.addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             

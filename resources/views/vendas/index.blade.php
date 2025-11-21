@@ -102,7 +102,7 @@
                             {{ $venda->idVenda }}
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            {{ $venda->cliente ? $venda->cliente->nome : 'Cliente Removido' }}
+                            {{ $venda->cliente && !$venda->cliente->deleted_at ? $venda->cliente->nome : 'Cliente Deletado' }}
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             {{ $venda->dataVenda->format('d/m/Y H:i') }}

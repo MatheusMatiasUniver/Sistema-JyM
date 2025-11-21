@@ -58,7 +58,7 @@ class Mensalidade extends Model
 
     public function cliente(): BelongsTo
     {
-        return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente');
+        return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente')->withTrashed();
     }
 
     public function plano(): BelongsTo

@@ -30,8 +30,8 @@ class EntradaService
             return $entrada;
 
         } catch (\Exception $e) {
-            Log::error("Erro ao registrar entrada para cliente ID {$cliente->idCliente}: " . $e->getMessage());
-            throw new \Exception('Erro ao registrar entrada: ' . $e->getMessage());
+            Log::error('Erro ao registrar entrada', ['error' => $e->getMessage(), 'cliente_id' => $cliente->idCliente]);
+            throw new \Exception('Erro ao registrar entrada.');
         }
     }
 }

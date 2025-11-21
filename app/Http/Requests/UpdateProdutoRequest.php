@@ -28,16 +28,18 @@ class UpdateProdutoRequest extends FormRequest
         $produtoId = $this->route('produto')->idProduto;
 
         return [
-            'nome' => ['required', 'string', 'max:100'],
-            'categoria' => ['required', 'string', 'max:50'],
+            'nome' => ['required', 'string', 'max:255'],
+            'idCategoria' => ['required', Rule::exists('categorias', 'idCategoria')],
+            'idMarca' => ['required', Rule::exists('marcas', 'idMarca')],
+            'idFornecedor' => ['nullable', Rule::exists('fornecedores', 'idFornecedor')],
             'preco' => ['required', 'numeric', 'min:0'],
             'estoque' => ['required', 'integer', 'min:0'],
-            'descricao' => ['nullable', 'string', 'max:500'],
-            'imagem' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif,svg', 'max:2048'],
+            'precoCompra' => ['nullable', 'numeric', 'min:0'],
+            'descricao' => ['nullable', 'string'],
+            'imagem' => ['nullable', 'image', 'mimes:jpeg,png,jpg,gif', 'max:2048'],
             'remover_imagem' => ['nullable', 'boolean'],
-            Rule::unique('produtos')->where(function ($query) {
-                return $query->where('nome', $this->nome)
-                             ->where('categoria', $this->categoria);
+            Rule::unique('produtos', 'nome')->where(function ($query) {
+                return $query->where('idCategoria', $this->idCategoria);
             })->ignore($produtoId, 'idProduto'),
         ];
     }
@@ -50,18 +52,24 @@ class UpdateProdutoRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'nome.required' => 'O campo Nome é obrigatório.',
-            'categoria.required' => 'O campo Categoria é obrigatório.',
-            'preco.required' => 'O campo Preço é obrigatório.',
-            'preco.numeric' => 'O Preço deve ser um número.',
-            'preco.min' => 'O Preço não pode ser negativo.',
-            'estoque.required' => 'O campo Estoque é obrigatório.',
-            'estoque.integer' => 'O Estoque deve ser um número inteiro.',
-            'estoque.min' => 'O Estoque não pode ser negativo.',
-            'imagem.image' => 'O arquivo da Imagem deve ser uma imagem.',
-            'imagem.mimes' => 'A Imagem deve ser um arquivo dos tipos: jpeg, png, jpg, gif, svg.',
-            'imagem.max' => 'A Imagem não pode ter mais de 2MB.',
-            'unique' => 'Já existe um produto com o mesmo Nome e Categoria.',
+            'nome.required' => 'O nome do produto é obrigatório.',
+            'idCategoria.required' => 'A categoria é obrigatória.',
+            'idCategoria.exists' => 'A categoria selecionada não existe.',
+            'idMarca.required' => 'A marca é obrigatória.',
+            'idMarca.exists' => 'A marca selecionada não existe.',
+            'idFornecedor.exists' => 'O fornecedor selecionado não existe.',
+            'preco.required' => 'O preço é obrigatório.',
+            'preco.numeric' => 'O preço deve ser um número.',
+            'preco.min' => 'O preço deve ser maior ou igual a zero.',
+            'estoque.required' => 'O estoque é obrigatório.',
+            'estoque.integer' => 'O estoque deve ser um número inteiro.',
+            'estoque.min' => 'O estoque deve ser maior ou igual a zero.',
+            'precoCompra.numeric' => 'O preço de compra deve ser um número.',
+            'precoCompra.min' => 'O preço de compra deve ser maior ou igual a zero.',
+            'imagem.image' => 'O arquivo deve ser uma imagem.',
+            'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif.',
+            'imagem.max' => 'A imagem não pode ser maior que 2MB.',
+            'unique' => 'Já existe um produto com este nome nesta categoria.',
         ];
     }
 }

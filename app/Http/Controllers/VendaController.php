@@ -39,11 +39,11 @@ class VendaController extends Controller
 
         // Filtro por valor mínimo
         if ($request->filled('valor_min')) {
-            $query->where('valor_total', '>=', $request->valor_min);
+            $query->where('valorTotal', '>=', $request->valor_min);
         }
 
         if ($request->filled('valor_max')) {
-            $query->where('valor_total', '<=', $request->valor_max);
+            $query->where('valorTotal', '<=', $request->valor_max);
         }
 
         $sortBy = $request->get('sort_by', 'created_at');
@@ -149,23 +149,66 @@ class VendaController extends Controller
                 ]);
 
                 $produto->baixarEstoque($item['quantidade']);
+                $custoUnitario = $produto->custoMedio ?? $produto->precoCompra ?? 0;
+                DB::table('movimentacoes_estoque')->insert([
+                    'idAcademia' => $academiaId,
+                    'idProduto' => $produto->idProduto,
+                    'tipo' => 'saida',
+                    'quantidade' => $item['quantidade'],
+                    'custoUnitario' => $custoUnitario,
+                    'custoTotal' => $custoUnitario * $item['quantidade'],
+                    'origem' => 'venda',
+                    'referenciaId' => $vendaId,
+                    'motivo' => null,
+                    'dataMovimentacao' => now(),
+                    'usuarioId' => Auth::id(),
+                ]);
                 
                 $valorTotal += $produto->preco * $item['quantidade'];
+
+                if (method_exists($produto, 'atingiuEstoqueMinimo') && $produto->atingiuEstoqueMinimo()) {
+                    session()->flash('warning', "Produto {$produto->nome} atingiu estoque mínimo");
+                }
             }
 
             DB::table('venda_produtos')->where('idVenda', $vendaId)->update(['valorTotal' => $valorTotal]);
 
-            DB::commit();
+        DB::table('contas_receber')->insert([
+            'idAcademia' => $academiaId,
+            'idCliente' => $dadosValidados['idCliente'] ?? null,
+            'documentoRef' => $vendaId,
+            'descricao' => 'Venda #'.$vendaId,
+            'valorTotal' => $valorTotal,
+            'status' => 'recebida',
+            'dataVencimento' => null,
+            'dataRecebimento' => now(),
+            'formaRecebimento' => $dadosValidados['formaPagamento'],
+        ]);
 
-            return redirect()->route('vendas.index')
-                            ->with('success', 'Venda realizada com sucesso!');
+        DB::commit();
+
+        \App\Models\ActivityLog::create([
+            'usuarioId' => Auth::id(),
+            'modulo' => 'Vendas',
+            'acao' => 'criar',
+            'entidade' => 'VendaProduto',
+            'entidadeId' => $vendaId,
+            'dados' => [
+                'valorTotal' => $valorTotal,
+                'idCliente' => $dadosValidados['idCliente'] ?? null,
+                'formaPagamento' => $dadosValidados['formaPagamento'],
+            ],
+        ]);
+
+        return redirect()->route('vendas.index')
+                        ->with('success', 'Venda realizada com sucesso!');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()->with('error', 'Erro de validação: Verifique se todos os campos estão preenchidos corretamente.')
                         ->withInput();
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Erro ao realizar venda: ' . $e->getMessage())
+            return back()->with('error', 'Falha ao realizar venda.')
                         ->withInput();
         }
     }
@@ -186,9 +229,34 @@ class VendaController extends Controller
         try {
             foreach ($venda->itens as $item) {
                 $item->produto->adicionarEstoque($item->quantidade);
+                $custoUnitario = $item->produto->custoMedio ?? $item->produto->precoCompra ?? 0;
+                \Illuminate\Support\Facades\DB::table('movimentacoes_estoque')->insert([
+                    'idAcademia' => $venda->idAcademia,
+                    'idProduto' => $item->idProduto,
+                    'tipo' => 'entrada',
+                    'quantidade' => $item->quantidade,
+                    'custoUnitario' => $custoUnitario,
+                    'custoTotal' => $custoUnitario * $item->quantidade,
+                    'origem' => 'devolucao',
+                    'referenciaId' => $venda->idVenda,
+                    'motivo' => 'cancelamento_venda',
+                    'dataMovimentacao' => now(),
+                    'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
+                ]);
             }
 
             $venda->delete();
+
+            \App\Models\ActivityLog::create([
+                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
+                'modulo' => 'Vendas',
+                'acao' => 'cancelar',
+                'entidade' => 'VendaProduto',
+                'entidadeId' => $venda->idVenda,
+                'dados' => [
+                    'motivo' => 'cancelamento_venda',
+                ],
+            ]);
 
             DB::commit();
 
@@ -197,7 +265,7 @@ class VendaController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Erro ao cancelar venda: ' . $e->getMessage());
+            return back()->with('error', 'Falha ao cancelar venda.');
         }
     }
 }

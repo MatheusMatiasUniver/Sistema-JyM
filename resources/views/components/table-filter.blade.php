@@ -16,7 +16,7 @@
                    name="search" 
                    placeholder="{{ $searchPlaceholder }}"
                    value="{{ $searchValue }}"
-                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                   class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-black">
         </div>
 
         <!-- Filtros Dinâmicos -->
@@ -40,7 +40,7 @@
                            id="{{ $filter['name'] }}" 
                            name="{{ $filter['name'] }}"
                            value="{{ request($filter['name']) }}"
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-black">
                 @elseif($filter['type'] === 'number')
                     <input type="number" 
                            id="{{ $filter['name'] }}" 
@@ -49,7 +49,7 @@
                            value="{{ request($filter['name']) }}"
                            step="{{ $filter['step'] ?? '0.01' }}"
                            min="{{ $filter['min'] ?? '0' }}"
-                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline text-black">
                 @endif
             </div>
         @endforeach

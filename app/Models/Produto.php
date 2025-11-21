@@ -43,17 +43,34 @@ class Produto extends Model
     protected $fillable = [
         'nome',
         'idCategoria',
+        'idMarca',
+        'idFornecedor',
         'preco',
         'estoque',
         'descricao',
         'imagem',
         'idAcademia',
+        'precoCompra',
+        'custoMedio',
+        'estoqueMinimo',
+        'unidadeMedida',
+        'codigoBarras',
+        'vendavel',
     ];
 
     protected $casts = [
         'preco' => 'decimal:2',
         'estoque' => 'integer',
+        'precoCompra' => 'decimal:2',
+        'custoMedio' => 'decimal:2',
+        'estoqueMinimo' => 'integer',
+        'vendavel' => 'boolean',
     ];
+
+    public function atingiuEstoqueMinimo(): bool
+    {
+        return $this->estoqueMinimo !== null && $this->estoque <= $this->estoqueMinimo;
+    }
 
     public function academia(): BelongsTo
     {
@@ -63,6 +80,16 @@ class Produto extends Model
     public function categoria(): BelongsTo
     {
         return $this->belongsTo(Categoria::class, 'idCategoria', 'idCategoria');
+    }
+
+    public function marca(): BelongsTo
+    {
+        return $this->belongsTo(Marca::class, 'idMarca', 'idMarca');
+    }
+
+    public function fornecedor(): BelongsTo
+    {
+        return $this->belongsTo(Fornecedor::class, 'idFornecedor', 'idFornecedor');
     }
 
     public function itensVenda()

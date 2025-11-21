@@ -25,7 +25,7 @@
             <div class="mb-4">
                 <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome da Academia:</label>
                 <input type="text" id="nome" name="nome" value="{{ old('nome', $academia->nome) }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
                 @error('nome')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -34,7 +34,7 @@
             <div class="mb-4">
                 <label for="CNPJ" class="block text-gray-700 text-sm font-bold mb-2">CNPJ:</label>
                 <input type="text" id="CNPJ" name="CNPJ" value="{{ old('CNPJ', $academia->CNPJ) }}" required placeholder="00.000.000/0000-00"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('CNPJ') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('CNPJ') border-red-500 @enderror">
                 @error('CNPJ')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -43,7 +43,7 @@
             <div class="mb-4">
                 <label for="telefone" class="block text-gray-700 text-sm font-bold mb-2">Telefone:</label>
                 <input type="text" id="telefone" name="telefone" value="{{ old('telefone', $academia->telefone) }}"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('telefone') border-red-500 @enderror"
                        placeholder="(00) 00000-0000">
                 @error('telefone')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
@@ -53,7 +53,7 @@
             <div class="mb-4">
                 <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email:</label>
                 <input type="email" id="email" name="email" value="{{ old('email', $academia->email) }}"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('email') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('email') border-red-500 @enderror">
                 @error('email')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
@@ -71,7 +71,7 @@
             <div class="mb-6">
                 <label for="responsavel" class="block text-gray-700 text-sm font-bold mb-2">Responsável:</label>
                 <input type="text" id="responsavel" name="responsavel" value="{{ old('responsavel', $academia->responsavel) }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('responsavel') border-red-500 @enderror">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('responsavel') border-red-500 @enderror">
                 @error('responsavel')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror

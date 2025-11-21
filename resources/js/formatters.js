@@ -28,6 +28,29 @@ export function formatTelefone(value) {
     }
 }
 
+function getDigitIndexAtPosition(text, pos) {
+    const slice = text.slice(0, pos);
+    const match = slice.match(/\d/g);
+    return match ? match.length : 0;
+}
+
+function findCaretPositionForDigitIndex(masked, digitIndex) {
+    if (digitIndex <= 0) {
+        for (let i = 0; i < masked.length; i++) {
+            if (/\d/.test(masked.charAt(i))) return i;
+        }
+        return masked.length;
+    }
+    let count = 0;
+    for (let i = 0; i < masked.length; i++) {
+        if (/\d/.test(masked.charAt(i))) {
+            count++;
+            if (count === digitIndex) return i + 1;
+        }
+    }
+    return masked.length;
+}
+
 export function validarCPF(cpf) {
     if (!cpf) return false;
     
@@ -100,25 +123,23 @@ export function initFormatters() {
     if (__formattersInitialized) return;
     __formattersInitialized = true;
 
-    const bindCPF = (input) => {
+    const bindWithFormatter = (input, formatter) => {
         input.addEventListener('input', function(e) {
             const cursorPosition = e.target.selectionStart;
             const oldValue = e.target.value;
-            const newValue = formatCPF(e.target.value);
-            
+            const digitIndex = getDigitIndexAtPosition(oldValue, cursorPosition);
+            const newValue = formatter(e.target.value);
             e.target.value = newValue;
-            
-            if (newValue.length > oldValue.length) {
-                e.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
-            } else {
-                e.target.setSelectionRange(cursorPosition, cursorPosition);
-            }
+            const caretPos = findCaretPositionForDigitIndex(newValue, digitIndex);
+            e.target.setSelectionRange(caretPos, caretPos);
         });
-        
         if (input.value) {
-            input.value = formatCPF(input.value);
+            input.value = formatter(input.value);
         }
+        input.dataset.boundMask = 'true';
     };
+
+    const bindCPF = (input) => bindWithFormatter(input, formatCPF);
 
     const cpfInputs = [
         ...document.querySelectorAll('[data-format="cpf"]'),
@@ -127,46 +148,14 @@ export function initFormatters() {
     ];
     cpfInputs.forEach(bindCPF);
 
-    // Keep CNPJ mask handled by cnpj-mask.js; support data-format="cnpj" if present
-    document.querySelectorAll('[data-format="cnpj"]').forEach(input => {
-        input.addEventListener('input', function(e) {
-            const cursorPosition = e.target.selectionStart;
-            const oldValue = e.target.value;
-            const newValue = formatCNPJ(e.target.value);
-            
-            e.target.value = newValue;
-            
-            if (newValue.length > oldValue.length) {
-                e.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
-            } else {
-                e.target.setSelectionRange(cursorPosition, cursorPosition);
-            }
-        });
-        
-        if (input.value) {
-            input.value = formatCNPJ(input.value);
-        }
-    });
+    const cnpjInputs = [
+        ...document.querySelectorAll('[data-format="cnpj"]'),
+        ...document.querySelectorAll('#CNPJ'),
+        ...document.querySelectorAll('input[name="CNPJ"]')
+    ];
+    cnpjInputs.forEach(input => bindWithFormatter(input, formatCNPJ));
 
-    const bindTelefone = (input) => {
-        input.addEventListener('input', function(e) {
-            const cursorPosition = e.target.selectionStart;
-            const oldValue = e.target.value;
-            const newValue = formatTelefone(e.target.value);
-            
-            e.target.value = newValue;
-            
-            if (newValue.length > oldValue.length) {
-                e.target.setSelectionRange(cursorPosition + 1, cursorPosition + 1);
-            } else {
-                e.target.setSelectionRange(cursorPosition, cursorPosition);
-            }
-        });
-        
-        if (input.value) {
-            input.value = formatTelefone(input.value);
-        }
-    };
+    const bindTelefone = (input) => bindWithFormatter(input, formatTelefone);
 
     const telefoneInputs = [
         ...document.querySelectorAll('[data-format="telefone"]'),

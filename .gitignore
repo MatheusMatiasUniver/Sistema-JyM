@@ -23,5 +23,6 @@ Homestead.json
 Homestead.yaml
 Thumbs.db
 .logs_modificacoes
-/docs
+docs
 /.trae
+iniciar-servidores.bat

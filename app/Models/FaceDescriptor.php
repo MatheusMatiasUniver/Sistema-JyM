@@ -34,4 +34,5 @@ class FaceDescriptor extends Model
         'descriptor' => 'array',
     ];
 
-    public $timestamps = false; }
+    public $timestamps = true;
+}

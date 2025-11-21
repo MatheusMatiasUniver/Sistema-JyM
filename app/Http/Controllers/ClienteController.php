@@ -8,7 +8,7 @@ use App\Services\PlanoAssinaturaService;
 use App\Http\Requests\UpdateClienteRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+ 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
@@ -80,32 +80,9 @@ class ClienteController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(\App\Http\Requests\StoreClienteRequest $request)
     {
-        try {
-            $cpfLimpo = preg_replace('/[^0-9]/', '', $request->cpf);
-            $request->merge(['cpf' => $cpfLimpo]);
-
-            $validated = $request->validate([
-                'nome' => 'required|string|max:255',
-                'cpf' => 'required|string|size:11|unique:clientes,cpf|regex:/^[0-9]{11}$/',
-                'dataNascimento' => 'required|date',
-                'telefone' => 'nullable|string|max:20',
-                'email' => 'nullable|email|max:255',
-                'status' => 'required|string',
-                'idPlano' => 'required|exists:plano_assinaturas,idPlano',
-                'codigo_acesso' => 'nullable|string|max:20',
-            ], [
-                'cpf.unique' => 'Este CPF já está cadastrado para outro cliente.',
-                'cpf.regex' => 'O CPF deve conter apenas números.',
-                'cpf.size' => 'O CPF deve ter exatamente 11 dígitos.',
-            ]);
-
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            return back()
-                ->withInput()
-                ->withErrors($e->errors());
-        }
+        $validated = $request->validated();
 
         try {
             $academiaId = session('academia_selecionada');
@@ -121,9 +98,7 @@ class ClienteController extends Controller
             $clienteData['idAcademia'] = $academiaId;
             $clienteData['idUsuario'] = Auth::id();
 
-            if (!empty($validated['codigo_acesso'])) {
-                $clienteData['codigo_acesso'] = Hash::make($validated['codigo_acesso']);
-            }
+            
 
             if ($request->hasFile('foto')) {
                 $fotoPath = $request->file('foto')->store('clientes/fotos', 'public');
@@ -134,7 +109,8 @@ class ClienteController extends Controller
 
             return redirect()
                 ->route('clientes.capturarRosto', ['cliente' => $cliente->idCliente])
-                ->with('success', 'Cliente cadastrado com sucesso! Por favor, registre o reconhecimento facial.');
+                ->with('success', 'Cliente cadastrado com sucesso! Por favor, registre o reconhecimento facial.')
+                ->with('access_code', $cliente->codigo_acesso);
 
         } catch (\Exception $e) {
             return back()
@@ -177,19 +153,7 @@ class ClienteController extends Controller
         try {
             $validated = $request->validated();
 
-            if (!empty($validated['codigo_acesso'])) {
-                if (empty($validated['codigo_acesso_antigo'])) {
-                    return back()
-                        ->withInput()
-                        ->withErrors(['codigo_acesso_antigo' => 'Digite o código de acesso atual para alterá-lo.']);
-                }
-
-                if (!Hash::check($validated['codigo_acesso_antigo'], $cliente->codigo_acesso)) {
-                    return back()
-                        ->withInput()
-                        ->withErrors(['codigo_acesso_antigo' => 'Código de acesso atual incorreto.']);
-                }
-            }
+            
 
         } catch (\Illuminate\Validation\ValidationException $e) {
             return back()
@@ -208,9 +172,7 @@ class ClienteController extends Controller
             $cliente->status = $validated['status'];
             $cliente->idPlano = $validated['idPlano'];
 
-            if (!empty($validated['codigo_acesso'])) {
-                $cliente->codigo_acesso = Hash::make($validated['codigo_acesso']);
-            }
+            
 
             if ($request->hasFile('foto')) {
                 if ($cliente->foto && Storage::disk('public')->exists($cliente->foto)) {
@@ -241,10 +203,6 @@ class ClienteController extends Controller
      */
     public function destroy(Cliente $cliente)
     {
-        if (!$cliente->podeDeletar()) {
-            return back()->with('error', 'Não é possível excluir este cliente pois existem registros associados (mensalidades, entradas ou vendas).');
-        }
-
         try {
             if ($cliente->foto && Storage::disk('public')->exists($cliente->foto)) {
                 Storage::disk('public')->delete($cliente->foto);
@@ -259,6 +217,66 @@ class ClienteController extends Controller
         } catch (\Exception $e) {
             return back()
                 ->withErrors(['error' => 'Erro ao excluir cliente: ' . $e->getMessage()]);
+        }
+    }
+
+    public function deletedIndex()
+    {
+        $academiaId = session('academia_selecionada');
+        if (!$academiaId) {
+            return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
+        }
+        $clientes = Cliente::onlyTrashed()->where('idAcademia', $academiaId)->orderBy('nome')->paginate(15);
+        return view('clientes.excluidos', compact('clientes'));
+    }
+
+    public function restore(int $id)
+    {
+        try {
+            $cliente = Cliente::withTrashed()->findOrFail($id);
+            $cliente->restore();
+            return redirect()->route('clientes.excluidos.index')->with('success', 'Cliente restaurado com sucesso.');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Erro ao restaurar cliente: ' . $e->getMessage()]);
+        }
+    }
+
+    public function confirmForceDelete(int $id)
+    {
+        $cliente = Cliente::withTrashed()->findOrFail($id);
+        $mensalidadesCount = \App\Models\Mensalidade::where('idCliente', $cliente->idCliente)->count();
+        $entradasCount = \App\Models\Entrada::where('idCliente', $cliente->idCliente)->count();
+        $vendasCount = \App\Models\VendaProduto::where('idCliente', $cliente->idCliente)->count();
+        return view('clientes.confirm-force-delete', compact('cliente', 'mensalidadesCount', 'entradasCount', 'vendasCount'));
+    }
+
+    public function forceDelete(int $id)
+    {
+        try {
+            $cliente = Cliente::withTrashed()->findOrFail($id);
+
+            $mensalidadesCount = \App\Models\Mensalidade::where('idCliente', $cliente->idCliente)->count();
+            $entradasCount = \App\Models\Entrada::where('idCliente', $cliente->idCliente)->count();
+            $vendasCount = \App\Models\VendaProduto::where('idCliente', $cliente->idCliente)->count();
+
+            if (!request()->has('confirm') || request('confirm') !== 'yes') {
+                return redirect()->route('clientes.confirmForceDelete', ['id' => $id])
+                    ->with('warning', 'Excluir definitivamente pode tornar históricos inconsistentes. Confirme para prosseguir.');
+            }
+
+            \App\Models\Mensalidade::where('idCliente', $cliente->idCliente)->update(['idCliente' => null]);
+            \App\Models\Entrada::where('idCliente', $cliente->idCliente)->update(['idCliente' => null]);
+            \App\Models\VendaProduto::where('idCliente', $cliente->idCliente)->update(['idCliente' => null]);
+
+            if ($cliente->foto && Storage::disk('public')->exists($cliente->foto)) {
+                Storage::disk('public')->delete($cliente->foto);
+            }
+
+            $cliente->forceDelete();
+
+            return redirect()->route('clientes.excluidos.index')->with('success', 'Cliente excluído definitivamente. Histórico preservado como "Cliente Deletado".');
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Erro ao excluir definitivamente: ' . $e->getMessage()]);
         }
     }
 

@@ -32,28 +32,28 @@
             <div class="mb-4">
                 <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome:</label>
                 <input type="text" id="nome" name="nome" placeholder="Nome" value="{{ old('nome') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline">
                 @error('nome') <span class="text-red-500 text-xs italic">{{ $message }}</span> @enderror
             </div>
 
             <div class="mb-4">
                 <label for="usuario" class="block text-gray-700 text-sm font-bold mb-2">Usuário para Login:</label>
                 <input type="text" id="usuario" name="usuario" placeholder="Usuário" value="{{ old('usuario') }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline">
                 @error('usuario') <span class="text-red-500 text-xs italic">{{ $message }}</span> @enderror
             </div>
 
             <div class="mb-4">
                 <label for="email" class="block text-gray-700 text-sm font-bold mb-2">Email (Opcional):</label>
                 <input type="email" id="email" name="email" placeholder="Email (Opcional)" value="{{ old('email') }}"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline">
                 @error('email') <span class="text-red-500 text-xs italic">{{ $message }}</span> @enderror
             </div>
 
             <div class="mb-6">
                 <label for="senha" class="block text-gray-700 text-sm font-bold mb-2">Senha:</label>
                 <input type="password" id="senha" name="senha" placeholder="Senha" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline">
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black mb-3 leading-tight focus:outline-none focus:shadow-outline">
                 @error('senha') <span class="text-red-500 text-xs italic">{{ $message }}</span> @enderror
             </div>
 

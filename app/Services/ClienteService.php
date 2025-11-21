@@ -23,7 +23,7 @@ class ClienteService
         try {
             $fotoPath = null;
             if ($fotoFile) {
-                $fotoPath = Storage::disk('public')->put('clientes_fotos', $fotoFile);
+                $fotoPath = $fotoFile->store('clientes/fotos', 'public');
             }
 
             $data['cpf'] = preg_replace('/[^0-9]/', '', $data['cpf']);
@@ -75,7 +75,7 @@ class ClienteService
                 if ($oldFotoPath) {
                     Storage::disk('public')->delete($oldFotoPath);
                 }
-                $fotoPath = Storage::disk('public')->put('clientes_fotos', $fotoFile);
+                $fotoPath = $fotoFile->store('clientes/fotos', 'public');
             } elseif (isset($data['remover_foto']) && $data['remover_foto']) {
                 if ($oldFotoPath) {
                     Storage::disk('public')->delete($oldFotoPath);
@@ -116,8 +116,8 @@ class ClienteService
                 Storage::disk('public')->delete($cliente->foto);
             }
 
-            if ($cliente->faceDescriptor) {
-                $cliente->faceDescriptor->delete();
+            if (method_exists($cliente, 'faceDescriptors')) {
+                $cliente->faceDescriptors()->delete();
             }
 
             $deleted = $cliente->delete();

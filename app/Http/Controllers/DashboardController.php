@@ -76,4 +76,34 @@ class DashboardController extends Controller
             'vendasHoje'
         ));
     }
+
+    public function metrics(Request $request)
+    {
+        $request->validate([
+            'start' => ['required', 'date'],
+            'end'   => ['required', 'date'],
+        ]);
+
+        $start = Carbon::parse($request->input('start'))->startOfDay();
+        $end   = Carbon::parse($request->input('end'))->endOfDay();
+
+        if ($start->gt($end)) {
+            return response()->json(['message' => 'Intervalo inválido: start deve ser anterior ao end'], 400);
+        }
+
+        $academiaId = config('app.academia_atual');
+
+        $acessosNoPeriodo = Entrada::whereBetween('dataHora', [$start, $end])
+            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->count();
+
+        $vendasNoPeriodo = VendaProduto::whereBetween('dataVenda', [$start, $end])
+            ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->sum('valorTotal');
+
+        return response()->json([
+            'acessos' => $acessosNoPeriodo,
+            'vendasTotal' => $vendasNoPeriodo,
+        ]);
+    }
 }

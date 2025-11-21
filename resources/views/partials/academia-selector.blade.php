@@ -9,7 +9,8 @@
         </svg>
         <span class="text-sm font-medium">
             @php
-                $academiaAtual = Auth::user()->academia_atual;
+                $academiaSelecionadaId = session('academia_selecionada');
+                $academiaAtual = $academiaSelecionadaId ? Auth::user()->academias()->where('academias.idAcademia', $academiaSelecionadaId)->first() : null;
             @endphp
             {{ $academiaAtual ? $academiaAtual->nome : 'Selecione Academia' }}
         </span>

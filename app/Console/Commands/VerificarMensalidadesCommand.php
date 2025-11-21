@@ -12,7 +12,7 @@ class VerificarMensalidadesCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'mensalidades:verificar';
+    protected $signature = 'mensalidades:verificar {--sync : Executa a verificação de forma síncrona, sem fila}';
 
     /**
      * The console command description.
@@ -28,10 +28,13 @@ class VerificarMensalidadesCommand extends Command
     {
         $this->info('Iniciando verificação de mensalidades vencidas...');
         
-        // Executar o job
-        VerificarMensalidadesVencidas::dispatch();
-        
-        $this->info('Verificação de mensalidades iniciada com sucesso!');
+        if ($this->option('sync')) {
+            VerificarMensalidadesVencidas::dispatchSync();
+            $this->info('Verificação concluída (execução síncrona).');
+        } else {
+            VerificarMensalidadesVencidas::dispatch();
+            $this->info('Verificação de mensalidades iniciada (em fila).');
+        }
         
         return Command::SUCCESS;
     }
