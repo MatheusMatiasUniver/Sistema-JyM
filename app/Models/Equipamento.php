@@ -7,6 +7,13 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
 
+enum StatusEquipamento: string
+{
+    case ATIVO = 'Ativo';
+    case EM_MANUTENCAO = 'Em Manutenção';
+    case DESATIVADO = 'Desativado';
+}
+
 class Equipamento extends Model
 {
     protected $table = 'equipamentos';
@@ -31,6 +38,7 @@ class Equipamento extends Model
         'valorAquisicao' => 'decimal:2',
         'dataAquisicao' => 'date',
         'garantiaFim' => 'date',
+        'status' => StatusEquipamento::class,
     ];
 
     public function manutencoes(): HasMany

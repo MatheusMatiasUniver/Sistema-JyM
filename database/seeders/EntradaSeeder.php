@@ -10,51 +10,54 @@ class EntradaSeeder extends Seeder
 {
     public function run(): void
     {
-        $hoje = Carbon::today();
-        
-        DB::table('entradas')->insert([
-            [
-                'idCliente' => 1,
-                'dataHora' => $hoje->copy()->setTime(6, 30),
-                'metodo' => 'Reconhecimento Facial',
-                'idAcademia' => 1,
-            ],
-            [
-                'idCliente' => 2,
-                'dataHora' => $hoje->copy()->setTime(7, 15),
-                'metodo' => 'CPF/Senha',
-                'idAcademia' => 1,
-            ],
-            [
-                'idCliente' => 1,
-                'dataHora' => $hoje->copy()->setTime(18, 45),
-                'metodo' => 'Reconhecimento Facial',
-                'idAcademia' => 1,
-            ],
-            [
-                'idCliente' => 5,
-                'dataHora' => $hoje->copy()->setTime(8, 0),
-                'metodo' => 'CPF/Senha',
-                'idAcademia' => 2,
-            ],
-            [
-                'idCliente' => 6,
-                'dataHora' => $hoje->copy()->setTime(19, 30),
-                'metodo' => 'Reconhecimento Facial',
-                'idAcademia' => 2,
-            ],
-            [
-                'idCliente' => 5,
-                'dataHora' => $hoje->copy()->subDay()->setTime(7, 30),
-                'metodo' => 'Manual',
-                'idAcademia' => 2,
-            ],
-            [
-                'idCliente' => 6,
-                'dataHora' => $hoje->copy()->subDay()->setTime(18, 0),
-                'metodo' => 'CPF/Senha',
-                'idAcademia' => 2,
-            ],
-        ]);
+        $inicio = Carbon::today()->subDays(90);
+        $fim = Carbon::today();
+
+        $clientesPorAcademia = [];
+        foreach ([1, 2] as $idAcademia) {
+            $clientesPorAcademia[$idAcademia] = DB::table('clientes')
+                ->where('idAcademia', $idAcademia)
+                ->whereIn('status', ['Ativo','Inadimplente'])
+                ->pluck('idCliente')
+                ->all();
+        }
+
+        $metodos = ['Reconhecimento Facial','CPF/Senha','Manual'];
+        $entradas = [];
+
+        $dia = $inicio->copy();
+        while ($dia->lte($fim)) {
+            foreach ([1, 2] as $idAcademia) {
+                $clientes = $clientesPorAcademia[$idAcademia];
+                if (empty($clientes)) {
+                    continue;
+                }
+                $qtdHoje = random_int(15, 50);
+                $selecionados = [];
+                for ($i = 0; $i < $qtdHoje; $i++) {
+                    $selecionados[] = $clientes[array_rand($clientes)];
+                }
+                foreach ($selecionados as $idCliente) {
+                    $vezes = random_int(1, 2);
+                    for ($v = 0; $v < $vezes; $v++) {
+                        $hora = random_int(6, 21);
+                        $min = [0, 15, 30, 45][array_rand([0,1,2,3])];
+                        $metodo = $metodos[array_rand($metodos)];
+                        $entradas[] = [
+                            'idCliente' => $idCliente,
+                            'dataHora' => $dia->copy()->setTime($hora, $min),
+                            'metodo' => $metodo,
+                            'idAcademia' => $idAcademia,
+                        ];
+                    }
+                }
+            }
+            $dia->addDay();
+        }
+
+        $chunks = array_chunk($entradas, 1000);
+        foreach ($chunks as $chunk) {
+            DB::table('entradas')->insert($chunk);
+        }
     }
 }

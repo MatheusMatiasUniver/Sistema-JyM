@@ -19,107 +19,69 @@ class VendaProdutoSeeder extends Seeder
             return;
         }
 
-        $produto1_1 = $produtosAcademia1->first();
-        $produto1_2 = $produtosAcademia1->skip(1)->first() ?? $produto1_1;
-        
-        $venda1 = DB::table('venda_produtos')->insertGetId([
-            'idCliente' => 1,
-            'idUsuario' => 2,
-            'dataVenda' => Carbon::now()->subDays(5),
-            'valorTotal' => $produto1_1->preco + $produto1_2->preco,
-            'formaPagamento' => 'Dinheiro',
-            'idAcademia' => 1,
-        ]);
+        $clientesAtivos1 = DB::table('clientes')->where('idAcademia', 1)->whereIn('status', ['Ativo','Inadimplente'])->pluck('idCliente')->all();
+        $clientesAtivos2 = DB::table('clientes')->where('idAcademia', 2)->whereIn('status', ['Ativo','Inadimplente'])->pluck('idCliente')->all();
 
-        DB::table('itens_vendas')->insert([
-            [
-                'idVenda' => $venda1,
-                'idProduto' => $produto1_1->idProduto,
-                'quantidade' => 1,
-                'precoUnitario' => $produto1_1->preco,
-            ],
-            [
-                'idVenda' => $venda1,
-                'idProduto' => $produto1_2->idProduto,
-                'quantidade' => 1,
-                'precoUnitario' => $produto1_2->preco,
-            ],
-        ]);
+        $usuarios1 = DB::table('users')->where('idAcademia', 1)->pluck('idUsuario')->all();
+        $usuarios2 = DB::table('users')->where('idAcademia', 2)->pluck('idUsuario')->all();
+        $adminId = DB::table('users')->where('nivelAcesso', 'Administrador')->value('idUsuario');
+        if (empty($usuarios1)) { $usuarios1 = $adminId ? [$adminId] : [null]; }
+        if (empty($usuarios2)) { $usuarios2 = $adminId ? [$adminId] : [null]; }
 
-        // Venda 2 - Academia 1
-        $produto2_1 = $produtosAcademia1->skip(2)->first() ?? $produto1_1;
-        
-        $venda2 = DB::table('venda_produtos')->insertGetId([
-            'idCliente' => 2,
-            'idUsuario' => 2,
-            'dataVenda' => Carbon::now()->subDays(3),
-            'valorTotal' => $produto2_1->preco,
-            'formaPagamento' => 'PIX',
-            'idAcademia' => 1,
-        ]);
+        $formas = ['Dinheiro','PIX','Cartão de Débito','Cartão de Crédito'];
+        $inicio = Carbon::today()->subDays(90);
+        $fim = Carbon::today();
 
-        DB::table('itens_vendas')->insert([
-            [
-                'idVenda' => $venda2,
-                'idProduto' => $produto2_1->idProduto,
-                'quantidade' => 1,
-                'precoUnitario' => $produto2_1->preco,
-            ],
-        ]);
+        $dia = $inicio->copy();
+        while ($dia->lte($fim)) {
+            foreach ([1, 2] as $idAcademia) {
+                $produtos = $idAcademia === 1 ? $produtosAcademia1 : $produtosAcademia2;
+                $clientes = $idAcademia === 1 ? $clientesAtivos1 : $clientesAtivos2;
+                $usuarios = $idAcademia === 1 ? $usuarios1 : $usuarios2;
+                if (empty($clientes)) { continue; }
 
-        // Venda 3 - Academia 2
-        $produto3_1 = $produtosAcademia2->first();
-        $produto3_2 = $produtosAcademia2->skip(1)->first() ?? $produto3_1;
-        
-        $venda3 = DB::table('venda_produtos')->insertGetId([
-            'idCliente' => 5,
-            'idUsuario' => 3,
-            'dataVenda' => Carbon::now()->subDays(2),
-            'valorTotal' => $produto3_1->preco + $produto3_2->preco,
-            'formaPagamento' => 'Cartão de Débito',
-            'idAcademia' => 2,
-        ]);
+                $qtdVendas = random_int(2, 10);
+                for ($v = 0; $v < $qtdVendas; $v++) {
+                    $idCliente = $clientes[array_rand($clientes)];
+                    $idUsuario = $usuarios[array_rand($usuarios)] ?? null;
+                    $hora = random_int(9, 21);
+                    $min = [0,10,20,30,40,50][array_rand([0,1,2,3,4,5])];
+                    $dataVenda = $dia->copy()->setTime($hora, $min);
+                    $itensCount = random_int(1, 4);
+                    $itens = [];
+                    $valorTotal = 0;
+                    for ($i = 0; $i < $itensCount; $i++) {
+                        $produto = $produtos->random();
+                        $qtde = random_int(1, 3);
+                        $preco = $produto->preco;
+                        $valorTotal += $qtde * $preco;
+                        $itens[] = [
+                            'idProduto' => $produto->idProduto,
+                            'quantidade' => $qtde,
+                            'precoUnitario' => $preco,
+                        ];
+                    }
 
-        DB::table('itens_vendas')->insert([
-            [
-                'idVenda' => $venda3,
-                'idProduto' => $produto3_1->idProduto,
-                'quantidade' => 1,
-                'precoUnitario' => $produto3_1->preco,
-            ],
-            [
-                'idVenda' => $venda3,
-                'idProduto' => $produto3_2->idProduto,
-                'quantidade' => 1,
-                'precoUnitario' => $produto3_2->preco,
-            ],
-        ]);
+                    $idVenda = DB::table('venda_produtos')->insertGetId([
+                        'idCliente' => $idCliente,
+                        'idUsuario' => $idUsuario,
+                        'dataVenda' => $dataVenda,
+                        'valorTotal' => round($valorTotal, 2),
+                        'formaPagamento' => $formas[array_rand($formas)],
+                        'idAcademia' => $idAcademia,
+                    ]);
 
-        $produto4_1 = $produtosAcademia2->skip(2)->first() ?? $produto3_1;
-        $produto4_2 = $produtosAcademia2->skip(3)->first() ?? $produto3_1;
-        
-        $venda4 = DB::table('venda_produtos')->insertGetId([
-            'idCliente' => 6,
-            'idUsuario' => 3,
-            'dataVenda' => Carbon::now()->subDays(1),
-            'valorTotal' => $produto4_1->preco + $produto4_2->preco,
-            'formaPagamento' => 'PIX',
-            'idAcademia' => 2,
-        ]);
-
-        DB::table('itens_vendas')->insert([
-            [
-                'idVenda' => $venda4,
-                'idProduto' => $produto4_1->idProduto,
-                'quantidade' => 1,
-                'precoUnitario' => $produto4_1->preco,
-            ],
-            [
-                'idVenda' => $venda4,
-                'idProduto' => $produto4_2->idProduto,
-                'quantidade' => 1,
-                'precoUnitario' => $produto4_2->preco,
-            ],
-        ]);
+                    foreach ($itens as $item) {
+                        DB::table('itens_vendas')->insert([
+                            'idVenda' => $idVenda,
+                            'idProduto' => $item['idProduto'],
+                            'quantidade' => $item['quantidade'],
+                            'precoUnitario' => $item['precoUnitario'],
+                        ]);
+                    }
+                }
+            }
+            $dia->addDay();
+        }
     }
 }

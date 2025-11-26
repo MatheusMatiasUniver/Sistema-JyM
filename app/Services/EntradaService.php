@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Entrada;
 use App\Models\Cliente;
+use App\Events\DashboardUpdated;
 use Illuminate\Support\Facades\Log;
 use Exception;
 
@@ -26,6 +27,8 @@ class EntradaService
                 'metodo' => $metodo,
                 'idAcademia' => $cliente->idAcademia,
             ]);
+
+            event(new DashboardUpdated('entrada'));
 
             return $entrada;
 

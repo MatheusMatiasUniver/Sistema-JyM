@@ -1,4 +1,4 @@
-<aside class="sidebar-layout" x-data="{ activeCategory: null, hoveringFlyout: false, flyoutTop: 0, setFlyout(category, el) { this.activeCategory = category; if(!category) return; const rect = el.getBoundingClientRect(); let target = rect.top + rect.height / 2; const flyout = this.$refs.flyout; if (flyout) { const h = flyout.offsetHeight || 0; const half = h / 2; const min = 10 + half; const max = window.innerHeight - 10 - half; target = Math.max(min, Math.min(max, target)); } this.flyoutTop = target; } }" @mouseleave="if(!hoveringFlyout) activeCategory = null">
+<aside class="sidebar-layout" x-data="{ activeCategory: null, hoveringFlyout: false, flyoutTop: 0, setFlyout(category, el) { this.activeCategory = category; if(!category) return; this.$nextTick(() => { const rect = el.getBoundingClientRect(); const flyout = this.$refs.flyout; if (!flyout) return; const flyoutHeight = flyout.scrollHeight || flyout.offsetHeight || 0; const viewportHeight = window.innerHeight; const margin = 10; const spaceBelow = viewportHeight - rect.bottom - margin; let top; if (flyoutHeight > spaceBelow) { top = Math.max(margin, rect.bottom - flyoutHeight); } else if (rect.top + flyoutHeight <= viewportHeight - margin) { top = rect.top; } else { top = Math.max(margin, viewportHeight - margin - flyoutHeight); } this.flyoutTop = top; }); } }" @mouseleave="if(!hoveringFlyout) activeCategory = null">
     <img src="{{ asset('img/logo.png') }}" alt="Logo JyM" class="sidebar-logo">
         
     <nav class="sidebar-nav">
@@ -12,35 +12,35 @@
         </div>
 
         <div class="sidebar-section">
-            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('clientes', $el)" @click="setFlyout(activeCategory === 'clientes' ? null : 'clientes', $el)">
+            <button type="button" class="sidebar-section-toggle" @click="setFlyout(activeCategory === 'clientes' ? null : 'clientes', $el)">
                 <span>Clientes</span>
                 <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'clientes' ? 'rotated' : ''"></i></div>
             </button>
         </div>
 
         <div class="sidebar-section">
-            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('lancamentos', $el)" @click="setFlyout(activeCategory === 'lancamentos' ? null : 'lancamentos', $el)">
+            <button type="button" class="sidebar-section-toggle" @click="setFlyout(activeCategory === 'lancamentos' ? null : 'lancamentos', $el)">
                 <span>Lançamentos</span>
                 <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'lancamentos' ? 'rotated' : ''"></i></div>
             </button>
         </div>
 
         <div class="sidebar-section">
-            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('financeiro', $el)" @click="setFlyout(activeCategory === 'financeiro' ? null : 'financeiro', $el)">
+            <button type="button" class="sidebar-section-toggle" @click="setFlyout(activeCategory === 'financeiro' ? null : 'financeiro', $el)">
                 <span>Financeiro</span>
                 <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'financeiro' ? 'rotated' : ''"></i></div>
             </button>
         </div>
         
         <div class="sidebar-section">
-            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('produtos', $el)" @click="setFlyout(activeCategory === 'produtos' ? null : 'produtos', $el)">
+            <button type="button" class="sidebar-section-toggle" @click="setFlyout(activeCategory === 'produtos' ? null : 'produtos', $el)">
                 <span>Produtos</span>
                 <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'produtos' ? 'rotated' : ''"></i></div>
             </button>
         </div>
         
         <div class="sidebar-section">
-            <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('relatorios', $el)" @click="setFlyout(activeCategory === 'relatorios' ? null : 'relatorios', $el)">
+            <button type="button" class="sidebar-section-toggle" @click="setFlyout(activeCategory === 'relatorios' ? null : 'relatorios', $el)">
                 <span>Relatórios</span>
                 <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'relatorios' ? 'rotated' : ''"></i></div>
             </button>
@@ -49,7 +49,7 @@
         @auth
             @if(Auth::user()->isAdministrador())
                 <div class="sidebar-section">
-                    <button type="button" class="sidebar-section-toggle" @mouseenter="setFlyout('administracao', $el)" @click="setFlyout(activeCategory === 'administracao' ? null : 'administracao', $el)">
+                    <button type="button" class="sidebar-section-toggle" @click="setFlyout(activeCategory === 'administracao' ? null : 'administracao', $el)">
                         <span>Administração</span>
                         <div class="dropdown-arrow"><i class="fas fa-chevron-right" :class="activeCategory === 'administracao' ? 'rotated' : ''"></i></div>
                     </button>
@@ -92,7 +92,7 @@
         </form>
     @endauth
 
-    <div class="sidebar-flyout" x-ref="flyout" x-show="activeCategory" x-transition @mouseenter="hoveringFlyout = true" @mouseleave="hoveringFlyout = false; activeCategory = null" :style="{ top: flyoutTop + 'px' }">
+    <div class="sidebar-flyout" x-ref="flyout" x-show="activeCategory" :style="{ top: flyoutTop + 'px' }">
         <div x-show="activeCategory === 'clientes'">
             <a href="{{ route('clientes.index') }}" class="sidebar-nav-link"><i class="fas fa-users mr-2"></i>Clientes</a>
             @auth

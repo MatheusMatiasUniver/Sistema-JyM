@@ -5,12 +5,14 @@ class WebSocketManager {
         this.pusher = null;
         this.kioskStatusChannel = null;
         this.clientRegistrationChannel = null;
+        this.dashboardChannel = null;
         this.isConnected = false;
         this.callbacks = {
             onKioskStatusChanged: null,
             onClientRegistrationStarted: null,
             onClientRegistrationCompleted: null,
-            onConnectionStateChange: null
+            onConnectionStateChange: null,
+            onDashboardUpdated: null
         };
     }
 
@@ -85,6 +87,14 @@ class WebSocketManager {
                 this.callbacks.onClientRegistrationCompleted(data);
             }
         });
+
+        this.dashboardChannel = this.pusher.subscribe('dashboard');
+        this.dashboardChannel.bind('dashboard.updated', (data) => {
+            console.log('Dashboard atualizado:', data);
+            if (this.callbacks.onDashboardUpdated) {
+                this.callbacks.onDashboardUpdated(data);
+            }
+        });
     }
 
 
@@ -105,6 +115,10 @@ class WebSocketManager {
 
     onConnectionStateChange(callback) {
         this.callbacks.onConnectionStateChange = callback;
+    }
+
+    onDashboardUpdated(callback) {
+        this.callbacks.onDashboardUpdated = callback;
     }
 
 

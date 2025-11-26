@@ -10,7 +10,7 @@ class MensalidadeSeeder extends Seeder
 {
     public function run(): void
     {
-        DB::table('mensalidades')->insert([
+        $mensalidades = [
             [
                 'idCliente' => 1,
                 'idPlano' => 1,
@@ -81,6 +81,35 @@ class MensalidadeSeeder extends Seeder
                 'status' => 'Pendente',
                 'formaPagamento' => null,
             ],
-        ]);
+        ];
+
+        foreach ($mensalidades as $m) {
+            $idMensalidade = DB::table('mensalidades')->insertGetId($m);
+            if ($m['status'] === 'Paga') {
+                DB::table('contas_receber')->insert([
+                    'idAcademia' => $m['idAcademia'],
+                    'idCliente' => $m['idCliente'],
+                    'documentoRef' => $idMensalidade,
+                    'descricao' => 'Mensalidade Cliente #'.$m['idCliente'],
+                    'valorTotal' => $m['valor'],
+                    'status' => 'recebida',
+                    'dataVencimento' => $m['dataVencimento'],
+                    'dataRecebimento' => $m['dataPagamento'] ?? Carbon::now(),
+                    'formaRecebimento' => $m['formaPagamento'] ?? 'PIX',
+                ]);
+            } else {
+                DB::table('contas_receber')->insert([
+                    'idAcademia' => $m['idAcademia'],
+                    'idCliente' => $m['idCliente'],
+                    'documentoRef' => $idMensalidade,
+                    'descricao' => 'Mensalidade Cliente #'.$m['idCliente'],
+                    'valorTotal' => $m['valor'],
+                    'status' => 'aberta',
+                    'dataVencimento' => $m['dataVencimento'],
+                    'dataRecebimento' => null,
+                    'formaRecebimento' => null,
+                ]);
+            }
+        }
     }
 }

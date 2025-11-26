@@ -6,6 +6,7 @@ import './cnpj-mask';
 import webSocketManager from './websocket-manager';
 
 window.applyFormatting = formatters.applyFormatting;
+window.webSocketManager = webSocketManager;
 
 const video = document.getElementById('videoElement');
 const canvas = document.getElementById('overlayCanvas');

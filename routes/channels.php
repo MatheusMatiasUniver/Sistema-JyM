@@ -26,3 +26,8 @@ Broadcast::channel('kiosk-status', function () {
 Broadcast::channel('client-registration', function () {
     return true; // Canal público para o kiosk
 });
+
+// Canal público para atualizações do dashboard
+Broadcast::channel('dashboard', function () {
+    return true;
+});

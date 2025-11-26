@@ -17,6 +17,7 @@ class UserSeeder extends Seeder
             'senha' => Hash::make('admin123'),
             'nivelAcesso' => 'Administrador',
             'idAcademia' => null,
+            'salarioMensal' => 5000.00,
         ]);
 
         DB::table('usuario_academia')->insert([
@@ -32,6 +33,7 @@ class UserSeeder extends Seeder
                 'senha' => Hash::make('func123'),
                 'nivelAcesso' => 'Funcionário',
                 'idAcademia' => 1,
+                'salarioMensal' => 2500.00,
             ],
             [
                 'nome' => 'Ana Paula Oliveira',
@@ -40,6 +42,7 @@ class UserSeeder extends Seeder
                 'senha' => Hash::make('func123'),
                 'nivelAcesso' => 'Funcionário',
                 'idAcademia' => 2,
+                'salarioMensal' => 2800.00,
             ],
         ]);
     }

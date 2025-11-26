@@ -30,7 +30,11 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
-                    <input type="text" name="status" value="{{ old('status', $equipamento->status) }}" class="border rounded px-2 py-1 w-full text-black">
+                    <select name="status" class="border rounded px-2 py-1 w-full text-black">
+                        <option value="Ativo" @if(old('status', $equipamento->status->value) == 'Ativo') selected @endif>Ativo</option>
+                        <option value="Em Manutenção" @if(old('status', $equipamento->status->value) == 'Em Manutenção') selected @endif>Em Manutenção</option>
+                        <option value="Desativado" @if(old('status', $equipamento->status->value) == 'Desativado') selected @endif>Desativado</option>
+                    </select>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4">

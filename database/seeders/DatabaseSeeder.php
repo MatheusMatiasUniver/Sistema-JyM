@@ -10,19 +10,23 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             AcademiaSeeder::class,
+            AjustesSistemaSeeder::class,
             UserSeeder::class,
+            FolhaPagamentoSeeder::class,
             PlanoAssinaturaSeeder::class,
             ClienteSeeder::class,
             MarcaSeeder::class,
             FornecedorSeeder::class,
             CategoriaSeeder::class,
             ProdutoSeeder::class,
+            ComprasSeeder::class,
             EquipamentoSeeder::class,
             ManutencaoEquipamentoSeeder::class,
             MaterialSeeder::class,
             MensalidadeSeeder::class,
             VendaProdutoSeeder::class,
             EntradaSeeder::class,
+            ContaReceberSeeder::class,
         ]);
     }
 }

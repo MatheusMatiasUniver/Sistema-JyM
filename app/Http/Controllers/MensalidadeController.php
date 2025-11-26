@@ -44,6 +44,31 @@ class MensalidadeController extends Controller
                 $cliente->save();
             }
 
+            $recebimentoData = $mensalidade->dataPagamento ?? now();
+            $updated = DB::table('contas_receber')
+                ->where('idAcademia', $mensalidade->idAcademia)
+                ->where('documentoRef', $mensalidade->idMensalidade)
+                ->where('status', 'aberta')
+                ->update([
+                    'status' => 'recebida',
+                    'dataRecebimento' => $recebimentoData,
+                    'formaRecebimento' => $mensalidade->formaPagamento,
+                ]);
+
+            if ($updated === 0) {
+                DB::table('contas_receber')->insert([
+                    'idAcademia' => $mensalidade->idAcademia,
+                    'idCliente' => $mensalidade->idCliente,
+                    'documentoRef' => $mensalidade->idMensalidade,
+                    'descricao' => 'Mensalidade Cliente #'.$mensalidade->idCliente,
+                    'valorTotal' => $mensalidade->valor,
+                    'status' => 'recebida',
+                    'dataVencimento' => $mensalidade->dataVencimento,
+                    'dataRecebimento' => $recebimentoData,
+                    'formaRecebimento' => $mensalidade->formaPagamento,
+                ]);
+            }
+
             DB::commit();
             return back()->with('success', 'Pagamento registrado com sucesso.');
 

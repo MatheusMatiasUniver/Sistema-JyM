@@ -103,7 +103,7 @@
   }
 
   .dropdown-arrow {
-    @apply flex-shrink-0 text-text-white transition-transform duration-300;
+    @apply flex-shrink-0 text-text-white;
   }
 
   .dropdown-arrow i.rotated {
@@ -135,7 +135,7 @@
   }
 
   .sidebar-flyout {
-    @apply fixed left-[220px] w-[260px] bg-secondary-dark border-l border-border-light p-5 box-border shadow-lg transition-all duration-300 -translate-y-1/2 max-h-[calc(100vh-20px)] overflow-y-auto;
+    @apply fixed left-[220px] w-[260px] bg-secondary-dark border-l border-border-light p-5 box-border shadow-lg max-h-[calc(100vh-20px)] overflow-y-auto;
     z-index: 40;
   }
 

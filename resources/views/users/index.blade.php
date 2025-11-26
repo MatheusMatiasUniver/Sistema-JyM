@@ -22,7 +22,6 @@
         </div>
     @endif
 
-    <!-- Filtros Compactos -->
     <x-table-filter 
         :action="route('users.index')"
         search-placeholder="Nome, usuário ou email..."

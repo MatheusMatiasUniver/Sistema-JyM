@@ -187,6 +187,8 @@ class VendaController extends Controller
 
         DB::commit();
 
+        event(new \App\Events\DashboardUpdated('sale'));
+
         \App\Models\ActivityLog::create([
             'usuarioId' => Auth::id(),
             'modulo' => 'Vendas',

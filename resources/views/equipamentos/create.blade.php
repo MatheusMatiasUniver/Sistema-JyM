@@ -29,7 +29,11 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
-                    <input type="text" name="status" value="Ativo" class="border rounded px-2 py-1 w-full text-black">
+                    <select name="status" class="border rounded px-2 py-1 w-full text-black">
+                        <option value="Ativo">Ativo</option>
+                        <option value="Em Manutenção">Em Manutenção</option>
+                        <option value="Desativado">Desativado</option>
+                    </select>
                 </div>
             </div>
             <div class="grid grid-cols-2 gap-3 mb-4">

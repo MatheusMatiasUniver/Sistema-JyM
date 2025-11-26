@@ -39,6 +39,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/dashboard/metrics', [App\Http\Controllers\DashboardController::class, 'metrics'])
         ->middleware('throttle:30,1')
         ->name('dashboard.metrics');
+    Route::get('/dashboard/cards', [App\Http\Controllers\DashboardController::class, 'cards'])
+        ->middleware('throttle:60,1')
+        ->name('dashboard.cards');
 
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout'); 
 

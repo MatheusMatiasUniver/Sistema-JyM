@@ -18,7 +18,7 @@ return new class extends Migration {
             $table->decimal('valorAquisicao', 10, 2)->nullable();
             $table->date('garantiaFim')->nullable();
             $table->string('centroCusto')->nullable();
-            $table->string('status')->default('Ativo');
+            $table->enum('status', ['Ativo', 'Em Manutenção', 'Desativado'])->default('Ativo');
         });
 
         Schema::table('equipamentos', function (Blueprint $table) {
