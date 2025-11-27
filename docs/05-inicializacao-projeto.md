@@ -10,8 +10,8 @@ Antes de iniciar o projeto, certifique-se de ter instalado:
 
 - **PHP** >= 8.2
 - **Composer** >= 2.x
-- **Node.js** >= 18.x
-- **NPM** >= 9.x
+- **Node.js** >= 20.x (LTS)
+- **NPM** >= 10.x
 - **MySQL** >= 8.0 ou **PostgreSQL** >= 15
 
 ---
@@ -168,7 +168,7 @@ Instale o Node.js e NPM:
 
 ```bash
 # Ubuntu/Debian
-curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
 sudo apt install -y nodejs
 ```
 

@@ -63,7 +63,7 @@ O Sistema JyM é um sistema de gestão completo para academias, desenvolvido com
 | PHP | 8.2+ | Linguagem backend |
 | Laravel | 12.x | Framework PHP |
 | MySQL | 8.0+ | Banco de dados |
-| Node.js | 18+ | Runtime JavaScript |
+| Node.js | 20+ (LTS) | Runtime JavaScript |
 | Vite | 7.x | Build tool |
 | Tailwind CSS | 3.x | Framework CSS |
 | Laravel Reverb | - | WebSocket server |
