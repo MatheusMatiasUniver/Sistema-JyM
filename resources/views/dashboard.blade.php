@@ -75,10 +75,7 @@
                                 @if($mensalidade->cliente)
                                     <a href="{{ route('clientes.edit', $mensalidade->cliente) }}" class="px-2 py-1 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 whitespace-nowrap">Detalhes do Cliente</a>
                                 @endif
-                                <form method="POST" action="{{ route('mensalidades.pagar', $mensalidade) }}">
-                                    @csrf
-                                    <button type="submit" class="px-2 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 whitespace-nowrap">Renovar Mensalidade</button>
-                                </form>
+                                <button type="button" data-action="{{ route('mensalidades.pagar', $mensalidade) }}" class="px-2 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700 whitespace-nowrap btn-renovar-mensalidade">Renovar Mensalidade</button>
                             </div>
                         </li>
                     @endforeach
@@ -107,6 +104,30 @@
             @else
                 <p class="text-gray-600">Nenhuma conta a pagar em aberto.</p>
             @endif
+        </div>
+    </div>
+
+    <div id="modalRenovarMensalidade" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
+            <h3 class="text-lg font-bold mb-4 text-black">Selecione a forma de pagamento</h3>
+            <form id="formRenovarMensalidade" method="POST" action="#" class="space-y-4">
+                @csrf
+                <div>
+                    <label for="formaPagamentoModal" class="block text-sm text-gray-700 mb-1">Forma de pagamento</label>
+                    <select id="formaPagamentoModal" name="formaPagamento" class="select" required>
+                        <option value="">Selecione</option>
+                        <option value="Dinheiro">Dinheiro</option>
+                        <option value="Cartão de Crédito">Cartão de Crédito</option>
+                        <option value="Cartão de Débito">Cartão de Débito</option>
+                        <option value="PIX">PIX</option>
+                        <option value="Boleto">Boleto</option>
+                    </select>
+                </div>
+                <div class="flex justify-end gap-2">
+                    <button type="button" id="btnCancelarModalMensalidade" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300">Cancelar</button>
+                    <button type="submit" class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700">Confirmar</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -235,10 +256,10 @@
 
 
 @push('body_scripts')
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const isDashboardPage = window.location.pathname === '/dashboard';
-    if (!isDashboardPage) return;
+    <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const isDashboardPage = window.location.pathname === '/dashboard';
+        if (!isDashboardPage) return;
 
     const btnAtualizarPeriodo = document.getElementById('btnAtualizarPeriodo');
     const startInput = document.getElementById('startDate');
@@ -474,6 +495,35 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('resize', () => {
         drawLineChart('graficoLinhaFaturamento', lastFaturamento);
         drawBarChart('graficoBarrasAcessosHora', lastAcessos);
+    });
+
+    const modalMensalidade = document.getElementById('modalRenovarMensalidade');
+    const formMensalidade = document.getElementById('formRenovarMensalidade');
+    const cancelMensalidade = document.getElementById('btnCancelarModalMensalidade');
+    const openBtns = document.querySelectorAll('.btn-renovar-mensalidade');
+    openBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const action = btn.getAttribute('data-action');
+            if (formMensalidade) formMensalidade.setAttribute('action', action);
+            if (modalMensalidade) modalMensalidade.classList.remove('hidden');
+            if (modalMensalidade) modalMensalidade.classList.add('flex');
+        });
+    });
+    cancelMensalidade && cancelMensalidade.addEventListener('click', () => {
+        modalMensalidade.classList.add('hidden');
+        modalMensalidade.classList.remove('flex');
+    });
+    modalMensalidade && modalMensalidade.addEventListener('click', (e) => {
+        if (e.target === modalMensalidade) {
+            modalMensalidade.classList.add('hidden');
+            modalMensalidade.classList.remove('flex');
+        }
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalMensalidade && !modalMensalidade.classList.contains('hidden')) {
+            modalMensalidade.classList.add('hidden');
+            modalMensalidade.classList.remove('flex');
+        }
     });
 
     fetchInitial();

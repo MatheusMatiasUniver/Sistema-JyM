@@ -49,7 +49,7 @@
             <div class="mb-6">
                 <label for="idAcademia" class="block text-gray-700 text-sm font-bold mb-2">Academia:</label>
                 <select id="idAcademia" name="idAcademia" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idAcademia') border-red-500 @enderror">
+                        class="select @error('idAcademia') border-red-500 @enderror">
                     <option value="">Selecione uma Academia</option>
                     @foreach ($academias as $academia)
                         <option value="{{ $academia->idAcademia }}" {{ old('idAcademia', $plano->idAcademia) == $academia->idAcademia ? 'selected' : '' }}>

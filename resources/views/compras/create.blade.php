@@ -11,7 +11,7 @@
 
             <div class="mb-4">
                 <label for="idFornecedor" class="block text-gray-700 text-sm font-bold mb-2">Fornecedor:</label>
-                <select id="idFornecedor" name="idFornecedor" required class="shadow appearance-none border rounded w-full py-2 px-3 text-black">
+                <select id="idFornecedor" name="idFornecedor" required class="select">
                     <option value="">Selecione</option>
                     @foreach($fornecedores as $fornecedor)
                         <option value="{{ $fornecedor->idFornecedor }}">{{ $fornecedor->razaoSocial }}</option>
@@ -23,7 +23,7 @@
                 <label class="block text-gray-700 text-sm font-bold mb-2">Itens da Compra:</label>
                 <div id="itens-container">
                     <div class="grid grid-cols-3 gap-3 mb-2">
-                        <select name="itens[0][idProduto]" class="border rounded px-2 py-1 text-black">
+                        <select name="itens[0][idProduto]" class="select">
                             @foreach($produtos as $p)
                                 <option value="{{ $p->idProduto }}">{{ $p->nome }}</option>
                             @endforeach
@@ -75,7 +75,7 @@
             const row = document.createElement('div');
             row.className = 'grid grid-cols-3 gap-3 mb-2';
             row.innerHTML = `
-                <select name="itens[${itemIndex}][idProduto]" class="border rounded px-2 py-1 text-black">
+                <select name="itens[${itemIndex}][idProduto]" class="select">
                     ${`@foreach($produtos as $p)<option value="{{ $p->idProduto }}">{{ $p->nome }}</option>@endforeach`}
                 </select>
                 <input type="number" name="itens[${itemIndex}][quantidade]" min="1" placeholder="Qtd" class="border rounded px-2 py-1 text-black" />
@@ -86,4 +86,3 @@
         }
     </script>
 @endsection
-

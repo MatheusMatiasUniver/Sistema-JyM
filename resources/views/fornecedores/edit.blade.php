@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Editar Fornecedor: {{ $fornecedor->razaoSocial }}</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-xl mx-auto">
-        <form action="{{ route('fornecedores.update', $fornecedor->idFornecedor) }}" method="POST">
+        <form action="{{ route('fornecedores.update', $fornecedor) }}" method="POST">
             @csrf
             @method('PUT')
 

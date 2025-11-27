@@ -29,7 +29,7 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
-                    <select name="status" class="border rounded px-2 py-1 w-full text-black">
+                    <select name="status" class="select">
                         <option value="Ativo">Ativo</option>
                         <option value="Em Manutenção">Em Manutenção</option>
                         <option value="Desativado">Desativado</option>
@@ -63,4 +63,3 @@
         </form>
     </div>
 @endsection
-

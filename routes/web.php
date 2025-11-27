@@ -81,7 +81,9 @@ Route::middleware('auth')->group(function () {
 
     Route::resource('vendas', VendaController::class)->middleware('funcionario');
 
-    Route::resource('fornecedores', FornecedorController::class)->middleware('funcionario');
+    Route::resource('fornecedores', FornecedorController::class)
+        ->parameters(['fornecedores' => 'fornecedor'])
+        ->middleware('funcionario');
 
     Route::resource('compras', CompraController::class)->middleware('funcionario');
     Route::post('/compras/{compra}/receber', [CompraController::class, 'receber'])->name('compras.receber')->middleware('funcionario');
@@ -117,7 +119,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/materiais/requisicoes', [RequisicaoMaterialController::class, 'index'])->name('materiais.requisicoes.index')->middleware('funcionario');
     Route::get('/materiais/requisicoes/create', [RequisicaoMaterialController::class, 'create'])->name('materiais.requisicoes.create')->middleware('funcionario');
     Route::post('/materiais/requisicoes', [RequisicaoMaterialController::class, 'store'])->name('materiais.requisicoes.store')->middleware('funcionario');
-    Route::resource('materiais', MaterialController::class)->middleware('funcionario');
+    Route::resource('materiais', MaterialController::class)
+        ->parameters(['materiais' => 'material'])
+        ->middleware('funcionario');
 
     Route::post('/mensalidades/{mensalidade}/pagar', [MensalidadeController::class, 'pagar'])
         ->name('mensalidades.pagar')

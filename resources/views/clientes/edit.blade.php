@@ -65,7 +65,7 @@
 
             <div class="mb-4">
                 <label for="status" class="block text-gray-700 text-sm font-bold mb-2">Status:</label>
-                <select id="status" name="status" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline bg-white @error('status') border-red-500 @enderror">
+                <select id="status" name="status" required class="select @error('status') border-red-500 @enderror">
                     <option value="Ativo" {{ old('status', $cliente->status ?? '') == 'Ativo' ? 'selected' : '' }}>
                         Ativo
                     </option>
@@ -84,7 +84,7 @@
             <div class="mb-4">
                 <label for="idPlano" class="block text-gray-700 text-sm font-bold mb-2">Plano de Assinatura:</label>
                 <select id="idPlano" name="idPlano"
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idPlano') border-red-500 @enderror">
+                        class="select @error('idPlano') border-red-500 @enderror">
                     <option value="">Selecione um Plano (Opcional)</option>
                     @foreach ($planos as $plano)
                         <option value="{{ $plano->idPlano }}" {{ old('idPlano', $cliente->idPlano) == $plano->idPlano ? 'selected' : '' }}>

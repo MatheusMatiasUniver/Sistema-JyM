@@ -67,7 +67,7 @@
             <div class="mb-6">
                 <label for="nivelAcesso" class="block text-gray-700 text-sm font-bold mb-2">Nível de Acesso:</label>
                 <select id="nivelAcesso" name="nivelAcesso" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('nivelAcesso') border-red-500 @enderror">
+                        class="select @error('nivelAcesso') border-red-500 @enderror">
                     <option value="Administrador" {{ old('nivelAcesso', $user->nivelAcesso) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
                     <option value="Funcionário" {{ old('nivelAcesso', $user->nivelAcesso) == 'Funcionário' ? 'selected' : '' }}>Funcionário</option>
                 </select>

@@ -27,7 +27,7 @@
                 @if($filter['type'] === 'select')
                     <select id="{{ $filter['name'] }}" 
                             name="{{ $filter['name'] }}"
-                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                            class="select">
                         <option value="">{{ $filter['placeholder'] ?? 'Todos' }}</option>
                         @foreach($filter['options'] as $value => $label)
                             <option value="{{ $value }}" {{ request($filter['name']) == $value ? 'selected' : '' }}>
@@ -60,7 +60,7 @@
                 <label for="sort" class="block text-gray-700 text-sm font-bold mb-2">Ordenar:</label>
                 <select id="sort" 
                         name="sort"
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        class="select">
                     <option value="">Padrão</option>
                     @foreach($sortOptions as $value => $label)
                         <option value="{{ $value }}" {{ request('sort') == $value ? 'selected' : '' }}>

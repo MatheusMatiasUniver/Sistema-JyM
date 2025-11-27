@@ -10,7 +10,7 @@
             @csrf
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Material</label>
-                <select name="idMaterial" class="border rounded px-2 py-1 w-full" required>
+                <select name="idMaterial" class="select" required>
                     @foreach($materiais as $m)
                         <option value="{{ $m->idMaterial }}">{{ $m->descricao }}</option>
                     @endforeach
@@ -37,4 +37,3 @@
         </form>
     </div>
 @endsection
-

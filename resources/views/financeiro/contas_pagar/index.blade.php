@@ -39,7 +39,7 @@
                             @if($c->status === 'aberta')
                                 <form action="{{ route('financeiro.contas_pagar.pagar', $c->idContaPagar) }}" method="POST" class="flex items-center space-x-2">
                                     @csrf
-                                    <select name="formaPagamento" class="shadow appearance-none border rounded py-1 px-2 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                                    <select name="formaPagamento" class="select">
                                         <option value="Dinheiro">Dinheiro</option>
                                         <option value="Cartão de Crédito">Cartão de Crédito</option>
                                         <option value="Cartão de Débito">Cartão de Débito</option>

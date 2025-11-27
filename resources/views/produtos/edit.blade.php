@@ -13,7 +13,7 @@
             <div class="mb-4">
                 <label for="idMarca" class="block text-gray-700 text-sm font-bold mb-2">Marca:</label>
                 <select id="idMarca" name="idMarca" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idMarca') border-red-500 @enderror">
+                        class="select @error('idMarca') border-red-500 @enderror">
                     <option value="">Selecione uma marca</option>
                     @isset($marcas)
                         @foreach($marcas as $marca)
@@ -31,7 +31,7 @@
             <div class="mb-4">
                 <label for="idFornecedor" class="block text-gray-700 text-sm font-bold mb-2">Fornecedor (opcional):</label>
                 <select id="idFornecedor" name="idFornecedor"
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idFornecedor') border-red-500 @enderror">
+                        class="select @error('idFornecedor') border-red-500 @enderror">
                     <option value="">Selecione um fornecedor</option>
                     @isset($fornecedores)
                         @foreach($fornecedores as $fornecedor)
@@ -47,13 +47,14 @@
             </div>
 
             <div class="mb-4">
-                <label for="precoCompra" class="block text-gray-700 text-sm font-bold mb-2">Preço de Compra (Fornecedor):</label>
+                <label for="precoCompra" class="block text-gray-700 text-sm font-bold mb-2">Preço de Custo:</label>
                 <input type="number" step="0.01" id="precoCompra" name="precoCompra" value="{{ old('precoCompra', $produto->precoCompra) }}"
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('precoCompra') border-red-500 @enderror">
                 @error('precoCompra')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror
             </div>
+            <div class="mb-4">
                 <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome do Produto:</label>
                 <input type="text" id="nome" name="nome" value="{{ old('nome', $produto->nome) }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('nome') border-red-500 @enderror">
@@ -65,7 +66,7 @@
             <div class="mb-4">
                 <label for="idCategoria" class="block text-gray-700 text-sm font-bold mb-2">Categoria:</label>
                 <select id="idCategoria" name="idCategoria" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline @error('idCategoria') border-red-500 @enderror">
+                        class="select @error('idCategoria') border-red-500 @enderror">
                     <option value="">Selecione uma categoria</option>
                     @foreach($categorias as $categoria)
                         <option value="{{ $categoria->idCategoria }}" 

@@ -60,7 +60,7 @@
             <div class="mb-6">
                 <label for="nivelAcesso" class="block text-gray-700 text-sm font-bold mb-2">Nível de Acesso:</label>
                 <select id="nivelAcesso" name="nivelAcesso" required
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        class="select">
                     <option value="">Selecione o nível de acesso</option>
                     <option value="Funcionário" {{ old('nivelAcesso') == 'Funcionário' ? 'selected' : '' }}>Funcionário</option>
                     <option value="Administrador" {{ old('nivelAcesso') == 'Administrador' ? 'selected' : '' }}>Administrador</option>
@@ -71,7 +71,7 @@
             <div id="academiaField" class="mb-6" style="display: none;">
                 <label for="idAcademia" class="block text-gray-700 text-sm font-bold mb-2">Academia:</label>
                 <select id="idAcademia" name="idAcademia"
-                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                        class="select">
                     <option value="">Selecione a academia</option>
                     @foreach(Auth::user()->academias as $academia)
                         <option value="{{ $academia->idAcademia }}" {{ old('idAcademia') == $academia->idAcademia ? 'selected' : '' }}>

@@ -39,13 +39,17 @@ class ClienteController extends Controller
         $query = Cliente::where('idAcademia', $academiaId)->with('plano');
 
         if (request()->filled('search')) {
-            $search = request('search');
-            $cpfSearch = preg_replace('/[^0-9]/', '', $search);
-            $query->where(function ($q) use ($search, $cpfSearch) {
-                $q->where('nome', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%")
-                  ->orWhere('cpf', 'like', "%{$cpfSearch}%");
-            });
+            $search = trim((string) request('search'));
+            if ($search !== '') {
+                $searchLower = mb_strtolower($search, 'UTF-8');
+                $cpfSearch = preg_replace('/[^0-9]/', '', $search);
+                $query->where(function ($q) use ($searchLower, $cpfSearch) {
+                    $q->whereRaw('LOWER(nome) LIKE ?', ["%{$searchLower}%"]);
+                    if ($cpfSearch !== '') {
+                        $q->orWhere('cpf', 'like', "%{$cpfSearch}%");
+                    }
+                });
+            }
         }
 
         if (request()->filled('status_filter') && request('status_filter') !== '') {
@@ -283,7 +287,7 @@ class ClienteController extends Controller
     /**
      * Renova o plano de assinatura do cliente.
      */
-    public function renewPlan(Cliente $cliente, PlanoAssinaturaService $planoService)
+    public function renewPlan(Request $request, Cliente $cliente, PlanoAssinaturaService $planoService)
     {
         try {
             $academiaId = session('academia_selecionada');
@@ -295,7 +299,54 @@ class ClienteController extends Controller
                 return back()->with('error', 'Cliente não possui plano de assinatura associado.');
             }
 
+            $formaPagamento = $request->input('formaPagamento');
+            if ($formaPagamento !== null && $formaPagamento !== '') {
+                $request->validate([
+                    'formaPagamento' => 'required|in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto',
+                ]);
+            }
+
             $novaMensalidade = $planoService->renewClientPlan($cliente, $cliente->plano);
+
+            if ($formaPagamento) {
+                DB::beginTransaction();
+                try {
+                    $novaMensalidade->status = 'Paga';
+                    $novaMensalidade->dataPagamento = now();
+                    $novaMensalidade->formaPagamento = $formaPagamento;
+                    $novaMensalidade->save();
+
+                    $recebimentoData = $novaMensalidade->dataPagamento ?? now();
+                    $updated = DB::table('contas_receber')
+                        ->where('idAcademia', $novaMensalidade->idAcademia)
+                        ->where('documentoRef', $novaMensalidade->idMensalidade)
+                        ->where('status', 'aberta')
+                        ->update([
+                            'status' => 'recebida',
+                            'dataRecebimento' => $recebimentoData,
+                            'formaRecebimento' => $formaPagamento,
+                        ]);
+
+                    if ($updated === 0) {
+                        DB::table('contas_receber')->insert([
+                            'idAcademia' => $novaMensalidade->idAcademia,
+                            'idCliente' => $novaMensalidade->idCliente,
+                            'documentoRef' => $novaMensalidade->idMensalidade,
+                            'descricao' => 'Mensalidade Cliente #'.$novaMensalidade->idCliente,
+                            'valorTotal' => $novaMensalidade->valor,
+                            'status' => 'recebida',
+                            'dataVencimento' => $novaMensalidade->dataVencimento,
+                            'dataRecebimento' => $recebimentoData,
+                            'formaRecebimento' => $formaPagamento,
+                        ]);
+                    }
+
+                    DB::commit();
+                } catch (\Exception $e) {
+                    DB::rollBack();
+                    return back()->with('error', 'Erro ao registrar pagamento da renovação: '.$e->getMessage());
+                }
+            }
 
             return redirect()
                 ->route('clientes.index')

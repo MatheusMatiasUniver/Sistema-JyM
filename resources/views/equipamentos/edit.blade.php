@@ -30,7 +30,7 @@
                 </div>
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Status</label>
-                    <select name="status" class="border rounded px-2 py-1 w-full text-black">
+                    <select name="status" class="select">
                         <option value="Ativo" @if(old('status', $equipamento->status->value) == 'Ativo') selected @endif>Ativo</option>
                         <option value="Em Manutenção" @if(old('status', $equipamento->status->value) == 'Em Manutenção') selected @endif>Em Manutenção</option>
                         <option value="Desativado" @if(old('status', $equipamento->status->value) == 'Desativado') selected @endif>Desativado</option>
@@ -64,4 +64,3 @@
         </form>
     </div>
 @endsection
-

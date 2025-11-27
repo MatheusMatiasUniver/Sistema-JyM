@@ -4,6 +4,7 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+
 @section('content')
     <div id="produtos-data" 
          data-produtos="{{ json_encode($produtos->keyBy('idProduto')) }}"
@@ -12,7 +13,7 @@
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Registrar Nova Venda</h1>
+            <h1 class="text-3xl font-bold text-grip-6">Registrar Nova Venda</h1>
             <p class="mt-2 text-sm text-gray-600">Selecione produtos, cliente e forma de pagamento para registrar uma nova venda</p>
         </div>
 
@@ -44,16 +45,14 @@
         <form id="vendaForm" action="{{ route('vendas.store') }}" method="POST">
             @csrf
             
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <!-- Seção 1: Tabela de Produtos -->
-                <div class="lg:col-span-2">
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                <div class="lg:col-span-3">
                     <div class="bg-white shadow-lg rounded-lg overflow-hidden">
                         <div class="px-6 py-4 bg-gray-50 border-b border-gray-200">
                             <h2 class="text-lg font-semibold text-gray-900">Produtos Disponíveis</h2>
                             <p class="text-sm text-gray-600">Selecione os produtos e especifique as quantidades</p>
                         </div>
                         
-                        <!-- Barra de Pesquisa -->
                         <div class="p-4 bg-gray-50 border-b border-gray-200">
                             <div class="relative">
                                 <input type="text" 
@@ -68,8 +67,7 @@
                             </div>
                         </div>
 
-                        <!-- Tabela de Produtos -->
-                        <div class="overflow-x-auto max-h-96">
+                        <div class="overflow-x-auto overflow-y-auto h-[673px]">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50 sticky top-0">
                                     <tr>
@@ -129,17 +127,15 @@
                     </div>
                 </div>
 
-                <!-- Seção 2: Resumo da Venda -->
                 <div class="lg:col-span-1">
                     <div class="space-y-6">
-                        <!-- Seletor de Cliente -->
                         <div class="bg-white shadow-lg rounded-lg p-6">
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Cliente</h3>
                             <div class="space-y-4">
                                 <div>
                                     <label for="idCliente" class="block text-sm font-medium text-gray-700 mb-2">Selecionar Cliente</label>
                                     <select id="idCliente" name="idCliente" required
-                                            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grip-1 focus:border-grip-1 @error('idCliente') border-grip-2 @enderror">
+                                            class="select @error('idCliente') border-grip-2 @enderror">
                                         <option value="">Escolha um cliente</option>
                                         @foreach($clientes as $cliente)
                                             <option value="{{ $cliente->idCliente }}" 
@@ -172,7 +168,7 @@
                             <div>
                                 <label for="formaPagamento" class="block text-sm font-medium text-gray-700 mb-2">Método de Pagamento</label>
                                 <select id="formaPagamento" name="formaPagamento" required
-                                        class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-grip-1 focus:border-grip-1 @error('formaPagamento') border-grip-2 @enderror">
+                                        class="select @error('formaPagamento') border-grip-2 @enderror">
                                     <option value="">Selecione o pagamento</option>
                                     @foreach($tiposPagamento as $tipo)
                                         <option value="{{ $tipo }}" {{ old('formaPagamento') == $tipo ? 'selected' : '' }}>
@@ -336,6 +332,8 @@
                 }
                 updateValidation();
             });
+
+            
 
             // Forma de pagamento
             formaPagamentoSelect.addEventListener('change', updateValidation);

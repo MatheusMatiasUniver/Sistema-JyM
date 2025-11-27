@@ -10,7 +10,7 @@
             @csrf
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Equipamento</label>
-                <select name="idEquipamento" class="border rounded px-2 py-1 w-full" required>
+                <select name="idEquipamento" class="select" required>
                     @foreach($equipamentos as $e)
                         <option value="{{ $e->idEquipamento }}">{{ $e->descricao }}</option>
                     @endforeach
@@ -18,7 +18,7 @@
             </div>
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Tipo</label>
-                <select name="tipo" class="border rounded px-2 py-1 w-full" required>
+                <select name="tipo" class="select" required>
                     <option value="preventiva">Preventiva</option>
                     <option value="corretiva">Corretiva</option>
                 </select>
@@ -36,7 +36,7 @@
             <div class="grid grid-cols-2 gap-3 mb-4">
                 <div>
                     <label class="block text-gray-700 text-sm font-bold mb-2">Fornecedor</label>
-                    <select name="fornecedorId" class="border rounded px-2 py-1 w-full">
+                    <select name="fornecedorId" class="select">
                         <option value="">Selecione</option>
                         @foreach($fornecedores as $f)
                             <option value="{{ $f->idFornecedor }}">{{ $f->razaoSocial }}</option>
@@ -59,4 +59,3 @@
         </form>
     </div>
 @endsection
-
