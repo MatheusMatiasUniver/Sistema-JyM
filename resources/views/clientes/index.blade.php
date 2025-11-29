@@ -3,6 +3,10 @@
 @section('title', 'Clientes - Sistema JyM')
 
 @section('content')
+    @php
+        $formasPagamentoAtivas = $formasPagamentoAtivas ?? \App\Models\AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
+    @endphp
+
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Lista de Clientes</h1>
 
     <div class="mb-4 flex justify-between items-center">
@@ -198,11 +202,9 @@
                     <label for="formaPagamentoCliente" class="block text-sm text-gray-700 mb-1">Forma de pagamento</label>
                     <select id="formaPagamentoCliente" name="formaPagamento" class="select" required>
                         <option value="">Selecione</option>
-                        <option value="Dinheiro">Dinheiro</option>
-                        <option value="Cartão de Crédito">Cartão de Crédito</option>
-                        <option value="Cartão de Débito">Cartão de Débito</option>
-                        <option value="PIX">PIX</option>
-                        <option value="Boleto">Boleto</option>
+                        @foreach($formasPagamentoAtivas as $forma)
+                            <option value="{{ $forma }}">{{ $forma }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="flex justify-end gap-2">

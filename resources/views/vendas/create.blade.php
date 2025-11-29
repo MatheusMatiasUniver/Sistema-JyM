@@ -6,6 +6,9 @@
 
 
 @section('content')
+    @php
+        $clienteOpcionalVenda = $clienteOpcionalVenda ?? false;
+    @endphp
     <div id="produtos-data" 
          data-produtos="{{ json_encode($produtos->keyBy('idProduto')) }}"
          class="hidden">
@@ -42,7 +45,7 @@
             </div>
         @endif
 
-        <form id="vendaForm" action="{{ route('vendas.store') }}" method="POST">
+        <form id="vendaForm" action="{{ route('vendas.store') }}" method="POST" data-cliente-opcional="{{ $clienteOpcionalVenda ? '1' : '0' }}">
             @csrf
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -133,8 +136,10 @@
                             <h3 class="text-lg font-semibold text-gray-900 mb-4">Cliente</h3>
                             <div class="space-y-4">
                                 <div>
-                                    <label for="idCliente" class="block text-sm font-medium text-gray-700 mb-2">Selecionar Cliente</label>
-                                    <select id="idCliente" name="idCliente" required
+                                    <label for="idCliente" class="block text-sm font-medium text-gray-700 mb-2">
+                                        Selecionar Cliente {{ $clienteOpcionalVenda ? '(opcional)' : '' }}
+                                    </label>
+                                    <select id="idCliente" name="idCliente" {{ $clienteOpcionalVenda ? '' : 'required' }}
                                             class="select @error('idCliente') border-grip-2 @enderror">
                                         <option value="">Escolha um cliente</option>
                                         @foreach($clientes as $cliente)
@@ -234,7 +239,9 @@
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                                         <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"></path>
                                     </svg>
-                                    Selecione um cliente
+                                    <span id="validationClientText">
+                                        {{ $clienteOpcionalVenda ? 'Informe o cliente apenas se necessário' : 'Selecione um cliente' }}
+                                    </span>
                                 </div>
                                 <div id="validationPayment" class="flex items-center text-grip-2">
                                     <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
@@ -269,6 +276,7 @@
             const btnRegistrarVenda = document.getElementById('btnRegistrarVenda');
             const hiddenProductInputs = document.getElementById('hiddenProductInputs');
             
+            const clienteOpcional = Boolean(Number(document.getElementById('vendaForm').dataset.clienteOpcional));
             let selectedProducts = new Map();
 
             // Pesquisa de produtos
@@ -400,14 +408,15 @@
                 const hasProducts = selectedProducts.size > 0;
                 const hasClient = clienteSelect.value !== '';
                 const hasPayment = formaPagamentoSelect.value !== '';
+                const clienteValido = clienteOpcional ? true : hasClient;
 
                 // Atualizar indicadores visuais
                 updateValidationIndicator('validationProducts', hasProducts);
-                updateValidationIndicator('validationClient', hasClient);
+                updateValidationIndicator('validationClient', clienteValido);
                 updateValidationIndicator('validationPayment', hasPayment);
 
                 // Habilitar/desabilitar botão
-                const isValid = hasProducts && hasClient && hasPayment;
+                const isValid = hasProducts && clienteValido && hasPayment;
                 btnRegistrarVenda.disabled = !isValid;
                 
                 if (isValid) {

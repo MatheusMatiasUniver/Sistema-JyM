@@ -3,6 +3,45 @@
 @section('title', 'Histórico de Vendas - Sistema JyM')
 
 @section('content')
+    @php
+        $formasPagamentoAtivas = $formasPagamentoAtivas ?? \App\Models\AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
+        $formasPagamentoOptions = collect($formasPagamentoAtivas)->mapWithKeys(fn($opcao) => [$opcao => $opcao])->toArray();
+        $filtersConfig = [
+            [
+                'name' => 'forma_pagamento',
+                'label' => 'Forma de Pagamento',
+                'type' => 'select',
+                'options' => $formasPagamentoOptions,
+            ],
+            [
+                'name' => 'data_inicial',
+                'label' => 'Data Inicial',
+                'type' => 'date',
+            ],
+            [
+                'name' => 'data_final',
+                'label' => 'Data Final',
+                'type' => 'date',
+            ],
+            [
+                'name' => 'valor_minimo',
+                'label' => 'Valor Mínimo',
+                'type' => 'number',
+                'placeholder' => '0.00',
+                'step' => '0.01',
+                'min' => '0',
+            ],
+            [
+                'name' => 'valor_maximo',
+                'label' => 'Valor Máximo',
+                'type' => 'number',
+                'placeholder' => '999.99',
+                'step' => '0.01',
+                'min' => '0',
+            ],
+        ];
+    @endphp
+
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Histórico de Vendas</h1>
    
     @if(session('info'))
@@ -21,46 +60,7 @@
     <!-- Filtros -->
     <x-search-filter-dropdown 
         placeholder="ID da venda ou nome do cliente..."
-        :filters="[
-            [
-                'name' => 'forma_pagamento',
-                'label' => 'Forma de Pagamento',
-                'type' => 'select',
-                'options' => [
-                    'Dinheiro' => 'Dinheiro',
-                    'Cartão de Crédito' => 'Cartão de Crédito',
-                    'Cartão de Débito' => 'Cartão de Débito',
-                    'PIX' => 'PIX',
-                    'Boleto' => 'Boleto'
-                ]
-            ],
-            [
-                'name' => 'data_inicial',
-                'label' => 'Data Inicial',
-                'type' => 'date'
-            ],
-            [
-                'name' => 'data_final',
-                'label' => 'Data Final',
-                'type' => 'date'
-            ],
-            [
-                'name' => 'valor_minimo',
-                'label' => 'Valor Mínimo',
-                'type' => 'number',
-                'placeholder' => '0.00',
-                'step' => '0.01',
-                'min' => '0'
-            ],
-            [
-                'name' => 'valor_maximo',
-                'label' => 'Valor Máximo',
-                'type' => 'number',
-                'placeholder' => '999.99',
-                'step' => '0.01',
-                'min' => '0'
-            ]
-        ]"
+        :filters="$filtersConfig"
         :sort-options="[
             'data_desc' => 'Data (Recente)',
             'data_asc' => 'Data (Antiga)',
@@ -102,7 +102,7 @@
                             {{ $venda->idVenda }}
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
-                            {{ $venda->cliente && !$venda->cliente->deleted_at ? $venda->cliente->nome : 'Cliente Deletado' }}
+                            {{ $venda->cliente_nome_exibicao }}
                         </td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             {{ $venda->dataVenda->format('d/m/Y H:i') }}

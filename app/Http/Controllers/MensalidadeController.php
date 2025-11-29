@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Mensalidade;
 use App\Models\Cliente;
 use App\Services\PlanoAssinaturaService;
+use App\Models\AjusteSistema;
+use Illuminate\Validation\Rule;
 
 class MensalidadeController extends Controller
 {
@@ -26,8 +28,11 @@ class MensalidadeController extends Controller
             }
         }
 
+        $contextAcademiaId = $mensalidade->idAcademia ?? $academiaId;
+        $formasPagamentoAtivas = AjusteSistema::formasPagamentoParaAcademia($contextAcademiaId ? (int) $contextAcademiaId : null);
+
         $request->validate([
-            'formaPagamento' => 'required|in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto',
+            'formaPagamento' => ['required', Rule::in($formasPagamentoAtivas)],
             'dataPagamento' => 'nullable|date',
         ]);
 

@@ -80,6 +80,32 @@ class VendaProduto extends Model
         });
     }
 
+    public function getClienteNomeExibicaoAttribute(): string
+    {
+        if (!$this->idCliente) {
+            return 'Cliente não selecionado';
+        }
+
+        if ($this->cliente && !$this->cliente->deleted_at) {
+            return $this->cliente->nome;
+        }
+
+        return 'Cliente Deletado';
+    }
+
+    public function getClienteCpfExibicaoAttribute(): string
+    {
+        if (!$this->idCliente) {
+            return 'N/A';
+        }
+
+        if ($this->cliente && !$this->cliente->deleted_at && isset($this->cliente->cpfFormatado)) {
+            return $this->cliente->cpfFormatado;
+        }
+
+        return 'N/A';
+    }
+
     protected static function booted()
     {
         static::addGlobalScope('academia', function (Builder $builder) {

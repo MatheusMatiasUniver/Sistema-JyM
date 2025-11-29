@@ -3,6 +3,10 @@
 @section('title', 'Editar Produto - Sistema JyM')
 
 @section('content')
+    @php
+        $permitirEdicaoManualEstoque = $permitirEdicaoManualEstoque ?? false;
+    @endphp
+
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Editar Produto: {{ $produto->nome }}</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
@@ -96,9 +100,24 @@
             </div>
 
             <div class="mb-4">
+                <label for="estoqueMinimo" class="block text-gray-700 text-sm font-bold mb-2">Estoque Mínimo:</label>
+                <input type="number" id="estoqueMinimo" name="estoqueMinimo" value="{{ old('estoqueMinimo', $produto->estoqueMinimo) }}"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('estoqueMinimo') border-red-500 @enderror">
+                @error('estoqueMinimo')
+                    <p class="text-red-500 text-xs italic">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <div class="mb-4">
                 <label for="estoque" class="block text-gray-700 text-sm font-bold mb-2">Estoque:</label>
-                <input type="number" id="estoque" name="estoque" value="{{ old('estoque', $produto->estoque) }}" required
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('estoque') border-red-500 @enderror">
+                @if($permitirEdicaoManualEstoque)
+                    <input type="number" id="estoque" name="estoque" value="{{ old('estoque', $produto->estoque) }}" required
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('estoque') border-red-500 @enderror">
+                @else
+                    <input type="number" id="estoque" value="{{ $produto->estoque }}" disabled
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-500 bg-gray-100 leading-tight cursor-not-allowed">
+                    <p class="text-xs text-gray-500 mt-1">A edição manual de estoque está desativada nos ajustes. Utilize o botão "Ajustar Estoque" ou registre uma compra.</p>
+                @endif
                 @error('estoque')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror

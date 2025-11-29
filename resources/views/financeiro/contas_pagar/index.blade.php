@@ -3,6 +3,10 @@
 @section('title', 'Contas a Pagar - Sistema JyM')
 
 @section('content')
+    @php
+        $formasPagamentoAtivas = $formasPagamentoAtivas ?? \App\Models\AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
+    @endphp
+
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Contas a Pagar</h1>
 
     <x-search-filter-dropdown 
@@ -40,11 +44,9 @@
                                 <form action="{{ route('financeiro.contas_pagar.pagar', $c->idContaPagar) }}" method="POST" class="flex items-center space-x-2">
                                     @csrf
                                     <select name="formaPagamento" class="select">
-                                        <option value="Dinheiro">Dinheiro</option>
-                                        <option value="Cartão de Crédito">Cartão de Crédito</option>
-                                        <option value="Cartão de Débito">Cartão de Débito</option>
-                                        <option value="PIX">PIX</option>
-                                        <option value="Boleto">Boleto</option>
+                                        @foreach($formasPagamentoAtivas as $forma)
+                                            <option value="{{ $forma }}">{{ $forma }}</option>
+                                        @endforeach
                                     </select>
                                     <button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-1 px-3 rounded focus:outline-none focus:shadow-outline">Faturar</button>
                                 </form>

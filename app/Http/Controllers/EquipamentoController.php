@@ -80,5 +80,5 @@ class EquipamentoController extends Controller
             return back()->with('error', 'Erro ao excluir equipamento');
         }
     }
-}
 
+}

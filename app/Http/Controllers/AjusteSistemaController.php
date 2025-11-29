@@ -3,9 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\AjusteSistema;
-use App\Models\Fornecedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\Rule;
 
 class AjusteSistemaController extends Controller
 {
@@ -16,15 +16,10 @@ class AjusteSistemaController extends Controller
             return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
         }
 
-        $ajuste = AjusteSistema::where('idAcademia', $academiaId)->first();
-        if (!$ajuste) {
-            $ajuste = AjusteSistema::create([
-                'idAcademia' => $academiaId,
-                'diaVencimentoSalarios' => 5,
-            ]);
-        }
+        $ajuste = AjusteSistema::obterOuCriarParaAcademia($academiaId);
+        $formasPagamentoDisponiveis = AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
 
-        return view('ajustes.index', compact('ajuste'));
+        return view('ajustes.index', compact('ajuste', 'formasPagamentoDisponiveis'));
     }
 
     public function update(Request $request)
@@ -36,15 +31,18 @@ class AjusteSistemaController extends Controller
 
         $dados = $request->validate([
             'diaVencimentoSalarios' => 'required|integer|min:1|max:31',
+            'clienteOpcionalVenda' => 'nullable|boolean',
+            'permitirEdicaoManualEstoque' => 'nullable|boolean',
+            'formasPagamentoAceitas' => ['required', 'array', 'min:1'],
+            'formasPagamentoAceitas.*' => ['string', Rule::in(AjusteSistema::FORMAS_PAGAMENTO_PADRAO)],
         ]);
 
-        $ajuste = AjusteSistema::where('idAcademia', $academiaId)->first();
-        if (!$ajuste) {
-            $ajuste = new AjusteSistema();
-            $ajuste->idAcademia = $academiaId;
-        }
+        $ajuste = AjusteSistema::obterOuCriarParaAcademia($academiaId);
 
         $ajuste->diaVencimentoSalarios = $dados['diaVencimentoSalarios'];
+        $ajuste->clienteOpcionalVenda = $request->boolean('clienteOpcionalVenda');
+        $ajuste->permitirEdicaoManualEstoque = $request->boolean('permitirEdicaoManualEstoque');
+        $ajuste->formasPagamentoAceitas = array_values($dados['formasPagamentoAceitas']);
         $ajuste->save();
 
         \App\Models\ActivityLog::create([
@@ -56,6 +54,9 @@ class AjusteSistemaController extends Controller
             'dados' => [
                 'idAcademia' => $academiaId,
                 'diaVencimentoSalarios' => $ajuste->diaVencimentoSalarios,
+                'clienteOpcionalVenda' => $ajuste->clienteOpcionalVenda,
+                'permitirEdicaoManualEstoque' => $ajuste->permitirEdicaoManualEstoque,
+                'formasPagamentoAceitas' => $ajuste->formasPagamentoAtivas,
             ],
         ]);
 

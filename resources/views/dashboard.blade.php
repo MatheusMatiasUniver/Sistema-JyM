@@ -3,6 +3,10 @@
 @section('title', 'Dashboard - Sistema JyM')
 
 @section('content')
+    @php
+        $formasPagamentoAtivas = $formasPagamentoAtivas ?? \App\Models\AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
+    @endphp
+
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Dashboard</h1>
     
 
@@ -116,11 +120,9 @@
                     <label for="formaPagamentoModal" class="block text-sm text-gray-700 mb-1">Forma de pagamento</label>
                     <select id="formaPagamentoModal" name="formaPagamento" class="select" required>
                         <option value="">Selecione</option>
-                        <option value="Dinheiro">Dinheiro</option>
-                        <option value="Cartão de Crédito">Cartão de Crédito</option>
-                        <option value="Cartão de Débito">Cartão de Débito</option>
-                        <option value="PIX">PIX</option>
-                        <option value="Boleto">Boleto</option>
+                        @foreach($formasPagamentoAtivas as $forma)
+                            <option value="{{ $forma }}">{{ $forma }}</option>
+                        @endforeach
                     </select>
                 </div>
                 <div class="flex justify-end gap-2">
@@ -128,6 +130,32 @@
                     <button type="submit" class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700">Confirmar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    @php
+        $produtosBaixoEstoqueLista = $produtosBaixoEstoque->take(3);
+        $produtosBaixoEstoqueRestantes = max($produtosBaixoEstoque->count() - 3, 0);
+    @endphp
+
+    <div id="modalAlertaEstoqueMinimo" data-alert="{{ $produtosBaixoEstoque->isNotEmpty() ? '1' : '0' }}" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
+            <h3 class="text-lg font-bold mb-4 text-black">Estoque mínimo atingido</h3>
+            <p class="text-sm text-gray-600 mb-4">Os produtos abaixo estão com estoque igual ou abaixo do mínimo configurado:</p>
+            <ul class="list-disc list-inside text-sm text-gray-800 mb-4">
+                @forelse($produtosBaixoEstoqueLista as $produtoBaixo)
+                    <li>{{ $produtoBaixo->nome }} ({{ $produtoBaixo->estoque }} unidades)</li>
+                @empty
+                    <li>Nenhum produto listado.</li>
+                @endforelse
+            </ul>
+            @if($produtosBaixoEstoqueRestantes > 0)
+                <p class="text-xs text-gray-500 mb-4">e mais {{ $produtosBaixoEstoqueRestantes }} produto(s)...</p>
+            @endif
+            <div class="flex justify-end gap-2">
+                <button type="button" id="btnFecharModalEstoque" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300">Agora não</button>
+                <a href="{{ route('compras.create') }}" class="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700">Fazer lançamento de compra</a>
+            </div>
         </div>
     </div>
 
@@ -141,7 +169,7 @@
                     @foreach($ultimasVendas as $venda)
                         <li class="py-3 flex justify-between items-center">
                             <div>
-                                <p class="text-gray-800 font-semibold">Venda #{{ $venda->idVenda }} - {{ $venda->cliente && !$venda->cliente->deleted_at ? $venda->cliente->nome : 'Cliente Deletado' }}</p>
+                                <p class="text-gray-800 font-semibold">Venda #{{ $venda->idVenda }} - {{ $venda->cliente_nome_exibicao }}</p>
                                 <p class="text-gray-600 text-sm">{{ $venda->dataVenda->format('d/m/Y H:i') }}</p>
                             </div>
                             <div class="flex items-center gap-3">
@@ -260,6 +288,34 @@
     document.addEventListener('DOMContentLoaded', () => {
         const isDashboardPage = window.location.pathname === '/dashboard';
         if (!isDashboardPage) return;
+
+    const estoqueModal = document.getElementById('modalAlertaEstoqueMinimo');
+    const closeEstoqueBtn = document.getElementById('btnFecharModalEstoque');
+    const openEstoqueModal = () => {
+        if (!estoqueModal) return;
+        estoqueModal.classList.remove('hidden');
+        estoqueModal.classList.add('flex');
+    };
+    const closeEstoqueModal = () => {
+        if (!estoqueModal) return;
+        estoqueModal.classList.add('hidden');
+        estoqueModal.classList.remove('flex');
+    };
+
+    if (estoqueModal && estoqueModal.dataset.alert === '1') {
+        setTimeout(() => {
+            if (estoqueModal.dataset.alert === '1') {
+                openEstoqueModal();
+            }
+        }, 400);
+    }
+
+    closeEstoqueBtn && closeEstoqueBtn.addEventListener('click', closeEstoqueModal);
+    estoqueModal && estoqueModal.addEventListener('click', (event) => {
+        if (event.target === estoqueModal) {
+            closeEstoqueModal();
+        }
+    });
 
     const btnAtualizarPeriodo = document.getElementById('btnAtualizarPeriodo');
     const startInput = document.getElementById('startDate');

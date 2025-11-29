@@ -47,4 +47,3 @@
         <div class="mt-6">{{ $equipamentos->links() }}</div>
     @endif
 @endsection
-

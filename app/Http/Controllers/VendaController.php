@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AjusteSistema;
 use App\Models\VendaProduto;
 use App\Models\Produto;
 use App\Models\Cliente;
@@ -13,6 +14,10 @@ class VendaController extends Controller
 {
     public function index(Request $request)
     {
+        $academiaId = session('academia_selecionada') ?? (Auth::user()->idAcademia ?? null);
+        $ajuste = $academiaId ? AjusteSistema::obterOuCriarParaAcademia((int) $academiaId) : null;
+        $formasPagamentoAtivas = $ajuste ? $ajuste->formasPagamentoAtivas : AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
+
         $query = VendaProduto::with(['cliente', 'itens']);
 
         if ($request->filled('search')) {
@@ -83,7 +88,7 @@ class VendaController extends Controller
 
         $vendas = $query->orderBy($sortField, $sortDirection)->paginate(15);
         
-        return view('vendas.index', compact('vendas'));
+        return view('vendas.index', compact('vendas', 'formasPagamentoAtivas'));
     }
 
     public function create()
@@ -92,14 +97,16 @@ class VendaController extends Controller
         if (!$academiaId) {
             return redirect()->route('dashboard')->with('error', 'Selecione uma academia primeiro.');
         }
+        $ajuste = AjusteSistema::obterOuCriarParaAcademia((int) $academiaId);
         $produtos = Produto::where('idAcademia', $academiaId)
                            ->where('estoque', '>', 0)
                            ->get();
         $clientes = Cliente::where('idAcademia', $academiaId)->get();
         
-        $tiposPagamento = ['Dinheiro', 'Cartão de Crédito', 'Cartão de Débito', 'PIX', 'Boleto'];
+        $tiposPagamento = $ajuste->formasPagamentoAtivas;
+        $clienteOpcionalVenda = $ajuste->clienteOpcionalVenda;
         
-        return view('vendas.create', compact('produtos', 'clientes', 'tiposPagamento'));
+        return view('vendas.create', compact('produtos', 'clientes', 'tiposPagamento', 'clienteOpcionalVenda'));
     }
 
     public function store(\App\Http\Requests\StoreVendaRequest $request)

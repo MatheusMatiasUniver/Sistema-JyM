@@ -11,6 +11,7 @@ use App\Models\Produto;
 use App\Models\ContaPagar;
 use App\Models\ContaReceber;
 use App\Models\Compra;
+use App\Models\AjusteSistema;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 
@@ -19,6 +20,8 @@ class DashboardController extends Controller
     public function index()
     {
         $academiaId = config('app.academia_atual');
+        $ajuste = $academiaId ? AjusteSistema::obterOuCriarParaAcademia((int) $academiaId) : null;
+        $formasPagamentoAtivas = $ajuste ? $ajuste->formasPagamentoAtivas : AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
 
         $acessosHoje = Entrada::whereDate('dataHora', Carbon::today())
             ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
@@ -144,7 +147,8 @@ class DashboardController extends Controller
             'contasPagarResumo',
             'contasReceberResumo',
             'comprasAbertas',
-            'contasPagarLista'
+            'contasPagarLista',
+            'formasPagamentoAtivas'
         ));
     }
 
@@ -267,7 +271,7 @@ class DashboardController extends Controller
             ->map(function ($v) {
                 return [
                     'idVenda' => $v->idVenda,
-                    'cliente' => $v->cliente && !$v->cliente->deleted_at ? $v->cliente->nome : 'Cliente Deletado',
+                    'cliente' => $v->cliente_nome_exibicao,
                     'dataVenda' => $v->dataVenda ? $v->dataVenda->toDateTimeString() : null,
                     'valorTotal' => $v->valorTotal,
                 ];

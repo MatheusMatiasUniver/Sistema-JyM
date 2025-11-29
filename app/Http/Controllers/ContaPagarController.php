@@ -8,13 +8,15 @@ use App\Models\User;
 use App\Models\ContaPagarCategoria;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class ContaPagarController extends Controller
 {
     public function index(Request $request)
     {
         $academiaId = session('academia_selecionada') ?? (Auth::user()->idAcademia ?? null);
-        $ajuste = $academiaId ? AjusteSistema::where('idAcademia', $academiaId)->first() : null;
+        $ajuste = $academiaId ? AjusteSistema::obterOuCriarParaAcademia((int) $academiaId) : null;
+        $formasPagamentoAtivas = $ajuste ? $ajuste->formasPagamentoAtivas : AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
         if ($ajuste) {
             $categoriaSalarios = ContaPagarCategoria::firstOrCreate([
                 'idAcademia' => $academiaId,
@@ -64,7 +66,7 @@ class ContaPagarController extends Controller
             $query->whereDate('dataVencimento', '<=', $request->data_final);
         }
         $contas = $query->orderBy('dataVencimento')->paginate(20);
-        return view('financeiro.contas_pagar.index', compact('contas'));
+        return view('financeiro.contas_pagar.index', compact('contas', 'formasPagamentoAtivas'));
     }
 
     public function pagar(Request $request, ContaPagar $conta)
@@ -73,8 +75,11 @@ class ContaPagarController extends Controller
             return back()->with('error', 'Conta não está aberta para faturamento');
         }
 
+        $contextAcademiaId = $conta->idAcademia ?? (session('academia_selecionada') ?? null);
+        $formasPagamentoAtivas = AjusteSistema::formasPagamentoParaAcademia($contextAcademiaId ? (int) $contextAcademiaId : null);
+
         $dados = $request->validate([
-            'formaPagamento' => 'required|string|in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto',
+            'formaPagamento' => ['required', 'string', Rule::in($formasPagamentoAtivas)],
             'dataPagamento' => 'nullable|date',
         ]);
 

@@ -2,9 +2,11 @@
 
 namespace App\Http\Requests;
 
+use App\Models\AjusteSistema;
+use App\Models\Produto;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Produto;
+use Illuminate\Validation\Rule;
 
 class StoreVendaRequest extends FormRequest
 {
@@ -24,9 +26,27 @@ class StoreVendaRequest extends FormRequest
      */
     public function rules(): array
     {
+        $academiaId = session('academia_selecionada') ?? (Auth::user()->idAcademia ?? null);
+        $formasPagamentoPermitidas = AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
+        $clienteOpcional = false;
+
+        if ($academiaId) {
+            $ajuste = AjusteSistema::obterOuCriarParaAcademia((int)$academiaId);
+            $formasPagamentoPermitidas = $ajuste->formasPagamentoAtivas;
+            $clienteOpcional = $ajuste->clienteOpcionalVenda;
+        }
+
+        if (empty($formasPagamentoPermitidas)) {
+            $formasPagamentoPermitidas = AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
+        }
+
+        $clienteRule = $clienteOpcional
+            ? ['nullable', 'exists:clientes,idCliente']
+            : ['required', 'exists:clientes,idCliente'];
+
         $rules = [
-            'idCliente' => ['required', 'exists:clientes,idCliente'],
-            'formaPagamento' => ['required', 'string', 'in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto'],
+            'idCliente' => $clienteRule,
+            'formaPagamento' => ['required', 'string', Rule::in($formasPagamentoPermitidas)],
             'produtos' => ['required', 'array', 'min:1'],
             'produtos.*.idProduto' => ['required', 'exists:produtos,idProduto'],
             'produtos.*.quantidade' => ['required', 'integer', 'min:1'],

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Produto;
 use App\Models\Categoria;
+use App\Models\AjusteSistema;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
@@ -52,7 +53,6 @@ class ProdutoController extends Controller
         $sortBy = $request->get('sort_by', 'nome');
         $sortDirection = $request->get('sort_direction', 'asc');
         
-        // Define default values for sorting
         $sortField = 'nome';
         $sortDirection = 'asc';
         
@@ -137,6 +137,7 @@ class ProdutoController extends Controller
             'idFornecedor' => 'nullable|exists:fornecedores,idFornecedor',
             'preco' => 'required|numeric|min:0',
             'estoque' => 'required|integer|min:0',
+            'estoqueMinimo' => 'nullable|integer|min:0',
             'precoCompra' => 'nullable|numeric|min:0',
             'descricao' => 'nullable|string',
             'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -153,6 +154,8 @@ class ProdutoController extends Controller
             'estoque.required' => 'O estoque é obrigatório.',
             'estoque.integer' => 'O estoque deve ser um número inteiro.',
             'estoque.min' => 'O estoque deve ser maior ou igual a zero.',
+            'estoqueMinimo.integer' => 'O estoque mínimo deve ser um número inteiro.',
+            'estoqueMinimo.min' => 'O estoque mínimo deve ser maior ou igual a zero.',
             'precoCompra.numeric' => 'O preço de compra deve ser um número.',
             'precoCompra.min' => 'O preço de compra deve ser maior ou igual a zero.',
             'imagem.image' => 'O arquivo deve ser uma imagem.',
@@ -197,6 +200,9 @@ class ProdutoController extends Controller
             abort(403, 'Você não tem permissão para editar este produto.');
         }
 
+        $ajuste = AjusteSistema::obterOuCriarParaAcademia((int) $academiaId);
+        $permitirEdicaoManualEstoque = $ajuste->permitirEdicaoManualEstoque;
+
         $categorias = Categoria::ativas()
             ->porAcademia($academiaId)
             ->orderBy('nome')
@@ -204,7 +210,7 @@ class ProdutoController extends Controller
 
         $fornecedores = \App\Models\Fornecedor::orderBy('razaoSocial')->get();
         $marcas = \App\Models\Marca::orderBy('nome')->get();
-        return view('produtos.edit', compact('produto', 'categorias', 'fornecedores', 'marcas'));
+        return view('produtos.edit', compact('produto', 'categorias', 'fornecedores', 'marcas', 'permitirEdicaoManualEstoque'));
     }
 
     public function update(Request $request, Produto $produto)
@@ -215,13 +221,21 @@ class ProdutoController extends Controller
             abort(403, 'Você não tem permissão para editar este produto.');
         }
 
+        $ajuste = AjusteSistema::obterOuCriarParaAcademia((int) $academiaId);
+        $permitirEdicaoManualEstoque = $ajuste->permitirEdicaoManualEstoque;
+
+        $estoqueRules = $permitirEdicaoManualEstoque
+            ? ['required', 'integer', 'min:0']
+            : ['sometimes', 'integer', 'min:0'];
+
         $validated = $request->validate([
             'nome' => 'required|string|max:255',
             'idCategoria' => 'required|exists:categorias,idCategoria',
             'idMarca' => 'required|exists:marcas,idMarca',
             'idFornecedor' => 'nullable|exists:fornecedores,idFornecedor',
             'preco' => 'required|numeric|min:0',
-            'estoque' => 'required|integer|min:0',
+            'estoque' => $estoqueRules,
+            'estoqueMinimo' => 'nullable|integer|min:0',
             'precoCompra' => 'nullable|numeric|min:0',
             'descricao' => 'nullable|string',
             'imagem' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -235,15 +249,20 @@ class ProdutoController extends Controller
             'preco.required' => 'O preço é obrigatório.',
             'preco.numeric' => 'O preço deve ser um número.',
             'preco.min' => 'O preço deve ser maior ou igual a zero.',
-            'estoque.required' => 'O estoque é obrigatório.',
             'estoque.integer' => 'O estoque deve ser um número inteiro.',
             'estoque.min' => 'O estoque deve ser maior ou igual a zero.',
+            'estoqueMinimo.integer' => 'O estoque mínimo deve ser um número inteiro.',
+            'estoqueMinimo.min' => 'O estoque mínimo deve ser maior ou igual a zero.',
             'precoCompra.numeric' => 'O preço de compra deve ser um número.',
             'precoCompra.min' => 'O preço de compra deve ser maior ou igual a zero.',
             'imagem.image' => 'O arquivo deve ser uma imagem.',
             'imagem.mimes' => 'A imagem deve ser do tipo: jpeg, png, jpg, gif.',
             'imagem.max' => 'A imagem não pode ser maior que 2MB.',
         ]);
+
+        if (!$permitirEdicaoManualEstoque) {
+            unset($validated['estoque']);
+        }
 
         $categoria = Categoria::where('idCategoria', $validated['idCategoria'])
             ->where('idAcademia', $academiaId)

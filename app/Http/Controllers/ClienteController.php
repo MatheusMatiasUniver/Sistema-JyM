@@ -2,16 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\AjusteSistema;
 use App\Models\Cliente;
 use App\Models\PlanoAssinatura;
 use App\Services\PlanoAssinaturaService;
 use App\Http\Requests\UpdateClienteRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
- 
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ClienteController extends Controller
 {
@@ -35,6 +36,8 @@ class ClienteController extends Controller
         }
 
         $allPlanos = PlanoAssinatura::where('idAcademia', $academiaId)->get();
+        $ajuste = AjusteSistema::obterOuCriarParaAcademia((int) $academiaId);
+        $formasPagamentoAtivas = $ajuste->formasPagamentoAtivas;
 
         $query = Cliente::where('idAcademia', $academiaId)->with('plano');
 
@@ -62,7 +65,7 @@ class ClienteController extends Controller
 
         $clientes = $query->orderBy('nome')->paginate(15)->appends(request()->query());
 
-        return view('clientes.index', compact('clientes', 'allPlanos'));
+        return view('clientes.index', compact('clientes', 'allPlanos', 'formasPagamentoAtivas'));
     }
 
     /**
@@ -300,9 +303,10 @@ class ClienteController extends Controller
             }
 
             $formaPagamento = $request->input('formaPagamento');
+            $formasPagamentoAtivas = AjusteSistema::formasPagamentoParaAcademia((int) $academiaId);
             if ($formaPagamento !== null && $formaPagamento !== '') {
                 $request->validate([
-                    'formaPagamento' => 'required|in:Dinheiro,Cartão de Crédito,Cartão de Débito,PIX,Boleto',
+                    'formaPagamento' => ['required', Rule::in($formasPagamentoAtivas)],
                 ]);
             }
 
