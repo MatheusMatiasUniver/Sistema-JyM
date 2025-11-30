@@ -114,7 +114,11 @@ Route::middleware('auth')->group(function () {
     Route::get('/relatorios/por-funcionario/pdf', [RelatorioController::class, 'porFuncionarioPdf'])->name('relatorios.porFuncionario.pdf')->middleware('funcionario');
 
     Route::resource('equipamentos', EquipamentoController::class)->middleware('funcionario');
-    Route::resource('manutencoes', ManutencaoEquipamentoController::class)->only(['index','create','store'])->middleware('funcionario');
+    Route::resource('manutencoes', ManutencaoEquipamentoController::class)
+        ->parameters(['manutencoes' => 'manutencao'])
+        ->middleware('funcionario');
+    Route::post('/manutencoes/{manutencao}/finalizar', [ManutencaoEquipamentoController::class, 'finalizar'])->name('manutencoes.finalizar')->middleware('funcionario');
+    Route::get('/equipamentos/{equipamento}/historico-manutencoes', [ManutencaoEquipamentoController::class, 'historico'])->name('manutencoes.historico')->middleware('funcionario');
 
     Route::get('/materiais/requisicoes', [RequisicaoMaterialController::class, 'index'])->name('materiais.requisicoes.index')->middleware('funcionario');
     Route::get('/materiais/requisicoes/create', [RequisicaoMaterialController::class, 'create'])->name('materiais.requisicoes.create')->middleware('funcionario');

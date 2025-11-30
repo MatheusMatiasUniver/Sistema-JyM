@@ -26,24 +26,34 @@ class ManutencaoEquipamentoSeeder extends Seeder
                 ? Fornecedor::where('idAcademia', $eq->idAcademia)->where('razaoSocial', $fornecedorNome)->first()
                 : null;
 
+            // Manutenção preventiva programada (pendente)
             $preventiva = [
                 'idEquipamento' => $eq->idEquipamento,
                 'tipo' => 'preventiva',
+                'dataSolicitacao' => now()->subDays(5)->toDateString(),
                 'dataProgramada' => now()->addMonths(1)->toDateString(),
                 'dataExecucao' => null,
+                'descricao' => 'Revisão preventiva programada: inspeção geral, limpeza e lubrificação de componentes.',
+                'servicoRealizado' => null,
                 'custo' => null,
                 'fornecedorId' => $fornecedor?->idFornecedor,
-                'observacoes' => 'Revisão preventiva programada: inspeção, limpeza e lubrificação.',
+                'responsavel' => null,
+                'status' => 'Pendente',
             ];
 
+            // Manutenção corretiva já concluída
             $corretiva = [
                 'idEquipamento' => $eq->idEquipamento,
                 'tipo' => 'corretiva',
+                'dataSolicitacao' => now()->subWeeks(3)->toDateString(),
                 'dataProgramada' => null,
                 'dataExecucao' => now()->subWeeks(2)->toDateString(),
+                'descricao' => 'Ruído anormal durante uso e vibração excessiva.',
+                'servicoRealizado' => 'Substituição de rolamentos e ajuste de correia de transmissão.',
                 'custo' => 850.00,
                 'fornecedorId' => $fornecedor?->idFornecedor,
-                'observacoes' => 'Substituição de rolamentos e ajuste de correia.',
+                'responsavel' => 'Carlos Técnico',
+                'status' => 'Concluída',
             ];
 
             ManutencaoEquipamento::create($preventiva);
