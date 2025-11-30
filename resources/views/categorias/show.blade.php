@@ -16,7 +16,11 @@
             <form action="{{ route('categorias.destroy', $categoria) }}" 
                   method="POST" 
                   class="inline"
-                  onsubmit="return confirm('Tem certeza que deseja excluir esta categoria?')">
+                  data-confirm="Tem certeza que deseja excluir esta categoria?"
+                  data-confirm-title="Excluir Categoria"
+                  data-confirm-icon="danger"
+                  data-confirm-text="Excluir"
+                  data-cancel-text="Cancelar">
                 @csrf
                 @method('DELETE')
                 <button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">

@@ -112,7 +112,11 @@
                                         Finalizar
                                     </a>
                                     <form action="{{ route('manutencoes.destroy', $m->idManutencao) }}" method="POST" class="inline" 
-                                          onsubmit="return confirm('Excluir esta manutenção?')">
+                                          data-confirm="Tem certeza que deseja excluir esta manutenção?"
+                                          data-confirm-title="Excluir Manutenção"
+                                          data-confirm-icon="danger"
+                                          data-confirm-text="Excluir"
+                                          data-cancel-text="Cancelar">
                                         @csrf
                                         @method('DELETE')
                                         <button class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-xs">

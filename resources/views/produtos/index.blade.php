@@ -114,7 +114,12 @@
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('produtos.edit', $produto->idProduto) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
                                 @if($produto->podeDeletar())
-                                    <form action="{{ route('produtos.destroy', $produto->idProduto) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                    <form action="{{ route('produtos.destroy', $produto->idProduto) }}" method="POST" 
+                                          data-confirm="Tem certeza que deseja excluir este produto?"
+                                          data-confirm-title="Excluir Produto"
+                                          data-confirm-icon="danger"
+                                          data-confirm-text="Excluir"
+                                          data-cancel-text="Cancelar">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>

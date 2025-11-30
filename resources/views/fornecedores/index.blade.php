@@ -54,7 +54,12 @@
                             <div class="flex space-x-2">
                                 <a href="{{ route('fornecedores.show', $fornecedor) }}" class="text-blue-600 hover:text-blue-900 text-sm">Ver</a>
                                 <a href="{{ route('fornecedores.edit', $fornecedor) }}" class="text-yellow-600 hover:text-yellow-900 text-sm">Editar</a>
-                                <form action="{{ route('fornecedores.destroy', $fornecedor) }}" method="POST" class="inline" onsubmit="return confirm('Tem certeza que deseja excluir este fornecedor?')">
+                                <form action="{{ route('fornecedores.destroy', $fornecedor) }}" method="POST" class="inline" 
+                                      data-confirm="Tem certeza que deseja excluir este fornecedor?"
+                                      data-confirm-title="Excluir Fornecedor"
+                                      data-confirm-icon="danger"
+                                      data-confirm-text="Excluir"
+                                      data-cancel-text="Cancelar">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900 text-sm">Excluir</button>

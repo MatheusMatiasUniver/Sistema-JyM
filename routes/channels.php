@@ -17,17 +17,14 @@ Broadcast::channel('App.Models.User.{id}', function ($user, $id) {
     return (int) $user->id === (int) $id;
 });
 
-// Canal público para status do kiosk
 Broadcast::channel('kiosk-status', function () {
-    return true; // Canal público, qualquer um pode ouvir
+    return true;
 });
 
-// Canal para eventos de registro de cliente
 Broadcast::channel('client-registration', function () {
-    return true; // Canal público para o kiosk
+    return true;
 });
 
-// Canal público para atualizações do dashboard
 Broadcast::channel('dashboard', function () {
     return true;
 });

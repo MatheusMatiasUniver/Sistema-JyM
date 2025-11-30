@@ -1,9 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Ruptura de Estoque - Sistema JyM')
+@section('title', 'Relatório de Ruptura de Estoque - Sistema JyM')
+
+@push('head_styles')
+<style>
+@media print { .sidebar-layout, .user-info-section { display: none !important; } .main-content-area { margin-left: 0 !important; } }
+</style>
+@endpush
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-grip-6">Produtos em Ruptura</h1>
+    <x-relatorio-header 
+        titulo="Relatório de Ruptura de Estoque" 
+        modulo="Estoque" 
+        pdf-route="relatorios.ruptura.pdf" 
+    />
 
     <div class="bg-white shadow-md rounded-lg overflow-hidden">
         <table class="min-w-full leading-normal">

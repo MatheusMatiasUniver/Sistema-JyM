@@ -9,6 +9,7 @@
         <div class="mb-4">
             <h2 class="text-xl font-semibold text-gray-800 mb-2">Informações da Venda</h2>
             <p class="text-black"><strong>Cliente:</strong> {{ $venda->cliente_nome_exibicao }} (CPF: {{ $venda->cliente_cpf_exibicao }})</p>
+            <p class="text-black"><strong>Vendedor:</strong> {{ $venda->usuario->nome ?? 'Não informado' }}</p>
             <p class="text-black"><strong>Data da Venda:</strong> {{ $venda->dataVenda->format('d/m/Y H:i:s') }}</p>
             <p class="text-black"><strong>Valor Total:</strong> R$ {{ number_format($venda->valorTotal, 2, ',', '.') }}</p>
             <p class="text-black"><strong>Tipo de Pagamento:</strong> {{ $venda->formaPagamento }}</p>
@@ -62,10 +63,15 @@
             <a href="{{ route('vendas.index') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
                 Voltar ao Histórico de Vendas
             </a>
-            <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" class="ml-3" onsubmit="return confirm('Tem certeza que deseja estornar esta venda? Esta ação irá retornar os produtos ao estoque.');">
+            <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" class="ml-3" 
+                  data-confirm="Tem certeza que deseja estornar esta venda? Esta ação irá retornar os produtos ao estoque."
+                  data-confirm-title="Estornar Venda"
+                  data-confirm-icon="warning"
+                  data-confirm-text="Estornar"
+                  data-cancel-text="Cancelar">
                 @csrf
                 @method('DELETE')
-<button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">Estornar Venda</button>
+                <button type="submit" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">Estornar Venda</button>
             </form>
         </div>
     </div>

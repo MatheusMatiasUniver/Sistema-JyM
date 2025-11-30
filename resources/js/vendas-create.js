@@ -13,7 +13,6 @@ export function initVendasCreate() {
             const div = document.createElement('div');
             div.classList.add('flex', 'flex-col', 'sm:flex-row', 'items-start', 'sm:items-center', 'space-y-2', 'sm:space-y-0', 'sm:space-x-2', 'mb-4', 'p-3', 'border', 'rounded-lg', 'bg-gray-50', 'product-item');
 
-            // Product select container
             const selectContainer = document.createElement('div');
             selectContainer.classList.add('w-full', 'sm:flex-grow');
 
@@ -42,7 +41,6 @@ export function initVendasCreate() {
                 }
             }
 
-            // Quantity container
             const quantityContainer = document.createElement('div');
             quantityContainer.classList.add('w-full', 'sm:w-24');
 
@@ -58,7 +56,6 @@ export function initVendasCreate() {
             quantityInput.placeholder = 'Qtd';
             quantityInput.classList.add('shadow', 'border', 'rounded', 'py-2', 'px-3', 'text-gray-700', 'leading-tight', 'focus:outline-none', 'focus:shadow-outline', 'w-full', 'product-quantity');
 
-            // Price container
             const priceContainer = document.createElement('div');
             priceContainer.classList.add('w-full', 'sm:w-28');
 
@@ -115,7 +112,6 @@ export function initVendasCreate() {
                 calculateTotal();
             });
 
-            // Assemble containers
             selectContainer.appendChild(selectLabel);
             selectContainer.appendChild(select);
 

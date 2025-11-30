@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -13,6 +14,8 @@ enum StatusManutencao: string
 
 class ManutencaoEquipamento extends Model
 {
+    use HasFactory;
+
     protected $table = 'manutencoes_equipamento';
     protected $primaryKey = 'idManutencao';
 
@@ -84,7 +87,6 @@ class ManutencaoEquipamento extends Model
         $this->status = StatusManutencao::CONCLUIDA;
 
         if ($this->save()) {
-            // Atualizar status do equipamento para "Ativo"
             if ($this->equipamento) {
                 $this->equipamento->update(['status' => StatusEquipamento::ATIVO->value]);
             }

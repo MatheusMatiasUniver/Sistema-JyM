@@ -5,13 +5,18 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Compra #{{ $compra->idCompra }}</h1>
 
-    <div class="mb-6 bg-white p-4 rounded-lg shadow-md">
+    <div class="mb-6 bg-white p-4 rounded-lg shadow-md text-black">
         <p><strong>Fornecedor:</strong> {{ $compra->fornecedor->razaoSocial }}</p>
         <p><strong>Data:</strong> {{ $compra->dataEmissao->format('d/m/Y H:i') }}</p>
         <p><strong>Status:</strong> {{ ucfirst($compra->status) }}</p>
         <p><strong>Total:</strong> R$ {{ number_format($compra->valorTotal,2,',','.') }}</p>
         @if($compra->status==='aberta')
-            <form action="{{ route('compras.receber', $compra->idCompra) }}" method="POST" class="mt-3" onsubmit="return confirm('Confirmar recebimento?')">
+            <form action="{{ route('compras.receber', $compra->idCompra) }}" method="POST" class="mt-3" 
+                  data-confirm="Confirmar recebimento desta compra?"
+                  data-confirm-title="Receber Compra"
+                  data-confirm-icon="info"
+                  data-confirm-text="Confirmar"
+                  data-cancel-text="Cancelar">
                 @csrf
                 <button class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Receber</button>
             </form>

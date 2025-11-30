@@ -1,9 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Margem por Produto - Sistema JyM')
+@section('title', 'Relatório de Margem de Lucro por Produto - Sistema JyM')
+
+@push('head_styles')
+<style>
+@media print { .sidebar-layout, .user-info-section { display: none !important; } .main-content-area { margin-left: 0 !important; } }
+</style>
+@endpush
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-grip-6">Margem por Produto</h1>
+    <x-relatorio-header 
+        titulo="Relatório de Margem de Lucro por Produto" 
+        modulo="Estoque" 
+        pdf-route="relatorios.margem.pdf" 
+    />
 
     <x-search-filter-dropdown 
         placeholder="Filtrar período de vendas..."

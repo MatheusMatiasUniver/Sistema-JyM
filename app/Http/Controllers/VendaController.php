@@ -42,7 +42,6 @@ class VendaController extends Controller
             $query->whereDate('dataVenda', '<=', $request->data_final);
         }
 
-        // Filtro por valor mínimo
         if ($request->filled('valor_min')) {
             $query->where('valorTotal', '>=', $request->valor_min);
         }
@@ -54,7 +53,6 @@ class VendaController extends Controller
         $sortBy = $request->get('sort_by', 'created_at');
         $sortDirection = $request->get('sort_direction', 'desc');
         
-        // Define default values for sorting
         $sortField = 'dataVenda';
         $sortDirection = 'desc';
         
@@ -127,6 +125,7 @@ class VendaController extends Controller
 
             $dados = [
                 'idCliente' => $dadosValidados['idCliente'] ?? null,
+                'idUsuario' => Auth::id(),
                 'idAcademia' => $academiaId,
                 'dataVenda' => now(),
                 'formaPagamento' => $dadosValidados['formaPagamento'],
@@ -224,7 +223,7 @@ class VendaController extends Controller
 
     public function show($id)
     {
-        $venda = VendaProduto::with(['cliente', 'itens.produto'])->findOrFail($id);
+        $venda = VendaProduto::with(['cliente', 'usuario', 'itens.produto'])->findOrFail($id);
         
         return view('vendas.show', compact('venda'));
     }

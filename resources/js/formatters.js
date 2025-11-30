@@ -119,7 +119,6 @@ export function validarCNPJ(cnpj) {
 }
 
 export function initFormatters() {
-    // Prevent multiple initializations
     if (__formattersInitialized) return;
     __formattersInitialized = true;
 

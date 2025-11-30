@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
@@ -35,6 +36,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class VendaProduto extends Model
 {
+    use HasFactory;
+
     protected $table = 'venda_produtos';
     protected $primaryKey = 'idVenda';
     
@@ -42,6 +45,7 @@ class VendaProduto extends Model
 
     protected $fillable = [
         'idCliente',
+        'idUsuario',
         'dataVenda',
         'valorTotal',
         'formaPagamento',
@@ -61,6 +65,11 @@ class VendaProduto extends Model
     public function cliente(): BelongsTo
     {
         return $this->belongsTo(Cliente::class, 'idCliente', 'idCliente')->withTrashed();
+    }
+
+    public function usuario(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'idUsuario', 'idUsuario');
     }
 
     public function itens()

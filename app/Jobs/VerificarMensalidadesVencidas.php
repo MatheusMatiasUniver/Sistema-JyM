@@ -30,7 +30,6 @@ class VerificarMensalidadesVencidas implements ShouldQueue
         try {
             Log::info('Iniciando verificação de mensalidades vencidas');
             
-            // Buscar clientes ativos que podem ter mensalidades vencidas
             $clientesAtivos = Cliente::where('status', 'Ativo')->get();
             
             $clientesAtualizados = 0;

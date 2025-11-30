@@ -112,6 +112,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/relatorios/frequencia/pdf', [RelatorioController::class, 'frequenciaPdf'])->name('relatorios.frequencia.pdf')->middleware('funcionario');
     Route::get('/relatorios/vendas/pdf', [RelatorioController::class, 'vendasPdf'])->name('relatorios.vendas.pdf')->middleware('funcionario');
     Route::get('/relatorios/por-funcionario/pdf', [RelatorioController::class, 'porFuncionarioPdf'])->name('relatorios.porFuncionario.pdf')->middleware('funcionario');
+    Route::get('/relatorios/compras/pdf', [RelatorioController::class, 'comprasPdf'])->name('relatorios.compras.pdf')->middleware('funcionario');
+    Route::get('/relatorios/margem/pdf', [RelatorioController::class, 'margemProdutosPdf'])->name('relatorios.margem.pdf')->middleware('funcionario');
+    Route::get('/relatorios/ruptura/pdf', [RelatorioController::class, 'rupturaPdf'])->name('relatorios.ruptura.pdf')->middleware('funcionario');
 
     Route::resource('equipamentos', EquipamentoController::class)->middleware('funcionario');
     Route::resource('manutencoes', ManutencaoEquipamentoController::class)

@@ -658,7 +658,6 @@ async function registerFace(descriptor) {
 
             setTimeout(() => {
                 showMessage('info', 'Aguardando detecção de rosto.');
-                // Reinicia o loop de detecção após erro
                 if (isCaptureFacePage && !detectionIntervalId && modelsLoaded && video && !video.paused && !video.ended) {
                     startDetectionLoop();
                 }
@@ -676,7 +675,6 @@ async function registerFace(descriptor) {
         }
         setTimeout(() => {
             showMessage('info', 'Aguardando detecção de rosto.');
-            // Reinicia o loop de detecção após exceção
             if (isCaptureFacePage && !detectionIntervalId && modelsLoaded && video && !video.paused && !video.ended) {
                 startDetectionLoop();
             }
@@ -886,9 +884,6 @@ function createNotificationContainer() {
 }
 
 function showNotification(...args) {
-    // Support both signatures:
-    // 1) showNotification(message, type = 'info', duration = 5000)
-    // 2) showNotification(type, title, message, duration = 5000)
     let type = 'info';
     let title = null;
     let message = '';
@@ -897,13 +892,11 @@ function showNotification(...args) {
     const knownTypes = ['success', 'error', 'warning', 'info'];
 
     if (typeof args[0] === 'string' && knownTypes.includes(args[0])) {
-        // type-first signature
         type = args[0];
         title = typeof args[1] === 'string' ? args[1] : null;
         message = typeof args[2] === 'string' ? args[2] : '';
         duration = typeof args[3] === 'number' ? args[3] : 5000;
     } else {
-        // message-first signature
         message = typeof args[0] === 'string' ? args[0] : '';
         type = typeof args[1] === 'string' && knownTypes.includes(args[1]) ? args[1] : 'info';
         duration = typeof args[2] === 'number' ? args[2] : 5000;
@@ -978,14 +971,168 @@ function showInfo(message, duration = 5000) {
     return showNotification(message, 'info', duration);
 }
 
-// Expose notification helpers globally for views that call them directly
 window.showNotification = showNotification;
 window.showSuccess = showSuccess;
 window.showError = showError;
 window.showWarning = showWarning;
 window.showInfo = showInfo;
 
+function showConfirmDialog(options = {}) {
+    const {
+        title = 'Confirmação',
+        message = 'Tem certeza que deseja realizar esta ação?',
+        confirmText = 'Confirmar',
+        cancelText = 'Cancelar',
+        confirmClass = 'bg-grip-1 hover:bg-grip-2',
+        cancelClass = 'bg-gray-200 hover:bg-gray-300 text-gray-800',
+        icon = 'warning'
+    } = options;
+
+    return new Promise((resolve) => {
+        const existingOverlay = document.getElementById('confirmDialogOverlay');
+        if (existingOverlay) {
+            existingOverlay.remove();
+        }
+
+        const overlay = document.createElement('div');
+        overlay.id = 'confirmDialogOverlay';
+        overlay.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]';
+        overlay.style.cssText = 'backdrop-filter: blur(2px);';
+
+        const iconSvg = getIconSvg(icon);
+
+        overlay.innerHTML = `
+            <div class="confirm-dialog bg-white rounded-lg shadow-2xl w-full max-w-md mx-4 transform transition-all duration-200 scale-95 opacity-0" style="animation: confirmDialogIn 0.2s ease-out forwards;">
+                <div class="p-6">
+                    <div class="flex items-start gap-4">
+                        <div class="flex-shrink-0 w-12 h-12 rounded-full ${icon === 'danger' ? 'bg-red-100' : icon === 'warning' ? 'bg-yellow-100' : 'bg-blue-100'} flex items-center justify-center">
+                            ${iconSvg}
+                        </div>
+                        <div class="flex-1">
+                            <h3 class="text-lg font-bold text-gray-900 mb-2">${title}</h3>
+                            <p class="text-sm text-gray-600">${message}</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 px-6 py-4 bg-gray-50 rounded-b-lg border-t border-gray-100">
+                    <button type="button" id="confirmDialogCancel" class="px-4 py-2 rounded-lg font-medium transition-colors ${cancelClass}">
+                        ${cancelText}
+                    </button>
+                    <button type="button" id="confirmDialogConfirm" class="${confirmClass} text-white px-4 py-2 rounded-lg font-medium transition-colors">
+                        ${confirmText}
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(overlay);
+        document.body.style.overflow = 'hidden';
+
+        const dialog = overlay.querySelector('.confirm-dialog');
+        const confirmBtn = overlay.querySelector('#confirmDialogConfirm');
+        const cancelBtn = overlay.querySelector('#confirmDialogCancel');
+
+        function cleanup(result) {
+            dialog.style.animation = 'confirmDialogOut 0.15s ease-in forwards';
+            setTimeout(() => {
+                overlay.remove();
+                document.body.style.overflow = '';
+                resolve(result);
+            }, 150);
+        }
+
+        confirmBtn.addEventListener('click', () => cleanup(true));
+        cancelBtn.addEventListener('click', () => cleanup(false));
+
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) {
+                cleanup(false);
+            }
+        });
+
+        document.addEventListener('keydown', function handleEscape(e) {
+            if (e.key === 'Escape') {
+                document.removeEventListener('keydown', handleEscape);
+                cleanup(false);
+            }
+        });
+
+        setTimeout(() => confirmBtn.focus(), 100);
+    });
+}
+
+function getIconSvg(icon) {
+    switch (icon) {
+        case 'danger':
+            return `<svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>`;
+        case 'warning':
+            return `<svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>`;
+        case 'info':
+            return `<svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>`;
+        case 'success':
+            return `<svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>`;
+        default:
+            return `<svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>`;
+    }
+}
+
+function confirmAction(formElement, options = {}) {
+    if (!formElement) return;
+    
+    formElement.addEventListener('submit', async function(e) {
+        e.preventDefault();
+        
+        const confirmed = await showConfirmDialog(options);
+        
+        if (confirmed) {
+            formElement.removeEventListener('submit', arguments.callee);
+            formElement.submit();
+        }
+    });
+}
+
+window.showConfirmDialog = showConfirmDialog;
+window.confirmAction = confirmAction;
+
 document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('[data-confirm]').forEach(form => {
+        const message = form.dataset.confirm || 'Tem certeza que deseja realizar esta ação?';
+        const title = form.dataset.confirmTitle || 'Confirmação';
+        const icon = form.dataset.confirmIcon || 'warning';
+        const confirmText = form.dataset.confirmText || 'Confirmar';
+        const cancelText = form.dataset.cancelText || 'Cancelar';
+
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const confirmed = await showConfirmDialog({
+                title,
+                message,
+                icon,
+                confirmText,
+                cancelText
+            });
+            
+            if (confirmed) {
+                const handler = form._confirmHandler;
+                if (handler) {
+                    form.removeEventListener('submit', handler);
+                }
+                form.submit();
+            }
+        });
+    });
+
     const sessionMessages = document.querySelectorAll('[data-session-message]');
     
     sessionMessages.forEach(element => {
@@ -999,7 +1146,6 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
-// Use existing flag instead of undefined currentPath
 if (isCaptureFacePage) {
     document.body.classList.add('face-capture-page');
 }

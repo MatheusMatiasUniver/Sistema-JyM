@@ -111,13 +111,23 @@
         </div>
     </div>
 
-    <div id="modalRenovarMensalidade" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-            <h3 class="text-lg font-bold mb-4 text-black">Selecione a forma de pagamento</h3>
+    <div id="modalRenovarMensalidade" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[9999]" style="backdrop-filter: blur(2px);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-md mx-4 p-6" style="animation: confirmDialogIn 0.2s ease-out forwards;">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">Renovar Mensalidade</h3>
+                    <p class="text-sm text-gray-600 mt-1">Selecione a forma de pagamento para renovar a mensalidade.</p>
+                </div>
+            </div>
             <form id="formRenovarMensalidade" method="POST" action="#" class="space-y-4">
                 @csrf
                 <div>
-                    <label for="formaPagamentoModal" class="block text-sm text-gray-700 mb-1">Forma de pagamento</label>
+                    <label for="formaPagamentoModal" class="block text-sm font-medium text-gray-700 mb-1">Forma de pagamento</label>
                     <select id="formaPagamentoModal" name="formaPagamento" class="select" required>
                         <option value="">Selecione</option>
                         @foreach($formasPagamentoAtivas as $forma)
@@ -125,9 +135,9 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" id="btnCancelarModalMensalidade" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300">Cancelar</button>
-                    <button type="submit" class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700">Confirmar</button>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" id="btnCancelarModalMensalidade" class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700 transition-colors">Confirmar</button>
                 </div>
             </form>
         </div>
@@ -138,11 +148,20 @@
         $produtosBaixoEstoqueRestantes = max($produtosBaixoEstoque->count() - 3, 0);
     @endphp
 
-    <div id="modalAlertaEstoqueMinimo" data-alert="{{ $produtosBaixoEstoque->isNotEmpty() ? '1' : '0' }}" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-lg p-6">
-            <h3 class="text-lg font-bold mb-4 text-black">Estoque mínimo atingido</h3>
-            <p class="text-sm text-gray-600 mb-4">Os produtos abaixo estão com estoque igual ou abaixo do mínimo configurado:</p>
-            <ul class="list-disc list-inside text-sm text-gray-800 mb-4">
+    <div id="modalAlertaEstoqueMinimo" data-alert="{{ $produtosBaixoEstoque->isNotEmpty() ? '1' : '0' }}" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[9999]" style="backdrop-filter: blur(2px);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-lg mx-4 p-6" style="animation: confirmDialogIn 0.2s ease-out forwards;">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">Estoque mínimo atingido</h3>
+                    <p class="text-sm text-gray-600 mt-1">Os produtos abaixo estão com estoque igual ou abaixo do mínimo configurado:</p>
+                </div>
+            </div>
+            <ul class="list-disc list-inside text-sm text-gray-800 mb-4 ml-4">
                 @forelse($produtosBaixoEstoqueLista as $produtoBaixo)
                     <li>{{ $produtoBaixo->nome }} ({{ $produtoBaixo->estoque }} unidades)</li>
                 @empty
@@ -150,11 +169,15 @@
                 @endforelse
             </ul>
             @if($produtosBaixoEstoqueRestantes > 0)
-                <p class="text-xs text-gray-500 mb-4">e mais {{ $produtosBaixoEstoqueRestantes }} produto(s)...</p>
+                <p class="text-xs text-gray-500 mb-4 ml-4">
+                    <a href="{{ route('relatorios.ruptura') }}" class="text-indigo-600 hover:text-indigo-800 hover:underline font-medium">
+                        e mais {{ $produtosBaixoEstoqueRestantes }} produto(s)... <i class="fas fa-external-link-alt text-xs ml-1"></i>
+                    </a>
+                </p>
             @endif
-            <div class="flex justify-end gap-2">
-                <button type="button" id="btnFecharModalEstoque" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300">Agora não</button>
-                <a href="{{ route('compras.create') }}" class="px-3 py-1 rounded bg-indigo-600 text-white hover:bg-indigo-700">Fazer lançamento de compra</a>
+            <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                <button type="button" id="btnFecharModalEstoque" class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">Agora não</button>
+                <a href="{{ route('compras.create') }}" class="px-4 py-2 rounded-lg font-medium bg-indigo-600 text-white hover:bg-indigo-700 transition-colors">Fazer lançamento de compra</a>
             </div>
         </div>
     </div>
@@ -295,11 +318,18 @@
         if (!estoqueModal) return;
         estoqueModal.classList.remove('hidden');
         estoqueModal.classList.add('flex');
+        document.body.style.overflow = 'hidden';
     };
     const closeEstoqueModal = () => {
         if (!estoqueModal) return;
-        estoqueModal.classList.add('hidden');
-        estoqueModal.classList.remove('flex');
+        const dialog = estoqueModal.querySelector('.bg-white');
+        if (dialog) dialog.style.animation = 'confirmDialogOut 0.15s ease-in forwards';
+        setTimeout(() => {
+            estoqueModal.classList.add('hidden');
+            estoqueModal.classList.remove('flex');
+            document.body.style.overflow = '';
+            if (dialog) dialog.style.animation = 'confirmDialogIn 0.2s ease-out forwards';
+        }, 150);
     };
 
     if (estoqueModal && estoqueModal.dataset.alert === '1') {
@@ -557,28 +587,42 @@
     const formMensalidade = document.getElementById('formRenovarMensalidade');
     const cancelMensalidade = document.getElementById('btnCancelarModalMensalidade');
     const openBtns = document.querySelectorAll('.btn-renovar-mensalidade');
+
+    const openMensalidadeModal = () => {
+        if (!modalMensalidade) return;
+        modalMensalidade.classList.remove('hidden');
+        modalMensalidade.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeMensalidadeModal = () => {
+        if (!modalMensalidade) return;
+        const dialog = modalMensalidade.querySelector('.bg-white');
+        if (dialog) dialog.style.animation = 'confirmDialogOut 0.15s ease-in forwards';
+        setTimeout(() => {
+            modalMensalidade.classList.add('hidden');
+            modalMensalidade.classList.remove('flex');
+            document.body.style.overflow = '';
+            if (dialog) dialog.style.animation = 'confirmDialogIn 0.2s ease-out forwards';
+        }, 150);
+    };
+
     openBtns.forEach(btn => {
         btn.addEventListener('click', () => {
             const action = btn.getAttribute('data-action');
             if (formMensalidade) formMensalidade.setAttribute('action', action);
-            if (modalMensalidade) modalMensalidade.classList.remove('hidden');
-            if (modalMensalidade) modalMensalidade.classList.add('flex');
+            openMensalidadeModal();
         });
     });
-    cancelMensalidade && cancelMensalidade.addEventListener('click', () => {
-        modalMensalidade.classList.add('hidden');
-        modalMensalidade.classList.remove('flex');
-    });
+    cancelMensalidade && cancelMensalidade.addEventListener('click', closeMensalidadeModal);
     modalMensalidade && modalMensalidade.addEventListener('click', (e) => {
         if (e.target === modalMensalidade) {
-            modalMensalidade.classList.add('hidden');
-            modalMensalidade.classList.remove('flex');
+            closeMensalidadeModal();
         }
     });
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modalMensalidade && !modalMensalidade.classList.contains('hidden')) {
-            modalMensalidade.classList.add('hidden');
-            modalMensalidade.classList.remove('flex');
+            closeMensalidadeModal();
         }
     });
 

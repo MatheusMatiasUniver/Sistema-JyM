@@ -89,7 +89,12 @@
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('users.edit', $user->idUsuario) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
                                 @if($user->podeDeletar() && Auth::id() !== $user->idUsuario)
-                                    <form action="{{ route('users.destroy', $user->idUsuario) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este usuário?');">
+                                    <form action="{{ route('users.destroy', $user->idUsuario) }}" method="POST" 
+                                          data-confirm="Tem certeza que deseja excluir este usuário?"
+                                          data-confirm-title="Excluir Usuário"
+                                          data-confirm-icon="danger"
+                                          data-confirm-text="Excluir"
+                                          data-cancel-text="Cancelar">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>

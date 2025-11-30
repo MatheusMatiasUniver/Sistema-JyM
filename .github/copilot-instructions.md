@@ -1,186 +1,109 @@
 # GitHub Copilot Instructions - Sistema JyM
 
-Sistema de gestão multi-academia com reconhecimento facial, controle de acesso e módulos financeiros.
+Sistema multi-tenant de gestão de academias com reconhecimento facial, controle de acesso e módulos financeiros.
 
-## Arquitetura e Stack
+## Regras para o Agente
 
-- **Backend:** Laravel 12, PHP 8.2
-- **Frontend:** Blade + Tailwind CSS + Vite, face-api.js (reconhecimento facial)
-- **Tempo Real:** Laravel Reverb + Pusher (WebSockets para dashboard e kiosk)
-- **Banco de Dados:** MySQL (padrão), suporte a SQLite para testes
+- **Sempre aplicar as instruções deste arquivo** ao modificar ou criar código neste projeto.
+- **Não adicionar comentários no código gerado** — o código deve ser autoexplicativo.
+- Seguir rigorosamente as convenções e padrões definidos abaixo.
 
-### Inicialização do Projeto
+## Stack e Comandos
+
+**Stack:** Laravel 12 + PHP 8.2 | Blade + Tailwind + Vite | Laravel Reverb (WebSockets) | MySQL
+
 ```sh
-php artisan serve
-php artisan reverb:start
-npm run dev
+composer dev          # Inicia todos os servidores (serve, queue, pail, vite)
+composer test         # Roda PHPUnit
+php artisan db:seed --class=SimulationSeeder  # Popula 4 meses de dados simulados
 ```
-Ou use: `composer dev` (executa todos os servidores via concurrently)
 
-## Padrão Multi-Academia
+## Arquitetura Multi-Academia (CRÍTICO)
 
-Todos os dados são **segregados por academia**. Use `config('app.academia_atual')` ou `session('academia_selecionada')` para obter o contexto.
+**Toda query deve filtrar por academia.** O middleware `AcademiaContext` define `config('app.academia_atual')` baseado no usuário logado.
 
 ```php
-// Exemplo: filtrar dados pela academia ativa
-$clientes = Cliente::where('idAcademia', config('app.academia_atual'))->get();
+// SEMPRE usar este padrão em queries
+$academiaId = config('app.academia_atual');
+$clientes = Cliente::where('idAcademia', $academiaId)->get();
 
-// Em queries condicionais no Dashboard
+// Para queries condicionais (ex: admin pode ver todas)
 ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
 ```
 
-**Middlewares críticos:**
-- `AcademiaContext` - Define academia ativa na sessão/config
-- `admin` - Somente administradores
-- `funcionario` - Funcionários e administradores
+**Middlewares de autorização:**
+- `admin` → Somente administradores (podem trocar academia via `academia.trocar`)
+- `funcionario` → Funcionários + administradores (academia fixa do `$user->idAcademia`)
 
-## Convenções de Código
-
-### Nomenclatura
-- **camelCase**: variáveis e métodos (`userName`, `registrarEntrada()`)
-- **PascalCase**: classes (`ClienteController`, `PlanoAssinatura`)
-- **UPPER_SNAKE_CASE**: constantes
+## Convenções do Projeto
 
 ### Models Eloquent
-- Primary keys customizadas: `idCliente`, `idAcademia`, `idPlano`
-- Usar `SoftDeletes` para exclusão lógica (ver `Cliente.php`)
-- Definir `$table`, `$primaryKey`, `$fillable`, `$casts` explicitamente
+- **Primary keys customizadas:** `idCliente`, `idAcademia`, `idPlano` (não `id`)
+- **SoftDeletes** em entidades críticas (ver `Cliente.php`)
+- Sempre definir: `$table`, `$primaryKey`, `$fillable`, `$casts`
 
-### Form Requests
-Validação em classes separadas (`app/Http/Requests/`):
+### Validação
+Usar Form Requests em `app/Http/Requests/`. CPF é armazenado sem formatação (11 dígitos):
 ```php
-// Exemplo: StoreClienteRequest
-'cpf' => ['required', 'string', 'size:11', 'regex:/^[0-9]{11}$/', Rule::unique('clientes', 'cpf')],
+'cpf' => ['required', 'size:11', 'regex:/^[0-9]{11}$/', Rule::unique('clientes', 'cpf')],
 ```
 
 ### Services
-Lógica de negócio complexa em `app/Services/`:
-- `EntradaService` - Registra acessos e dispara eventos de dashboard
+Lógica complexa em `app/Services/`. Exemplo: `EntradaService` registra acesso + dispara `DashboardUpdated`.
 
-## Broadcasting e Tempo Real
+## Broadcasting (Tempo Real)
 
-Eventos para atualização em tempo real (kiosk e dashboard):
+Eventos para atualizar Kiosk e Dashboard sem refresh:
 ```php
-event(new DashboardUpdated('entrada'));
-event(new KioskStatusChanged($isRegistering, $message));
+event(new DashboardUpdated('entrada'));      // Canal: dashboard
+event(new KioskStatusChanged($status, $msg)); // Canal: kiosk-status
 ```
 
-Canais públicos:
-- `kiosk-status` - Status do modo de registro facial
-- `dashboard` - Atualizações de métricas
+## Fluxo de Mensalidades
 
-## Rate Limiting
+| Status Cliente | Condição |
+|----------------|----------|
+| `Ativo` | Mensalidades em dia |
+| `Inadimplente` | Job `VerificarMensalidadesVencidas` atualiza diariamente |
+| `Inativo` | Definido manualmente |
 
-Configurado em `AppServiceProvider`:
-- `login` - 10 req/min por usuário+IP
-- `face` - 30 req/min por IP (endpoints de reconhecimento facial)
+**Acesso no Kiosk:** Permitido para `Ativo` e `Inadimplente`. `Inativo` = acesso negado.
 
-Aplicar via middleware: `->middleware('throttle:face')`
+## Auditoria (ActivityLog)
 
-## Estrutura de Rotas
-
-- Rotas públicas: apenas login (`/`, `/login`)
-- Rotas autenticadas: agrupadas em `middleware('auth')`
-- Recursos CRUD: usar `Route::resource()` com middleware apropriado
-
+Registrar ações críticas:
 ```php
-Route::resource('clientes', ClienteController::class)->middleware('funcionario');
-Route::resource('academias', AcademiaController::class)->middleware('admin');
-```
-
-## Fluxo de Mensalidades e Status do Cliente
-
-O sistema gerencia automaticamente o status do cliente baseado em mensalidades:
-
-**Status possíveis:** `Ativo`, `Inativo`, `Inadimplente`
-
-**Job automático** (`VerificarMensalidadesVencidas`):
-- Verifica diariamente clientes `Ativo` com mensalidades `Pendente` vencidas
-- Atualiza automaticamente para `Inadimplente`
-
-```php
-// Verificação de acesso no Kiosk (FaceRecognitionController)
-if (!in_array($cliente->status, ['Ativo', 'Inadimplente'])) {
-    return response()->json(['success' => false, 'message' => 'Acesso negado']);
-}
-```
-
-**Ao pagar mensalidade:** status volta para `Ativo` automaticamente.
-
-## Activity Logs (Auditoria)
-
-Registrar ações críticas usando `ActivityLog::create()`:
-
-```php
-\App\Models\ActivityLog::create([
+ActivityLog::create([
     'usuarioId' => Auth::id(),
-    'modulo' => 'Vendas',           // Nome do módulo
-    'acao' => 'criar',              // criar, atualizar, cancelar, etc.
-    'entidade' => 'VendaProduto',   // Nome da Model
-    'entidadeId' => $vendaId,
-    'dados' => [                    // Dados relevantes em array
-        'valorTotal' => $valorTotal,
-        'formaPagamento' => $formaPagamento,
-    ],
+    'modulo' => 'Vendas',
+    'acao' => 'criar',
+    'entidade' => 'VendaProduto',
+    'entidadeId' => $id,
+    'dados' => ['valorTotal' => $valor],
 ]);
 ```
 
-**Módulos que já logam:** Vendas, Produtos, Usuários, ContasPagar, ReconhecimentoFacial, AjustesSistema.
-
 ## Relatórios PDF
 
-Templates em `resources/views/relatorios/pdf/`. Use DomPDF:
-
+Templates em `resources/views/relatorios/pdf/`. Usar DomPDF com fonte `DejaVu Sans`:
 ```php
-use Barryvdh\DomPDF\Facade\Pdf;
-
 return Pdf::loadView('relatorios.pdf.faturamento', $dados)->download('relatorio.pdf');
 ```
 
-**Header padrão para novos relatórios PDF:**
-```html
-<html>
-<head>
-    <meta charset="utf-8">
-    <style>
-        body { font-family: DejaVu Sans, sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #333; padding-bottom: 10px; }
-        .header h1 { margin: 0; font-size: 18px; }
-        .header .academia { font-size: 14px; color: #666; }
-        .header .data { font-size: 10px; color: #999; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #ccc; padding: 6px; text-align: left; }
-    </style>
-</head>
-<body>
-    <div class="header">
-        <h1>{{ $tituloRelatorio }}</h1>
-        <div class="academia">{{ $nomeAcademia ?? 'Sistema JyM' }}</div>
-        <div class="data">Gerado em: {{ now()->format('d/m/Y H:i') }}</div>
-    </div>
-    <!-- Conteúdo do relatório -->
-</body>
-</html>
-```
+## Rate Limiting
 
-## Testes
+Aplicar em endpoints sensíveis:
+- `throttle:login` → 10 req/min (autenticação)
+- `throttle:face` → 30 req/min (reconhecimento facial)
 
-```sh
-composer test  # ou: php artisan test
-```
+## Arquivos de Referência
 
-- Testes em `tests/Feature/` e `tests/Unit/`
-- PHPUnit 11 + Mockery
-
-## Referências Importantes
-
-| Módulo | Arquivos Chave |
-|--------|----------------|
-| Autenticação | `AuthController.php`, `AdminMiddleware.php`, `FuncionarioMiddleware.php` |
-| Multi-Academia | `AcademiaContext.php`, `AcademiaController.php` |
-| Reconhecimento Facial | `FaceRecognitionController.php`, `FaceDescriptor.php`, `face-api.js` |
-| Dashboard Tempo Real | `DashboardController.php`, `DashboardUpdated.php` |
-| Clientes | `ClienteController.php`, `StoreClienteRequest.php`, `Cliente.php` |
-| Mensalidades | `MensalidadeController.php`, `VerificarMensalidadesVencidas.php` |
-| Relatórios PDF | `RelatorioController.php`, `resources/views/relatorios/pdf/` |
-| Auditoria | `ActivityLog.php` |
+| Conceito | Arquivo |
+|----------|---------|
+| Contexto multi-academia | `app/Http/Middleware/AcademiaContext.php` |
+| Registro facial | `app/Http/Controllers/FaceRecognitionController.php` |
+| Eventos tempo real | `app/Events/DashboardUpdated.php`, `KioskStatusChanged.php` |
+| Serviços de negócio | `app/Services/EntradaService.php`, `VendaService.php` |
+| Validação exemplo | `app/Http/Requests/StoreClienteRequest.php` |
+| Job automático | `app/Jobs/VerificarMensalidadesVencidas.php` |
+| Dados de teste | `database/seeders/SimulationSeeder.php` |

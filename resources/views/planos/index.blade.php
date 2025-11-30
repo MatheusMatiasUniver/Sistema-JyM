@@ -108,10 +108,15 @@
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('planos.edit', $plano->idPlano) }}" class="text-grip-1 hover:text-grip-red-light">Editar</a>
                                 @if($plano->podeDeletar())
-                                    <form action="{{ route('planos.destroy', $plano->idPlano) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este plano?');">
+                                    <form action="{{ route('planos.destroy', $plano->idPlano) }}" method="POST" 
+                                          data-confirm="Tem certeza que deseja excluir este plano?"
+                                          data-confirm-title="Excluir Plano"
+                                          data-confirm-icon="danger"
+                                          data-confirm-text="Excluir"
+                                          data-cancel-text="Cancelar">
                                         @csrf
                                         @method('DELETE')
-                                <button type="submit" class="text-grip-2 hover:text-grip-red-dark">Excluir</button>
+                                        <button type="submit" class="text-grip-2 hover:text-grip-red-dark">Excluir</button>
                                     </form>
                                 @else
                                     <span class="text-gray-400 cursor-not-allowed" 

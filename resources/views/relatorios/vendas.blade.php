@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Relatório de Vendas - Sistema JyM')
+@section('title', 'Relatório de Vendas de Produtos - Sistema JyM')
 
 @push('head_styles')
 <style>
@@ -9,12 +9,11 @@
 @endpush
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-grip-6">Vendas</h1>
-
-    <div class="mb-4 flex gap-2">
-        <a href="{{ route('relatorios.vendas.pdf', request()->query()) }}" class="btn btn-primary">Exportar PDF</a>
-        <button type="button" class="btn btn-secondary" onclick="window.print()">Imprimir</button>
-    </div>
+    <x-relatorio-header 
+        titulo="Relatório de Vendas de Produtos" 
+        modulo="Vendas" 
+        pdf-route="relatorios.vendas.pdf" 
+    />
 
     <x-search-filter-dropdown 
         placeholder="Filtrar período de vendas..."

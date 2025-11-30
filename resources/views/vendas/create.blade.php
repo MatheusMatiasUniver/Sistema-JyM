@@ -4,6 +4,47 @@
 
 @vite(['resources/css/app.css', 'resources/js/app.js'])
 
+@push('head_styles')
+<style>
+    .product-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 28px;
+        height: 28px;
+        border: 2px solid #9ca3af;
+        border-radius: 6px;
+        background-color: white;
+        cursor: pointer;
+        position: relative;
+        transition: all 0.2s ease;
+    }
+    .product-checkbox:hover {
+        border-color: var(--grip-1, #3b82f6);
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+    .product-checkbox:checked {
+        background-color: var(--grip-1, #3b82f6);
+        border-color: var(--grip-1, #3b82f6);
+    }
+    .product-checkbox:checked::after {
+        content: '';
+        position: absolute;
+        left: 9px;
+        top: 4px;
+        width: 7px;
+        height: 14px;
+        border: solid white;
+        border-width: 0 3px 3px 0;
+        transform: rotate(45deg);
+    }
+    .product-row.selected {
+        background-color: #eff6ff !important;
+    }
+    thead.sticky th {
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+</style>
+@endpush
 
 @section('content')
     @php
@@ -72,26 +113,28 @@
 
                         <div class="overflow-x-auto overflow-y-auto h-[673px]">
                             <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50 sticky top-0">
+                                <thead class="bg-gray-50 sticky top-0 z-10">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Selecionar</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Produto</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Categoria</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Preço</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Estoque</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantidade</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Selecionar</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Produto</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Categoria</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Preço</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Estoque</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-black uppercase tracking-wider">Quantidade</th>
                                     </tr>
                                 </thead>
                                 <tbody id="productsTableBody" class="bg-white divide-y divide-gray-200">
                                     @foreach($produtos as $produto)
-                                        <tr class="product-row hover:bg-gray-50" data-product-id="{{ $produto->idProduto }}">
+                                        <tr class="product-row hover:bg-gray-50 cursor-pointer" data-product-id="{{ $produto->idProduto }}">
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <input type="checkbox" 
-                                                       class="product-checkbox h-4 w-4 text-grip-1 focus:ring-grip-1 border-gray-300 rounded"
-                                                       data-product-id="{{ $produto->idProduto }}"
-                                                       data-product-name="{{ $produto->nome }}"
-                                                       data-product-price="{{ $produto->preco }}"
-                                                       data-product-stock="{{ $produto->estoque }}">
+                                                <label class="flex items-center justify-center cursor-pointer">
+                                                    <input type="checkbox" 
+                                                           class="product-checkbox h-6 w-6 text-grip-1 focus:ring-grip-1 focus:ring-2 border-2 border-gray-400 rounded-md cursor-pointer transition-all duration-200 hover:border-grip-1"
+                                                           data-product-id="{{ $produto->idProduto }}"
+                                                           data-product-name="{{ $produto->nome }}"
+                                                           data-product-price="{{ $produto->preco }}"
+                                                           data-product-stock="{{ $produto->estoque }}">
+                                                </label>
                                             </td>
                                             <td class="px-6 py-4">
                                                 <div class="text-sm font-medium text-gray-900">{{ $produto->nome }}</div>
@@ -100,7 +143,7 @@
                                                 @endif
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
-                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-grip-4 text-grip-3">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-grip-4 text-black">
                                                     {{ $produto->categoria->nome ?? 'Sem categoria' }}
                                                 </span>
                                             </td>
@@ -109,7 +152,7 @@
                                             </td>
                                             <td class="px-6 py-4 whitespace-nowrap">
                                                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium 
-                                                    {{ $produto->estoque <= 5 ? 'bg-grip-red-light text-white' : 'bg-grip-4 text-grip-3' }}">
+                                                    {{ $produto->estoque <= 5 ? 'bg-grip-red-light text-white' : 'bg-grip-4 text-black' }}">
                                                     {{ $produto->estoque }} unidades
                                                 </span>
                                             </td>
@@ -158,8 +201,8 @@
                                 
                                 <!-- Informações do Cliente Selecionado -->
                                 <div id="clienteInfo" class="hidden p-3 bg-grip-4 rounded-lg border border-border-light">
-                                    <h4 class="text-sm font-medium text-grip-3 mb-2">Informações do Cliente</h4>
-                                    <div class="text-sm text-grip-3">
+                                    <h4 class="text-sm font-medium text-black mb-2">Informações do Cliente</h4>
+                                    <div class="text-sm text-black">
                                         <p><span class="font-medium">CPF:</span> <span id="clienteCpf">-</span></p>
                                         <p><span class="font-medium">Telefone:</span> <span id="clienteTelefone">-</span></p>
                                     </div>
@@ -198,7 +241,7 @@
                             </div>
                             
                             <div class="border-t border-gray-200 pt-4">
-                                <div class="flex justify-between items-center text-lg font-bold">
+                                <div class="flex justify-between items-center text-lg font-bold text-black">
                                     <span>Total:</span>
                                     <span id="totalVenda" class="text-grip-1">R$ 0,00</span>
                                 </div>
@@ -297,15 +340,29 @@
                 checkbox.addEventListener('change', function() {
                     const productId = this.dataset.productId;
                     const quantityInput = document.querySelector(`input.quantity-input[data-product-id="${productId}"]`);
+                    const row = document.querySelector(`.product-row[data-product-id="${productId}"]`);
                     
                     if (this.checked) {
                         quantityInput.disabled = false;
+                        row.classList.add('selected');
                         addProduct(productId, this.dataset.productName, parseFloat(this.dataset.productPrice), parseInt(quantityInput.value));
                     } else {
                         quantityInput.disabled = true;
+                        row.classList.remove('selected');
                         removeProduct(productId);
                     }
                     updateValidation();
+                });
+            });
+
+            // Clicar na linha para selecionar o produto
+            productRows.forEach(row => {
+                row.addEventListener('click', function(e) {
+                    if (e.target.tagName === 'INPUT') return;
+                    const productId = this.dataset.productId;
+                    const checkbox = document.querySelector(`input.product-checkbox[data-product-id="${productId}"]`);
+                    checkbox.checked = !checkbox.checked;
+                    checkbox.dispatchEvent(new Event('change'));
                 });
             });
 

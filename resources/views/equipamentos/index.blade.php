@@ -68,7 +68,12 @@
                                     Histórico
                                 </a>
                                 
-                                <form action="{{ route('equipamentos.destroy', $e->idEquipamento) }}" method="POST" class="inline" onsubmit="return confirm('Excluir equipamento?')">
+                                <form action="{{ route('equipamentos.destroy', $e->idEquipamento) }}" method="POST" class="inline" 
+                                      data-confirm="Tem certeza que deseja excluir este equipamento?"
+                                      data-confirm-title="Excluir Equipamento"
+                                      data-confirm-icon="danger"
+                                      data-confirm-text="Excluir"
+                                      data-cancel-text="Cancelar">
                                     @csrf
                                     @method('DELETE')
                                     <button class="text-red-600 hover:text-red-800">Excluir</button>

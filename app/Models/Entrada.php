@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Builder;
@@ -27,6 +28,8 @@ use Illuminate\Support\Facades\Auth;
  */
 class Entrada extends Model
 {
+    use HasFactory;
+
     protected $table = 'entradas';
     protected $primaryKey = 'idEntrada';
 

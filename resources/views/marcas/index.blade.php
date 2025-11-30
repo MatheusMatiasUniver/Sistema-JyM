@@ -58,7 +58,12 @@
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('marcas.edit', $marca->idMarca) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
-                                <form action="{{ route('marcas.destroy', $marca->idMarca) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta marca?');">
+                                <form action="{{ route('marcas.destroy', $marca->idMarca) }}" method="POST" 
+                                      data-confirm="Tem certeza que deseja excluir esta marca?"
+                                      data-confirm-title="Excluir Marca"
+                                      data-confirm-icon="danger"
+                                      data-confirm-text="Excluir"
+                                      data-cancel-text="Cancelar">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>

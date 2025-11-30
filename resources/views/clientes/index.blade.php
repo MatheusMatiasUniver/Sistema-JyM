@@ -160,7 +160,12 @@
                                     <button type="button" data-action="{{ route('clientes.renew', $cliente->idCliente) }}" class="text-green-600 hover:text-green-900 text-sm btn-renovar-cliente">Renovar</button>
                                 @endif
 
-                                    <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
+                                    <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" 
+                                          data-confirm="Tem certeza que deseja excluir este cliente?"
+                                          data-confirm-title="Excluir Cliente"
+                                          data-confirm-icon="danger"
+                                          data-confirm-text="Excluir"
+                                          data-cancel-text="Cancelar">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
@@ -193,13 +198,23 @@
             </div>
         </div>
     </div>
-    <div id="modalRenovarCliente" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-        <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6">
-            <h3 class="text-lg font-bold mb-4 text-black">Selecione a forma de pagamento</h3>
+    <div id="modalRenovarCliente" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-[9999]" style="backdrop-filter: blur(2px);">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-md mx-4 p-6" style="animation: confirmDialogIn 0.2s ease-out forwards;">
+            <div class="flex items-start gap-4 mb-4">
+                <div class="flex-shrink-0 w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <h3 class="text-lg font-bold text-gray-900">Renovar Mensalidade</h3>
+                    <p class="text-sm text-gray-600 mt-1">Selecione a forma de pagamento para renovar a mensalidade do cliente.</p>
+                </div>
+            </div>
             <form id="formRenovarCliente" method="POST" action="#" class="space-y-4">
                 @csrf
                 <div>
-                    <label for="formaPagamentoCliente" class="block text-sm text-gray-700 mb-1">Forma de pagamento</label>
+                    <label for="formaPagamentoCliente" class="block text-sm font-medium text-gray-700 mb-1">Forma de pagamento</label>
                     <select id="formaPagamentoCliente" name="formaPagamento" class="select" required>
                         <option value="">Selecione</option>
                         @foreach($formasPagamentoAtivas as $forma)
@@ -207,9 +222,9 @@
                         @endforeach
                     </select>
                 </div>
-                <div class="flex justify-end gap-2">
-                    <button type="button" id="btnCancelarModalCliente" class="px-3 py-1 rounded bg-gray-200 text-gray-800 hover:bg-gray-300">Cancelar</button>
-                    <button type="submit" class="px-3 py-1 rounded bg-green-600 text-white hover:bg-green-700">Confirmar</button>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <button type="button" id="btnCancelarModalCliente" class="px-4 py-2 rounded-lg font-medium bg-gray-200 text-gray-800 hover:bg-gray-300 transition-colors">Cancelar</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg font-medium bg-green-600 text-white hover:bg-green-700 transition-colors">Confirmar</button>
                 </div>
             </form>
         </div>
@@ -224,28 +239,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const formCliente = document.getElementById('formRenovarCliente');
     const cancelCliente = document.getElementById('btnCancelarModalCliente');
     const buttons = document.querySelectorAll('.btn-renovar-cliente');
+
+    const openClienteModal = () => {
+        if (!modalCliente) return;
+        modalCliente.classList.remove('hidden');
+        modalCliente.classList.add('flex');
+        document.body.style.overflow = 'hidden';
+    };
+
+    const closeClienteModal = () => {
+        if (!modalCliente) return;
+        const dialog = modalCliente.querySelector('.bg-white');
+        if (dialog) dialog.style.animation = 'confirmDialogOut 0.15s ease-in forwards';
+        setTimeout(() => {
+            modalCliente.classList.add('hidden');
+            modalCliente.classList.remove('flex');
+            document.body.style.overflow = '';
+            if (dialog) dialog.style.animation = 'confirmDialogIn 0.2s ease-out forwards';
+        }, 150);
+    };
+
     buttons.forEach(btn => {
         btn.addEventListener('click', () => {
             const action = btn.getAttribute('data-action');
             if (formCliente) formCliente.setAttribute('action', action);
-            if (modalCliente) modalCliente.classList.remove('hidden');
-            if (modalCliente) modalCliente.classList.add('flex');
+            openClienteModal();
         });
     });
-    cancelCliente && cancelCliente.addEventListener('click', () => {
-        modalCliente.classList.add('hidden');
-        modalCliente.classList.remove('flex');
-    });
+    cancelCliente && cancelCliente.addEventListener('click', closeClienteModal);
     modalCliente && modalCliente.addEventListener('click', (e) => {
         if (e.target === modalCliente) {
-            modalCliente.classList.add('hidden');
-            modalCliente.classList.remove('flex');
+            closeClienteModal();
         }
     });
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Escape' && modalCliente && !modalCliente.classList.contains('hidden')) {
-            modalCliente.classList.add('hidden');
-            modalCliente.classList.remove('flex');
+            closeClienteModal();
         }
     });
 });

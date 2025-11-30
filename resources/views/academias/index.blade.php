@@ -83,7 +83,12 @@
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('academias.edit', $academia->idAcademia) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
                                 @if($academia->podeDeletar())
-                                    <form action="{{ route('academias.destroy', $academia->idAcademia) }}" method="POST" onsubmit="return confirm('Tem certeza que deseja excluir esta academia?');">
+                                    <form action="{{ route('academias.destroy', $academia->idAcademia) }}" method="POST" 
+                                          data-confirm="Tem certeza que deseja excluir esta academia?"
+                                          data-confirm-title="Excluir Academia"
+                                          data-confirm-icon="danger"
+                                          data-confirm-text="Excluir"
+                                          data-cancel-text="Cancelar">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>

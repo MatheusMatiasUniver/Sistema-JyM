@@ -58,7 +58,6 @@ class PlanoAssinaturaController extends Controller
         $sortBy = $request->get('sort_by', 'nome');
         $sortDirection = $request->get('sort_direction', 'asc');
         
-        // Define default values for sorting
         $sortField = 'nome';
         $sortDirection = 'asc';
         

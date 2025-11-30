@@ -1,9 +1,19 @@
 @extends('layouts.app')
 
-@section('title', 'Relatório de Compras - Sistema JyM')
+@section('title', 'Relatório de Compras de Fornecedores - Sistema JyM')
+
+@push('head_styles')
+<style>
+@media print { .sidebar-layout, .user-info-section { display: none !important; } .main-content-area { margin-left: 0 !important; } }
+</style>
+@endpush
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-grip-6">Relatório de Compras</h1>
+    <x-relatorio-header 
+        titulo="Relatório de Compras de Fornecedores" 
+        modulo="Compras" 
+        pdf-route="relatorios.compras.pdf" 
+    />
 
     <x-search-filter-dropdown 
         placeholder="Pesquisar compras..."

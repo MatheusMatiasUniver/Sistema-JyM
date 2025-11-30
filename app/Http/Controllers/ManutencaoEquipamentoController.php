@@ -22,17 +22,14 @@ class ManutencaoEquipamentoController extends Controller
         $query = ManutencaoEquipamento::with(['equipamento', 'fornecedor'])
             ->orderBy('dataSolicitacao', 'desc');
 
-        // Filtro por status
         if ($request->filled('status')) {
             $query->where('status', $request->status);
         }
 
-        // Filtro por equipamento
         if ($request->filled('idEquipamento')) {
             $query->where('idEquipamento', $request->idEquipamento);
         }
 
-        // Filtro por tipo
         if ($request->filled('tipo')) {
             $query->where('tipo', $request->tipo);
         }
@@ -48,14 +45,12 @@ class ManutencaoEquipamentoController extends Controller
      */
     public function create(Request $request)
     {
-        // Equipamentos com status "Ativo" podem receber manutenção
         $equipamentos = Equipamento::where('status', 'Ativo')
             ->orderBy('descricao')
             ->get();
 
         $fornecedores = Fornecedor::orderBy('razaoSocial')->get();
 
-        // Se veio de um equipamento específico
         $equipamentoSelecionado = null;
         if ($request->filled('idEquipamento')) {
             $equipamentoSelecionado = Equipamento::find($request->idEquipamento);

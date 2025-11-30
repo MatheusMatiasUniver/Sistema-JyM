@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Relatório por Funcionário - Sistema JyM')
+@section('title', 'Relatório de Vendas e Despesas por Funcionário - Sistema JyM')
 
 @push('head_styles')
 <style>
@@ -9,12 +9,11 @@
 @endpush
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-6 text-grip-6">Relatório por Funcionário</h1>
-
-    <div class="mb-4 flex gap-2">
-        <a href="{{ route('relatorios.porFuncionario.pdf', request()->query()) }}" class="btn btn-primary">Exportar PDF</a>
-        <button type="button" class="btn btn-secondary" onclick="window.print()">Imprimir</button>
-    </div>
+    <x-relatorio-header 
+        titulo="Relatório de Vendas e Despesas por Funcionário" 
+        modulo="Recursos Humanos" 
+        pdf-route="relatorios.porFuncionario.pdf" 
+    />
 
     <x-search-filter-dropdown 
         placeholder="Filtrar por funcionário..."

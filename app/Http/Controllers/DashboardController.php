@@ -61,7 +61,6 @@ class DashboardController extends Controller
                                       ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
                                       ->sum('valorTotal');
 
-        // Additional variables for dashboard cards
         $entradasHoje = Entrada::whereDate('dataHora', Carbon::today())
             ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
             ->count();

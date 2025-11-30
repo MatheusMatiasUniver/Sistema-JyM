@@ -121,15 +121,15 @@
     </div>
 
     <div x-show="activeCategory === 'relatorios'">
-            <a href="{{ route('relatorios.compras') }}" class="sidebar-nav-link"><i class="fas fa-file-alt mr-2"></i>Relatórios de Compras</a>
-            <a href="{{ route('relatorios.margem') }}" class="sidebar-nav-link"><i class="fas fa-percentage mr-2"></i>Margem por Produto</a>
+            <a href="{{ route('relatorios.compras') }}" class="sidebar-nav-link"><i class="fas fa-file-alt mr-2"></i>Compras de Fornecedores</a>
+            <a href="{{ route('relatorios.margem') }}" class="sidebar-nav-link"><i class="fas fa-percentage mr-2"></i>Margem de Lucro por Produto</a>
             <a href="{{ route('relatorios.ruptura') }}" class="sidebar-nav-link"><i class="fas fa-exclamation-triangle mr-2"></i>Ruptura de Estoque</a>
-            <a href="{{ route('relatorios.faturamento') }}" class="sidebar-nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Faturamento e Lucro</a>
-            <a href="{{ route('relatorios.gastos') }}" class="sidebar-nav-link"><i class="fas fa-money-bill-wave mr-2"></i>Gastos</a>
-            <a href="{{ route('relatorios.inadimplencia') }}" class="sidebar-nav-link"><i class="fas fa-user-times mr-2"></i>Inadimplência</a>
-            <a href="{{ route('relatorios.frequencia') }}" class="sidebar-nav-link"><i class="fas fa-user-clock mr-2"></i>Frequência</a>
-            <a href="{{ route('relatorios.vendas') }}" class="sidebar-nav-link"><i class="fas fa-shopping-bag mr-2"></i>Vendas</a>
-            <a href="{{ route('relatorios.porFuncionario') }}" class="sidebar-nav-link"><i class="fas fa-id-badge mr-2"></i>Por Funcionário</a>
+            <a href="{{ route('relatorios.faturamento') }}" class="sidebar-nav-link"><i class="fas fa-file-invoice-dollar mr-2"></i>Faturamento e Lucratividade</a>
+            <a href="{{ route('relatorios.gastos') }}" class="sidebar-nav-link"><i class="fas fa-money-bill-wave mr-2"></i>Despesas e Gastos</a>
+            <a href="{{ route('relatorios.inadimplencia') }}" class="sidebar-nav-link"><i class="fas fa-user-times mr-2"></i>Inadimplência de Mensalidades</a>
+            <a href="{{ route('relatorios.frequencia') }}" class="sidebar-nav-link"><i class="fas fa-user-clock mr-2"></i>Frequência de Clientes</a>
+            <a href="{{ route('relatorios.vendas') }}" class="sidebar-nav-link"><i class="fas fa-shopping-bag mr-2"></i>Vendas de Produtos</a>
+            <a href="{{ route('relatorios.porFuncionario') }}" class="sidebar-nav-link"><i class="fas fa-id-badge mr-2"></i>Vendas e Despesas por Funcionário</a>
         </div>
 
     @auth
