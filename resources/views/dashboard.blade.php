@@ -124,7 +124,7 @@
                     <p class="text-sm text-gray-600 mt-1">Selecione a forma de pagamento para renovar a mensalidade.</p>
                 </div>
             </div>
-            <form id="formRenovarMensalidade" method="POST" action="#" class="space-y-4">
+            <form id="formRenovarMensalidade" method="POST" action="#" class="space-y-4" autocomplete="off">
                 @csrf
                 <div>
                     <label for="formaPagamentoModal" class="block text-sm font-medium text-gray-700 mb-1">Forma de pagamento</label>

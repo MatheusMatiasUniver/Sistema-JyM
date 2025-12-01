@@ -11,7 +11,7 @@
         <p><strong>Status:</strong> {{ ucfirst($compra->status) }}</p>
         <p><strong>Total:</strong> R$ {{ number_format($compra->valorTotal,2,',','.') }}</p>
         @if($compra->status==='aberta')
-            <form action="{{ route('compras.receber', $compra->idCompra) }}" method="POST" class="mt-3" 
+            <form action="{{ route('compras.receber', $compra->idCompra) }}" method="POST" class="mt-3" autocomplete="off"
                   data-confirm="Confirmar recebimento desta compra?"
                   data-confirm-title="Receber Compra"
                   data-confirm-icon="info"

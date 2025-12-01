@@ -7,7 +7,7 @@
 ])
 
 <div class="bg-white shadow-md rounded-lg p-4 mb-4">
-    <form action="{{ $action }}" method="GET" class="flex flex-wrap items-end gap-4">
+    <form action="{{ $action }}" method="GET" class="flex flex-wrap items-end gap-4" autocomplete="off">
         <!-- Campo de Pesquisa -->
         <div class="flex-grow min-w-64">
             <label for="search" class="block text-gray-700 text-sm font-bold mb-2">Pesquisar:</label>

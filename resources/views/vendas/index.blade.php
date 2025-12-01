@@ -116,7 +116,7 @@
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('vendas.show', $venda->idVenda) }}" class="text-grip-1 hover:text-grip-red-light">Ver Detalhes</a>
-                                <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" 
+                                <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" autocomplete="off"
                                       data-confirm="Tem certeza que deseja estornar esta venda? Esta ação irá retornar os produtos ao estoque."
                                       data-confirm-title="Estornar Venda"
                                       data-confirm-icon="warning"

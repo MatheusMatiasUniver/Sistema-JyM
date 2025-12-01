@@ -87,12 +87,12 @@
             </div>
         </div>
         
-        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden" autocomplete="off">
             @csrf
         </form>
     @endauth
 
-    <div class="sidebar-flyout" x-ref="flyout" x-show="activeCategory" :style="{ top: flyoutTop + 'px' }">
+    <div class="sidebar-flyout" x-ref="flyout" x-cloak x-show="activeCategory" :style="{ top: flyoutTop + 'px' }">
         <div x-show="activeCategory === 'clientes'">
             <a href="{{ route('clientes.index') }}" class="sidebar-nav-link"><i class="fas fa-users mr-2"></i>Clientes</a>
             @auth
@@ -115,6 +115,7 @@
         <div x-show="activeCategory === 'produtos'">
             <a href="{{ route('produtos.index') }}" class="sidebar-nav-link"><i class="fas fa-boxes mr-2"></i>Produtos</a>
             <a href="{{ route('categorias.index') }}" class="sidebar-nav-link"><i class="fas fa-tags mr-2"></i>Categorias</a>
+            <a href="{{ route('marcas.index') }}" class="sidebar-nav-link"><i class="fas fa-stamp mr-2"></i>Marcas</a>
             <a href="{{ route('fornecedores.index') }}" class="sidebar-nav-link"><i class="fas fa-truck mr-2"></i>Fornecedores</a>            
             <a href="{{ route('equipamentos.index') }}" class="sidebar-nav-link"><i class="fas fa-tools mr-2"></i>Equipamentos</a>
             <a href="{{ route('materiais.index') }}" class="sidebar-nav-link"><i class="fas fa-cubes mr-2"></i>Materiais</a>        

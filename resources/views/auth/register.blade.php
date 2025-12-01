@@ -26,7 +26,7 @@
         
         <h2 class="text-2xl font-bold text-center mb-6 text-gray-800">Cadastro de Usuário</h2>
 
-        <form id="cadastroForm" method="POST" action="{{ route('register') }}">
+        <form id="cadastroForm" method="POST" action="{{ route('register') }}" autocomplete="off">
             @csrf
 
             <div class="mb-4">

@@ -265,27 +265,26 @@ class SimulationSeeder extends Seeder
         }
 
         $produtosData = [
-            ['nome' => 'Whey Protein 1kg', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[0]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 129.90, 'precoCompra' => 89.90, 'estoque' => 50, 'estoqueMinimo' => 10, 'unidadeMedida' => 'un'],
-            ['nome' => 'Creatina 300g', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[0]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 79.90, 'precoCompra' => 52.90, 'estoque' => 40, 'estoqueMinimo' => 8, 'unidadeMedida' => 'un'],
-            ['nome' => 'BCAA 120 caps', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[1]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 59.90, 'precoCompra' => 38.90, 'estoque' => 35, 'estoqueMinimo' => 8, 'unidadeMedida' => 'un'],
-            ['nome' => 'Pré-Treino 300g', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[2]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 89.90, 'precoCompra' => 59.90, 'estoque' => 25, 'estoqueMinimo' => 5, 'unidadeMedida' => 'un'],
-            ['nome' => 'Glutamina 300g', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[3]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 69.90, 'precoCompra' => 45.90, 'estoque' => 30, 'estoqueMinimo' => 6, 'unidadeMedida' => 'un'],
-            ['nome' => 'Barra de Proteína', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[0]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 8.90, 'precoCompra' => 5.50, 'estoque' => 100, 'estoqueMinimo' => 20, 'unidadeMedida' => 'un'],
-            ['nome' => 'Água Mineral 500ml', 'idCategoria' => $categorias[1]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[1]->idFornecedor, 'preco' => 4.00, 'precoCompra' => 1.80, 'estoque' => 200, 'estoqueMinimo' => 50, 'unidadeMedida' => 'un'],
-            ['nome' => 'Isotônico 500ml', 'idCategoria' => $categorias[1]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[1]->idFornecedor, 'preco' => 7.50, 'precoCompra' => 4.50, 'estoque' => 80, 'estoqueMinimo' => 20, 'unidadeMedida' => 'un'],
-            ['nome' => 'Energético 250ml', 'idCategoria' => $categorias[1]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[1]->idFornecedor, 'preco' => 9.90, 'precoCompra' => 6.50, 'estoque' => 60, 'estoqueMinimo' => 15, 'unidadeMedida' => 'un'],
-            ['nome' => 'Luva de Treino', 'idCategoria' => $categorias[2]->idCategoria, 'idMarca' => $marcas[4]->idMarca, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 49.90, 'precoCompra' => 32.00, 'estoque' => 20, 'estoqueMinimo' => 5, 'unidadeMedida' => 'par'],
-            ['nome' => 'Squeeze 1L', 'idCategoria' => $categorias[2]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 25.90, 'precoCompra' => 15.90, 'estoque' => 30, 'estoqueMinimo' => 8, 'unidadeMedida' => 'un'],
-            ['nome' => 'Toalha Esportiva', 'idCategoria' => $categorias[2]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 29.90, 'precoCompra' => 18.90, 'estoque' => 25, 'estoqueMinimo' => 6, 'unidadeMedida' => 'un'],
-            ['nome' => 'Camiseta Dry Fit', 'idCategoria' => $categorias[3]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 59.90, 'precoCompra' => 35.00, 'estoque' => 40, 'estoqueMinimo' => 10, 'unidadeMedida' => 'un'],
-            ['nome' => 'Shorts Academia', 'idCategoria' => $categorias[3]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 49.90, 'precoCompra' => 28.00, 'estoque' => 35, 'estoqueMinimo' => 8, 'unidadeMedida' => 'un'],
+            ['nome' => 'Whey Protein 1kg', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[0]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 129.90, 'precoCompra' => 89.90, 'estoque' => 50, 'estoqueMinimo' => 10],
+            ['nome' => 'Creatina 300g', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[0]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 79.90, 'precoCompra' => 52.90, 'estoque' => 40, 'estoqueMinimo' => 8],
+            ['nome' => 'BCAA 120 caps', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[1]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 59.90, 'precoCompra' => 38.90, 'estoque' => 35, 'estoqueMinimo' => 8],
+            ['nome' => 'Pré-Treino 300g', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[2]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 89.90, 'precoCompra' => 59.90, 'estoque' => 25, 'estoqueMinimo' => 5],
+            ['nome' => 'Glutamina 300g', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[3]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 69.90, 'precoCompra' => 45.90, 'estoque' => 30, 'estoqueMinimo' => 6],
+            ['nome' => 'Barra de Proteína', 'idCategoria' => $categorias[0]->idCategoria, 'idMarca' => $marcas[0]->idMarca, 'idFornecedor' => $fornecedores[0]->idFornecedor, 'preco' => 8.90, 'precoCompra' => 5.50, 'estoque' => 100, 'estoqueMinimo' => 20],
+            ['nome' => 'Água Mineral 500ml', 'idCategoria' => $categorias[1]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[1]->idFornecedor, 'preco' => 4.00, 'precoCompra' => 1.80, 'estoque' => 200, 'estoqueMinimo' => 50],
+            ['nome' => 'Isotônico 500ml', 'idCategoria' => $categorias[1]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[1]->idFornecedor, 'preco' => 7.50, 'precoCompra' => 4.50, 'estoque' => 80, 'estoqueMinimo' => 20],
+            ['nome' => 'Energético 250ml', 'idCategoria' => $categorias[1]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[1]->idFornecedor, 'preco' => 9.90, 'precoCompra' => 6.50, 'estoque' => 60, 'estoqueMinimo' => 15],
+            ['nome' => 'Luva de Treino', 'idCategoria' => $categorias[2]->idCategoria, 'idMarca' => $marcas[4]->idMarca, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 49.90, 'precoCompra' => 32.00, 'estoque' => 20, 'estoqueMinimo' => 5],
+            ['nome' => 'Squeeze 1L', 'idCategoria' => $categorias[2]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 25.90, 'precoCompra' => 15.90, 'estoque' => 30, 'estoqueMinimo' => 8],
+            ['nome' => 'Toalha Esportiva', 'idCategoria' => $categorias[2]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 29.90, 'precoCompra' => 18.90, 'estoque' => 25, 'estoqueMinimo' => 6],
+            ['nome' => 'Camiseta Dry Fit', 'idCategoria' => $categorias[3]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 59.90, 'precoCompra' => 35.00, 'estoque' => 40, 'estoqueMinimo' => 10],
+            ['nome' => 'Shorts Academia', 'idCategoria' => $categorias[3]->idCategoria, 'idMarca' => null, 'idFornecedor' => $fornecedores[2]->idFornecedor, 'preco' => 49.90, 'precoCompra' => 28.00, 'estoque' => 35, 'estoqueMinimo' => 8],
         ];
 
         $produtos = collect();
         foreach ($produtosData as $prod) {
             $produtos->push(Produto::create(array_merge($prod, [
                 'custoMedio' => $prod['precoCompra'],
-                'vendavel' => true,
                 'idAcademia' => $academia->idAcademia,
             ])));
         }

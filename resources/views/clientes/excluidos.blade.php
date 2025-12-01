@@ -23,7 +23,7 @@
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">Deletado</td>
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
-                                <form action="{{ route('clientes.restore', $cliente->idCliente) }}" method="POST">
+                                <form action="{{ route('clientes.restore', $cliente->idCliente) }}" method="POST" autocomplete="off">
                                     @csrf
                                     <button type="submit" class="text-blue-600 hover:text-blue-900">Restaurar</button>
                                 </form>

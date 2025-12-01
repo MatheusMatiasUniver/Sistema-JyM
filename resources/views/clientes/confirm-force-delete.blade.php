@@ -15,7 +15,7 @@
         <p class="mb-6 text-red-700">Se prosseguir, o histórico pode ficar inconsistente. Os registros vinculados serão mantidos e exibidos como "Cliente Deletado".</p>
 
         <div class="flex space-x-3">
-            <form action="{{ route('clientes.forceDelete', $cliente->idCliente) }}" method="POST">
+            <form action="{{ route('clientes.forceDelete', $cliente->idCliente) }}" method="POST" autocomplete="off">
                 @csrf
                 @method('DELETE')
                 <input type="hidden" name="confirm" value="yes">

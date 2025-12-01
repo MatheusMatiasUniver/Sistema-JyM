@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Editar Plano de Assinatura: {{ $plano->nome }}</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
-        <form action="{{ route('planos.update', $plano->idPlano) }}" method="POST">
+        <form action="{{ route('planos.update', $plano->idPlano) }}" method="POST" autocomplete="off">
             @csrf
             @method('PUT')
 

@@ -114,7 +114,7 @@
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('produtos.edit', $produto->idProduto) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
                                 @if($produto->podeDeletar())
-                                    <form action="{{ route('produtos.destroy', $produto->idProduto) }}" method="POST" 
+                                    <form action="{{ route('produtos.destroy', $produto->idProduto) }}" method="POST" autocomplete="off"
                                           data-confirm="Tem certeza que deseja excluir este produto?"
                                           data-confirm-title="Excluir Produto"
                                           data-confirm-icon="danger"

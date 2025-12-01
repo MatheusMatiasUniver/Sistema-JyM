@@ -4,6 +4,9 @@ import { initVendasCreate } from './vendas-create';
 import * as formatters from './formatters';
 import './cnpj-mask';
 import webSocketManager from './websocket-manager';
+import Alpine from 'alpinejs'
+window.Alpine = Alpine
+Alpine.start()
 
 window.applyFormatting = formatters.applyFormatting;
 window.webSocketManager = webSocketManager;

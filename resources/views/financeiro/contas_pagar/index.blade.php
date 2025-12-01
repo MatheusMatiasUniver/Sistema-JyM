@@ -41,7 +41,7 @@
                         <td class="px-5 py-5 border-b bg-white text-sm">{{ ucfirst($c->status) }}</td>
                         <td class="px-5 py-5 border-b bg-white text-sm">
                             @if($c->status === 'aberta')
-                                <form action="{{ route('financeiro.contas_pagar.pagar', $c->idContaPagar) }}" method="POST" class="flex items-center space-x-2">
+                                <form action="{{ route('financeiro.contas_pagar.pagar', $c->idContaPagar) }}" method="POST" class="flex items-center space-x-2" autocomplete="off">
                                     @csrf
                                     <select name="formaPagamento" class="select">
                                         @foreach($formasPagamentoAtivas as $forma)

@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Novo Equipamento</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto">
-        <form action="{{ route('equipamentos.store') }}" method="POST">
+        <form action="{{ route('equipamentos.store') }}" method="POST" autocomplete="off">
             @csrf
             <div class="mb-4">
                 <label class="block text-gray-700 text-sm font-bold mb-2">Descrição</label>

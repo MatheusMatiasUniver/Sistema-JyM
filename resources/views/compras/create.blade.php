@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Nova Compra</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-3xl mx-auto">
-        <form action="{{ route('compras.store') }}" method="POST">
+        <form action="{{ route('compras.store') }}" method="POST" autocomplete="off">
             @csrf
 
             <div class="mb-4">

@@ -101,7 +101,7 @@
                                     Editar
                                 </a>
                                 @if($categoria->produtos_count == 0)
-                                    <form action="{{ route('categorias.destroy', $categoria) }}" 
+                                    <form action="{{ route('categorias.destroy', $categoria) }}" autocomplete="off"
                                           method="POST" 
                                           class="inline"
                                           data-confirm="Tem certeza que deseja excluir esta categoria?"

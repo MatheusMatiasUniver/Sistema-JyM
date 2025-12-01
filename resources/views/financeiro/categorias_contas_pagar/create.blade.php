@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Nova Categoria de Contas a Pagar</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-xl">
-        <form method="POST" action="{{ route('financeiro.categorias_contas_pagar.store') }}">
+        <form method="POST" action="{{ route('financeiro.categorias_contas_pagar.store') }}" autocomplete="off">
             @csrf
             <div class="mb-4">
                 <label for="nome" class="block text-gray-700 text-sm font-bold mb-2">Nome</label>

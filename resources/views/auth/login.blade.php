@@ -11,7 +11,7 @@
 
         <h2 class="mb-5 text-grip-6 text-2xl font-bold">Login</h2>
         
-        <form id="loginForm" method="POST" action="{{ route('login.submit') }}">
+        <form id="loginForm" method="POST" action="{{ route('login.submit') }}" autocomplete="off">
             @csrf
 
             <input type="text" id="usuario" name="usuario" placeholder="Usuário" value="{{ old('usuario') }}" required autofocus class="w-[95%] p-3 my-2.5 border-none rounded box-border text-black">

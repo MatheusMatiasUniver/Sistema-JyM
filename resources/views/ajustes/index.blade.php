@@ -17,7 +17,7 @@
     @endif
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-xl">
-        <form method="POST" action="{{ route('ajustes.update') }}">
+        <form method="POST" action="{{ route('ajustes.update') }}" autocomplete="off">
             @csrf
             @method('PUT')
 

@@ -19,7 +19,8 @@
         </svg>
     </button>
     
-    <div x-show="open" 
+    <div x-cloak
+         x-show="open" 
          @click.away="open = false"
          x-transition
          class="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl max-h-96 overflow-y-auto">

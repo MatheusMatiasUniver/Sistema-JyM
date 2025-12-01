@@ -63,7 +63,7 @@
             <a href="{{ route('vendas.index') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
                 Voltar ao Histórico de Vendas
             </a>
-            <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" class="ml-3" 
+            <form action="{{ route('vendas.destroy', $venda->idVenda) }}" method="POST" class="ml-3" autocomplete="off"
                   data-confirm="Tem certeza que deseja estornar esta venda? Esta ação irá retornar os produtos ao estoque."
                   data-confirm-title="Estornar Venda"
                   data-confirm-icon="warning"

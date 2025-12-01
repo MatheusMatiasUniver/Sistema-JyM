@@ -43,7 +43,7 @@
                             <div class="flex space-x-2">
                                 <a href="{{ route('compras.show', $compra->idCompra) }}" class="text-blue-600">Ver</a>
                                 @if($compra->status==='aberta')
-                                    <form action="{{ route('compras.receber', $compra->idCompra) }}" method="POST" 
+                                    <form action="{{ route('compras.receber', $compra->idCompra) }}" method="POST" autocomplete="off"
                                           data-confirm="Confirmar recebimento desta compra?"
                                           data-confirm-title="Receber Compra"
                                           data-confirm-icon="info"

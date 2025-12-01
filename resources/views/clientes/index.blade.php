@@ -23,7 +23,7 @@
     </div>
 
     <div class="bg-white shadow-md rounded-lg p-6 mb-6">
-        <form action="{{ route('clientes.index') }}" method="GET" class="flex flex-wrap items-end gap-4">
+        <form action="{{ route('clientes.index') }}" method="GET" class="flex flex-wrap items-end gap-4" autocomplete="off">
             <div class="flex-grow">
                 <label for="search" class="block text-gray-700 text-sm font-bold mb-2">Pesquisar:</label>
                 <input type="text" id="search" name="search" placeholder="Nome ou CPF"
@@ -160,7 +160,7 @@
                                     <button type="button" data-action="{{ route('clientes.renew', $cliente->idCliente) }}" class="text-green-600 hover:text-green-900 text-sm btn-renovar-cliente">Renovar</button>
                                 @endif
 
-                                    <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" 
+                                    <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" autocomplete="off"
                                           data-confirm="Tem certeza que deseja excluir este cliente?"
                                           data-confirm-title="Excluir Cliente"
                                           data-confirm-icon="danger"
@@ -211,7 +211,7 @@
                     <p class="text-sm text-gray-600 mt-1">Selecione a forma de pagamento para renovar a mensalidade do cliente.</p>
                 </div>
             </div>
-            <form id="formRenovarCliente" method="POST" action="#" class="space-y-4">
+            <form id="formRenovarCliente" method="POST" action="#" class="space-y-4" autocomplete="off">
                 @csrf
                 <div>
                     <label for="formaPagamentoCliente" class="block text-sm font-medium text-gray-700 mb-1">Forma de pagamento</label>

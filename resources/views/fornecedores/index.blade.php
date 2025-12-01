@@ -54,7 +54,7 @@
                             <div class="flex space-x-2">
                                 <a href="{{ route('fornecedores.show', $fornecedor) }}" class="text-blue-600 hover:text-blue-900 text-sm">Ver</a>
                                 <a href="{{ route('fornecedores.edit', $fornecedor) }}" class="text-yellow-600 hover:text-yellow-900 text-sm">Editar</a>
-                                <form action="{{ route('fornecedores.destroy', $fornecedor) }}" method="POST" class="inline" 
+                                <form action="{{ route('fornecedores.destroy', $fornecedor) }}" method="POST" class="inline" autocomplete="off"
                                       data-confirm="Tem certeza que deseja excluir este fornecedor?"
                                       data-confirm-title="Excluir Fornecedor"
                                       data-confirm-icon="danger"

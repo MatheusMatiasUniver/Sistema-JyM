@@ -68,7 +68,7 @@
                                     Histórico
                                 </a>
                                 
-                                <form action="{{ route('equipamentos.destroy', $e->idEquipamento) }}" method="POST" class="inline" 
+                                <form action="{{ route('equipamentos.destroy', $e->idEquipamento) }}" method="POST" class="inline" autocomplete="off"
                                       data-confirm="Tem certeza que deseja excluir este equipamento?"
                                       data-confirm-title="Excluir Equipamento"
                                       data-confirm-icon="danger"

@@ -9,7 +9,7 @@
         <a href="{{ route('marcas.create') }}" class="bg-grip-1 hover:bg-grip-2 hover:text-white text-white font-bold py-2 px-4 rounded">
             Cadastrar Nova Marca
         </a>
-        <form action="{{ route('marcas.index') }}" method="GET" class="flex gap-3 items-end">
+        <form action="{{ route('marcas.index') }}" method="GET" class="flex gap-3 items-end" autocomplete="off">
             <div>
                 <label for="search" class="block text-gray-700 text-sm font-bold mb-2">Pesquisar:</label>
                 <input type="text" id="search" name="search" value="{{ request('search') }}" placeholder="Nome, país ou site"
@@ -58,7 +58,7 @@
                         <td class="px-5 py-5 border-b border-gray-200 bg-white text-sm">
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('marcas.edit', $marca->idMarca) }}" class="text-blue-600 hover:text-blue-900">Editar</a>
-                                <form action="{{ route('marcas.destroy', $marca->idMarca) }}" method="POST" 
+                                <form action="{{ route('marcas.destroy', $marca->idMarca) }}" method="POST" autocomplete="off"
                                       data-confirm="Tem certeza que deseja excluir esta marca?"
                                       data-confirm-title="Excluir Marca"
                                       data-confirm-icon="danger"

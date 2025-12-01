@@ -52,7 +52,7 @@
             <h2 class="text-lg font-semibold text-gray-900">Dados da Execução</h2>
         </div>
 
-        <form action="{{ route('manutencoes.update', $manutencao->idManutencao) }}" method="POST" class="p-6">
+        <form action="{{ route('manutencoes.update', $manutencao->idManutencao) }}" method="POST" class="p-6" autocomplete="off">
             @csrf
             @method('PUT')
 

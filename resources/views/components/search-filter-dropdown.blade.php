@@ -1,7 +1,7 @@
 @props(['placeholder' => 'Pesquisar...', 'filters' => [], 'sortOptions' => []])
 
 <div class="mb-6 bg-white p-4 rounded-lg shadow-md print:hidden">
-    <form method="GET" action="{{ request()->url() }}" class="space-y-4">
+    <form method="GET" action="{{ request()->url() }}" class="space-y-4" autocomplete="off">
         <!-- Barra de Pesquisa e Botão de Filtros -->
         <div class="flex flex-col md:flex-row gap-4">
             <!-- Campo de Pesquisa -->

@@ -9,21 +9,18 @@
     $academia = $academiaId ? \App\Models\Academia::find($academiaId) : null;
 @endphp
 
-<div class="mb-6">
-    <div class="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div class="flex-1">
-            <h1 class="text-3xl font-bold text-gray-800 print:hidden">{{ $titulo }}</h1>
-        </div>
-        <div class="mt-4 md:mt-0 flex gap-2 print:hidden">
-            @if($pdfRoute)
-                <a href="{{ route($pdfRoute, request()->query()) }}" class="btn btn-primary">
-                    <i class="fas fa-file-pdf mr-1"></i> Exportar PDF
-                </a>
-            @endif
-            <button type="button" class="btn btn-secondary" onclick="window.print()">
-                <i class="fas fa-print mr-1"></i> Imprimir
-            </button>
-        </div>
+<div class="mb-6 print:hidden">
+    <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ $titulo }}</h1>
+    
+    <div class="flex flex-wrap gap-3">
+        @if($pdfRoute)
+            <a href="{{ route($pdfRoute, request()->query()) }}" class="inline-flex items-center px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
+                <i class="fas fa-file-pdf mr-2"></i> Exportar PDF
+            </a>
+        @endif
+        <button type="button" onclick="window.print()" class="inline-flex items-center px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg shadow-sm transition-colors duration-200">
+            <i class="fas fa-print mr-2"></i> Imprimir
+        </button>
     </div>
 </div>
 

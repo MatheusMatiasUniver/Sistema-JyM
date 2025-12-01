@@ -18,7 +18,7 @@
     @endif
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
-        <form action="{{ route('users.update', $user->idUsuario) }}" method="POST">
+        <form action="{{ route('users.update', $user->idUsuario) }}" method="POST" autocomplete="off">
             @csrf
             @method('PUT')
 

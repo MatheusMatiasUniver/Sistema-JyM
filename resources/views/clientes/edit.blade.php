@@ -10,7 +10,7 @@
             <label class="block text-gray-700 text-sm font-bold mb-2">Código de acesso:</label>
             <input type="text" value="{{ $cliente->codigo_acesso ?? 'N/A' }}" readonly class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black bg-gray-100">
         </div>
-        <form action="{{ route('clientes.update', $cliente->idCliente) }}" method="POST" enctype="multipart/form-data">
+        <form action="{{ route('clientes.update', $cliente->idCliente) }}" method="POST" enctype="multipart/form-data" autocomplete="off">
             @csrf
             @method('PUT')
 

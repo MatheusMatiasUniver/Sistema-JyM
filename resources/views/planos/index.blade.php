@@ -108,7 +108,7 @@
                             <div class="flex items-center space-x-3">
                                 <a href="{{ route('planos.edit', $plano->idPlano) }}" class="text-grip-1 hover:text-grip-red-light">Editar</a>
                                 @if($plano->podeDeletar())
-                                    <form action="{{ route('planos.destroy', $plano->idPlano) }}" method="POST" 
+                                    <form action="{{ route('planos.destroy', $plano->idPlano) }}" method="POST" autocomplete="off"
                                           data-confirm="Tem certeza que deseja excluir este plano?"
                                           data-confirm-title="Excluir Plano"
                                           data-confirm-icon="danger"

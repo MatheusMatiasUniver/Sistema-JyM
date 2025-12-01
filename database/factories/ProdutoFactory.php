@@ -44,9 +44,6 @@ class ProdutoFactory extends Factory
             'estoque' => $estoque,
             'estoqueMinimo' => fake()->numberBetween(5, 20),
             'descricao' => 'Produto de alta qualidade para atletas',
-            'unidadeMedida' => 'un',
-            'codigoBarras' => fake()->unique()->ean13(),
-            'vendavel' => true,
             'idAcademia' => Academia::factory(),
             'idCategoria' => Categoria::factory(),
             'idMarca' => Marca::factory(),
@@ -58,13 +55,6 @@ class ProdutoFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'estoque' => 0,
-        ]);
-    }
-
-    public function naoVendavel(): static
-    {
-        return $this->state(fn(array $attributes) => [
-            'vendavel' => false,
         ]);
     }
 }

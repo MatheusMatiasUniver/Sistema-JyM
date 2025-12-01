@@ -10,7 +10,7 @@
             Nova Manutenção
         </a>
 
-        <form action="{{ route('manutencoes.index') }}" method="GET" class="flex flex-wrap gap-2 items-center">
+        <form action="{{ route('manutencoes.index') }}" method="GET" class="flex flex-wrap gap-2 items-center" autocomplete="off">
             <select name="status" class="select text-sm" style="width: auto; min-width: 150px;">
                 <option value="">Todos os Status</option>
                 <option value="Pendente" {{ request('status') == 'Pendente' ? 'selected' : '' }}>Pendente</option>
@@ -111,7 +111,7 @@
                                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded text-xs">
                                         Finalizar
                                     </a>
-                                    <form action="{{ route('manutencoes.destroy', $m->idManutencao) }}" method="POST" class="inline" 
+                                    <form action="{{ route('manutencoes.destroy', $m->idManutencao) }}" method="POST" class="inline" autocomplete="off"
                                           data-confirm="Tem certeza que deseja excluir esta manutenção?"
                                           data-confirm-title="Excluir Manutenção"
                                           data-confirm-icon="danger"

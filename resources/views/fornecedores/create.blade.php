@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Cadastrar Novo Fornecedor</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-xl mx-auto">
-        <form action="{{ route('fornecedores.store') }}" method="POST">
+        <form action="{{ route('fornecedores.store') }}" method="POST" autocomplete="off">
             @csrf
 
             <div class="mb-4">

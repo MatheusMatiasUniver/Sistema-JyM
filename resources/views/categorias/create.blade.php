@@ -22,7 +22,7 @@
     @endif
 
     <div class="bg-white shadow-md rounded-lg p-6">
-        <form action="{{ route('categorias.store') }}" method="POST">
+        <form action="{{ route('categorias.store') }}" method="POST" autocomplete="off">
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">

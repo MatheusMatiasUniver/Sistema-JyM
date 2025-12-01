@@ -56,9 +56,6 @@ class Produto extends Model
         'precoCompra',
         'custoMedio',
         'estoqueMinimo',
-        'unidadeMedida',
-        'codigoBarras',
-        'vendavel',
     ];
 
     protected $casts = [
@@ -67,7 +64,6 @@ class Produto extends Model
         'precoCompra' => 'decimal:2',
         'custoMedio' => 'decimal:2',
         'estoqueMinimo' => 'integer',
-        'vendavel' => 'boolean',
     ];
 
     public function atingiuEstoqueMinimo(): bool

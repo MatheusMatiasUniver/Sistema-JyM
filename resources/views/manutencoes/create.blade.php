@@ -12,7 +12,7 @@
     @endif
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl">
-        <form action="{{ route('manutencoes.store') }}" method="POST">
+        <form action="{{ route('manutencoes.store') }}" method="POST" autocomplete="off">
             @csrf
 
             <div class="mb-4">

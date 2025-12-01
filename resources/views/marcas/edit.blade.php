@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Editar Marca: {{ $marca->nome }}</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
-        <form action="{{ route('marcas.update', $marca->idMarca) }}" method="POST">
+        <form action="{{ route('marcas.update', $marca->idMarca) }}" method="POST" autocomplete="off">
             @csrf
             @method('PUT')
 

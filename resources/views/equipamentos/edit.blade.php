@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Editar Equipamento</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-2xl mx-auto">
-        <form action="{{ route('equipamentos.update', $equipamento->idEquipamento) }}" method="POST">
+        <form action="{{ route('equipamentos.update', $equipamento->idEquipamento) }}" method="POST" autocomplete="off">
             @csrf
             @method('PUT')
             <div class="mb-4">

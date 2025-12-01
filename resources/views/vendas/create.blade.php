@@ -86,7 +86,7 @@
             </div>
         @endif
 
-        <form id="vendaForm" action="{{ route('vendas.store') }}" method="POST" data-cliente-opcional="{{ $clienteOpcionalVenda ? '1' : '0' }}">
+        <form id="vendaForm" action="{{ route('vendas.store') }}" method="POST" data-cliente-opcional="{{ $clienteOpcionalVenda ? '1' : '0' }}" autocomplete="off">
             @csrf
             
             <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">

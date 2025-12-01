@@ -22,7 +22,7 @@
     @endif
 
     <div class="bg-white shadow-md rounded-lg p-6">
-        <form action="{{ route('categorias.update', $categoria) }}" method="POST">
+        <form action="{{ route('categorias.update', $categoria) }}" method="POST" autocomplete="off">
             @csrf
             @method('PUT')
             

@@ -6,7 +6,7 @@
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Cadastrar Novo Plano de Assinatura</h1>
 
     <div class="bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
-        <form action="{{ route('planos.store') }}" method="POST">
+        <form action="{{ route('planos.store') }}" method="POST" autocomplete="off">
             @csrf
 
             <div class="mb-4">

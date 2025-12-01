@@ -30,7 +30,7 @@
                         <td class="px-5 py-5 border-b bg-white text-sm">{{ $m->estoqueMinimo }}</td>
                         <td class="px-5 py-5 border-b bg-white text-sm">
                             <a href="{{ route('materiais.edit', $m->idMaterial) }}" class="text-yellow-600">Editar</a>
-                            <form action="{{ route('materiais.destroy', $m->idMaterial) }}" method="POST" class="inline" 
+                            <form action="{{ route('materiais.destroy', $m->idMaterial) }}" method="POST" class="inline" autocomplete="off"
                                   data-confirm="Tem certeza que deseja excluir este material?"
                                   data-confirm-title="Excluir Material"
                                   data-confirm-icon="danger"
