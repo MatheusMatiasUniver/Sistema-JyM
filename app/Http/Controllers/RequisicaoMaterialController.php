@@ -30,6 +30,13 @@ class RequisicaoMaterialController extends Controller
                 'quantidade' => 'required|integer|min:1',
                 'centroCusto' => 'required|string|max:255',
                 'motivo' => 'nullable|string',
+            ], [
+                'idMaterial.required' => 'O material é obrigatório.',
+                'idMaterial.exists' => 'O material selecionado não existe.',
+                'quantidade.required' => 'A quantidade é obrigatória.',
+                'quantidade.integer' => 'A quantidade deve ser um número inteiro.',
+                'quantidade.min' => 'A quantidade deve ser pelo menos 1.',
+                'centroCusto.required' => 'O centro de custo é obrigatório.',
             ]);
             $dados['idAcademia'] = Auth::user()->idAcademia ?? config('app.academia_atual');
             $dados['data'] = now();

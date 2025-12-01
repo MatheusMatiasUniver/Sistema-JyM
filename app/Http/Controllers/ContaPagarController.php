@@ -35,8 +35,12 @@ class ContaPagarController extends Controller
                 ->get();
 
             foreach ($funcionarios as $func) {
-                $descricao = 'Salário '.$func->nome.' '.$anoMes;
-                $existe = ContaPagar::where('descricao', $descricao)->exists();
+                $descricao = 'Salário funcionário - ' . $func->nome;
+                $existe = ContaPagar::where('descricao', $descricao)
+                    ->where('idAcademia', $academiaId)
+                    ->whereYear('dataVencimento', $hoje->year)
+                    ->whereMonth('dataVencimento', $hoje->month)
+                    ->exists();
                 if (!$existe) {
                     \Illuminate\Support\Facades\DB::table('contas_pagar')->insert([
                         'idAcademia' => $academiaId,
@@ -55,9 +59,13 @@ class ContaPagarController extends Controller
             }
         }
 
-        $query = ContaPagar::with('fornecedor');
+        $query = ContaPagar::with(['fornecedor', 'categoria']);
+        
         if ($request->filled('status')) {
             $query->where('status', $request->status);
+        }
+        if ($request->filled('categoria')) {
+            $query->where('idCategoriaContaPagar', $request->categoria);
         }
         if ($request->filled('data_inicial')) {
             $query->whereDate('dataVencimento', '>=', $request->data_inicial);
@@ -65,8 +73,15 @@ class ContaPagarController extends Controller
         if ($request->filled('data_final')) {
             $query->whereDate('dataVencimento', '<=', $request->data_final);
         }
-        $contas = $query->orderBy('dataVencimento')->paginate(20);
-        return view('financeiro.contas_pagar.index', compact('contas', 'formasPagamentoAtivas'));
+        
+        $contas = $query->orderBy('dataVencimento', 'desc')->paginate(20)->withQueryString();
+        
+        $categorias = ContaPagarCategoria::where('idAcademia', $academiaId)
+            ->where('ativa', true)
+            ->orderBy('nome')
+            ->get();
+        
+        return view('financeiro.contas_pagar.index', compact('contas', 'formasPagamentoAtivas', 'categorias'));
     }
 
     public function pagar(Request $request, ContaPagar $conta)
@@ -81,6 +96,10 @@ class ContaPagarController extends Controller
         $dados = $request->validate([
             'formaPagamento' => ['required', 'string', Rule::in($formasPagamentoAtivas)],
             'dataPagamento' => 'nullable|date',
+        ], [
+            'formaPagamento.required' => 'A forma de pagamento é obrigatória.',
+            'formaPagamento.in' => 'A forma de pagamento selecionada não é válida.',
+            'dataPagamento.date' => 'A data de pagamento deve ser uma data válida.',
         ]);
 
         $conta->formaPagamento = $dados['formaPagamento'];

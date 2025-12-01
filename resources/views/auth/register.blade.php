@@ -82,6 +82,15 @@
                 @error('idAcademia') <span class="text-red-500 text-xs italic">{{ $message }}</span> @enderror
             </div>
 
+            <div id="salarioField" class="mb-6" style="display: none;">
+                <label for="salarioMensal" class="block text-gray-700 text-sm font-bold mb-2">Salário Mensal (R$):</label>
+                <input type="number" step="0.01" min="0" id="salarioMensal" name="salarioMensal" 
+                       placeholder="Ex: 2500.00" value="{{ old('salarioMensal') }}"
+                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline">
+                @error('salarioMensal') <span class="text-red-500 text-xs italic">{{ $message }}</span> @enderror
+                <p class="text-gray-500 text-xs mt-1">O salário será automaticamente lançado nas contas a pagar.</p>
+            </div>
+
             <div class="flex items-center justify-between">
                 <button type="submit"
                         class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline w-full">
@@ -96,22 +105,24 @@
             const nivelAcessoSelect = document.getElementById('nivelAcesso');
             const academiaField = document.getElementById('academiaField');
             const academiaSelect = document.getElementById('idAcademia');
+            const salarioField = document.getElementById('salarioField');
 
-            function toggleAcademiaField() {
+            function toggleFuncionarioFields() {
                 if (nivelAcessoSelect.value === 'Funcionário') {
                     academiaField.style.display = 'block';
+                    salarioField.style.display = 'block';
                     academiaSelect.required = true;
                 } else {
                     academiaField.style.display = 'none';
+                    salarioField.style.display = 'none';
                     academiaSelect.required = false;
                     academiaSelect.value = '';
                 }
             }
 
-            nivelAcessoSelect.addEventListener('change', toggleAcademiaField);
+            nivelAcessoSelect.addEventListener('change', toggleFuncionarioFields);
             
-            // Verificar estado inicial
-            toggleAcademiaField();
+            toggleFuncionarioFields();
         });
     </script>
 @endsection

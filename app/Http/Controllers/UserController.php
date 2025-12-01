@@ -58,6 +58,18 @@ class UserController extends Controller
             'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
             'senha' => ['nullable', 'string', 'min:8', 'confirmed'],
             'salarioMensal' => ['nullable', 'numeric', 'min:0'],
+        ], [
+            'nome.required' => 'O nome é obrigatório.',
+            'email.email' => 'O e-mail deve ser válido.',
+            'email.unique' => 'Este e-mail já está em uso.',
+            'usuario.required' => 'O usuário é obrigatório.',
+            'usuario.unique' => 'Usuário já existente. Escolha outro nome de usuário.',
+            'nivelAcesso.required' => 'O nível de acesso é obrigatório.',
+            'nivelAcesso.in' => 'O nível de acesso deve ser Administrador ou Funcionário.',
+            'senha.min' => 'A senha deve ter no mínimo 8 caracteres.',
+            'senha.confirmed' => 'A confirmação da senha não confere.',
+            'salarioMensal.numeric' => 'O salário deve ser um número.',
+            'salarioMensal.min' => 'O salário não pode ser negativo.',
         ]);
 
         $user->nome = $request->nome;

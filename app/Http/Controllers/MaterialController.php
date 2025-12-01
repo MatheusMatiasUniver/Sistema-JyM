@@ -27,6 +27,13 @@ class MaterialController extends Controller
                 'estoque' => 'required|integer|min:0',
                 'unidadeMedida' => 'nullable|string|max:10',
                 'estoqueMinimo' => 'nullable|integer|min:0',
+            ], [
+                'descricao.required' => 'A descrição do material é obrigatória.',
+                'estoque.required' => 'O estoque é obrigatório.',
+                'estoque.integer' => 'O estoque deve ser um número inteiro.',
+                'estoque.min' => 'O estoque não pode ser negativo.',
+                'estoqueMinimo.integer' => 'O estoque mínimo deve ser um número inteiro.',
+                'estoqueMinimo.min' => 'O estoque mínimo não pode ser negativo.',
             ]);
             $dados['idAcademia'] = Auth::user()->idAcademia ?? config('app.academia_atual');
             Material::create($dados);
@@ -51,6 +58,13 @@ class MaterialController extends Controller
                 'estoque' => 'required|integer|min:0',
                 'unidadeMedida' => 'nullable|string|max:10',
                 'estoqueMinimo' => 'nullable|integer|min:0',
+            ], [
+                'descricao.required' => 'A descrição do material é obrigatória.',
+                'estoque.required' => 'O estoque é obrigatório.',
+                'estoque.integer' => 'O estoque deve ser um número inteiro.',
+                'estoque.min' => 'O estoque não pode ser negativo.',
+                'estoqueMinimo.integer' => 'O estoque mínimo deve ser um número inteiro.',
+                'estoqueMinimo.min' => 'O estoque mínimo não pode ser negativo.',
             ]);
             $material->update($dados);
             return redirect()->route('materiais.index')->with('success', 'Material atualizado');

@@ -32,6 +32,12 @@ class EquipamentoController extends Controller
                 'garantiaFim' => 'nullable|date',
                 'centroCusto' => 'nullable|string|max:255',
                 'status' => 'nullable|string|max:50',
+            ], [
+                'descricao.required' => 'A descrição do equipamento é obrigatória.',
+                'dataAquisicao.date' => 'A data de aquisição deve ser uma data válida.',
+                'valorAquisicao.numeric' => 'O valor de aquisição deve ser um número.',
+                'valorAquisicao.min' => 'O valor de aquisição não pode ser negativo.',
+                'garantiaFim.date' => 'A data de fim da garantia deve ser uma data válida.',
             ]);
             $dados['idAcademia'] = Auth::user()->idAcademia ?? config('app.academia_atual');
             Equipamento::create($dados);
@@ -61,6 +67,12 @@ class EquipamentoController extends Controller
                 'garantiaFim' => 'nullable|date',
                 'centroCusto' => 'nullable|string|max:255',
                 'status' => 'nullable|string|max:50',
+            ], [
+                'descricao.required' => 'A descrição do equipamento é obrigatória.',
+                'dataAquisicao.date' => 'A data de aquisição deve ser uma data válida.',
+                'valorAquisicao.numeric' => 'O valor de aquisição deve ser um número.',
+                'valorAquisicao.min' => 'O valor de aquisição não pode ser negativo.',
+                'garantiaFim.date' => 'A data de fim da garantia deve ser uma data válida.',
             ]);
             $equipamento->update($dados);
             return redirect()->route('equipamentos.index')->with('success', 'Equipamento atualizado');

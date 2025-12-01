@@ -8,6 +8,9 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
+use App\Models\ContaPagar;
+use App\Models\ContaPagarCategoria;
+use App\Models\AjusteSistema;
 
 class AuthController extends Controller
 {
@@ -63,9 +66,15 @@ class AuthController extends Controller
 
         if ($request->nivelAcesso === 'Funcionário') {
             $validationRules['idAcademia'] = ['required', 'exists:academias,idAcademia'];
+            $validationRules['salarioMensal'] = ['nullable', 'numeric', 'min:0'];
         }
 
-        $request->validate($validationRules);
+        $request->validate($validationRules, [
+            'usuario.unique' => 'Usuário já existente. Escolha outro nome de usuário.',
+            'email.unique' => 'Este e-mail já está em uso.',
+            'senha.min' => 'A senha deve ter no mínimo 8 caracteres.',
+            'senha.required' => 'A senha é obrigatória.',
+        ]);
 
         DB::beginTransaction();
         
@@ -96,8 +105,44 @@ class AuthController extends Controller
                 }
                 
                 $user->idAcademia = $academiaId;
+                $user->salarioMensal = $request->salarioMensal;
                 $user->save();
                 Log::info("Funcionário {$user->idUsuario} vinculado à academia {$academiaId}");
+
+                if ($request->salarioMensal && $request->salarioMensal > 0) {
+                    $categoriaSalarios = ContaPagarCategoria::firstOrCreate([
+                        'idAcademia' => $academiaId,
+                        'nome' => 'Salários',
+                    ], ['ativa' => true]);
+
+                    $ajuste = AjusteSistema::obterOuCriarParaAcademia($academiaId);
+                    $hoje = now();
+                    $anoMes = $hoje->format('Y-m');
+                    $dia = min(max((int)$ajuste->diaVencimentoSalarios, 1), 31);
+                    $vencimento = $hoje->copy()->startOfMonth()->setDay($dia);
+                    
+                    if ($vencimento->lt($hoje)) {
+                        $vencimento = $vencimento->addMonth();
+                    }
+
+                    $descricao = 'Salário funcionário - ' . $user->nome;
+
+                    ContaPagar::create([
+                        'idAcademia' => $academiaId,
+                        'idFornecedor' => null,
+                        'idFuncionario' => $user->idUsuario,
+                        'idCategoriaContaPagar' => $categoriaSalarios->idCategoriaContaPagar,
+                        'documentoRef' => null,
+                        'descricao' => $descricao,
+                        'valorTotal' => $request->salarioMensal,
+                        'status' => 'aberta',
+                        'dataVencimento' => $vencimento,
+                        'dataPagamento' => null,
+                        'formaPagamento' => null,
+                    ]);
+
+                    Log::info("Conta a pagar de salário criada para funcionário {$user->idUsuario}");
+                }
             }
 
             DB::commit();

@@ -35,6 +35,13 @@ class AjusteSistemaController extends Controller
             'permitirEdicaoManualEstoque' => 'nullable|boolean',
             'formasPagamentoAceitas' => ['required', 'array', 'min:1'],
             'formasPagamentoAceitas.*' => ['string', Rule::in(AjusteSistema::FORMAS_PAGAMENTO_PADRAO)],
+        ], [
+            'diaVencimentoSalarios.required' => 'O dia de vencimento dos salários é obrigatório.',
+            'diaVencimentoSalarios.integer' => 'O dia de vencimento deve ser um número.',
+            'diaVencimentoSalarios.min' => 'O dia de vencimento deve ser entre 1 e 31.',
+            'diaVencimentoSalarios.max' => 'O dia de vencimento deve ser entre 1 e 31.',
+            'formasPagamentoAceitas.required' => 'Selecione pelo menos uma forma de pagamento.',
+            'formasPagamentoAceitas.min' => 'Selecione pelo menos uma forma de pagamento.',
         ]);
 
         $ajuste = AjusteSistema::obterOuCriarParaAcademia($academiaId);

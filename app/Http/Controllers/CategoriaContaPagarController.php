@@ -25,6 +25,9 @@ class CategoriaContaPagarController extends Controller
         $academiaId = session('academia_selecionada') ?? (Auth::user()->idAcademia ?? null);
         $dados = $request->validate([
             'nome' => 'required|string|max:100',
+        ], [
+            'nome.required' => 'O nome da categoria é obrigatório.',
+            'nome.max' => 'O nome não pode ter mais de 100 caracteres.',
         ]);
         ContaPagarCategoria::create([
             'idAcademia' => $academiaId,

@@ -34,6 +34,10 @@ class MensalidadeController extends Controller
         $request->validate([
             'formaPagamento' => ['required', Rule::in($formasPagamentoAtivas)],
             'dataPagamento' => 'nullable|date',
+        ], [
+            'formaPagamento.required' => 'A forma de pagamento é obrigatória.',
+            'formaPagamento.in' => 'A forma de pagamento selecionada não é válida.',
+            'dataPagamento.date' => 'A data de pagamento deve ser uma data válida.',
         ]);
 
         DB::beginTransaction();

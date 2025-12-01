@@ -101,6 +101,9 @@ class AcademiaController extends Controller
         
         $request->validate([
             'idAcademia' => 'required|exists:academias,idAcademia'
+        ], [
+            'idAcademia.required' => 'Selecione uma academia.',
+            'idAcademia.exists' => 'A academia selecionada não existe.',
         ]);
         
         $academiaId = $request->idAcademia;

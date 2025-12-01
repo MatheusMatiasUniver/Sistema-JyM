@@ -162,6 +162,15 @@ class ManutencaoEquipamentoController extends Controller
             'custo' => 'nullable|numeric|min:0',
             'responsavel' => 'required|string|max:100',
             'fornecedorId' => 'nullable|integer|exists:fornecedores,idFornecedor',
+        ], [
+            'dataExecucao.required' => 'A data de execução é obrigatória.',
+            'dataExecucao.date' => 'A data de execução deve ser uma data válida.',
+            'servicoRealizado.required' => 'A descrição do serviço realizado é obrigatória.',
+            'servicoRealizado.max' => 'A descrição não pode ter mais de 2000 caracteres.',
+            'custo.numeric' => 'O custo deve ser um número.',
+            'custo.min' => 'O custo não pode ser negativo.',
+            'responsavel.required' => 'O responsável é obrigatório.',
+            'fornecedorId.exists' => 'O fornecedor selecionado não existe.',
         ]);
 
         try {

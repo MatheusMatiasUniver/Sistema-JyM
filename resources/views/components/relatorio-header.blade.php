@@ -10,7 +10,7 @@
 @endphp
 
 <div class="mb-6 print:hidden">
-    <h1 class="text-3xl font-bold text-gray-800 mb-4">{{ $titulo }}</h1>
+    <h1 class="text-3xl font-bold text-grip-6 mb-4">{{ $titulo }}</h1>
     
     <div class="flex flex-wrap gap-3">
         @if($pdfRoute)

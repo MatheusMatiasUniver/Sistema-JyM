@@ -47,7 +47,7 @@ class SimulationSeeder extends Seeder
 
     public function run(): void
     {
-        $this->command->info('🏋️ Iniciando simulação de 120 dias de operação para DUAS academias...');
+        $this->command->info('Iniciando simulacao de 120 dias de operacao para DUAS academias...');
         
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $this->truncateTables();
@@ -56,7 +56,7 @@ class SimulationSeeder extends Seeder
         $this->criarTodasAcademias();
         $this->simularOperacaoDiaria();
 
-        $this->command->info('✅ Simulação concluída com sucesso para DUAS academias!');
+        $this->command->info('Simulacao concluida com sucesso para DUAS academias!');
     }
 
     private function truncateTables(): void
@@ -93,7 +93,7 @@ class SimulationSeeder extends Seeder
 
     private function criarTodasAcademias(): void
     {
-        $this->command->info('📦 Criando dados estáticos para DUAS academias...');
+        $this->command->info('Criando dados estaticos para DUAS academias...');
 
         $academiasConfig = [
             [
@@ -159,7 +159,7 @@ class SimulationSeeder extends Seeder
         $this->academias = collect();
 
         foreach ($academiasConfig as $index => $config) {
-            $this->command->info("  🏢 Criando academia: {$config['academia']['nome']}");
+            $this->command->info("Criando academia: {$config['academia']['nome']}");
             
             $academia = Academia::create($config['academia']);
             $this->academias->push($academia);
@@ -196,10 +196,10 @@ class SimulationSeeder extends Seeder
                 'categoriasContaPagar' => $dadosAcademia['categoriasContaPagar'],
             ];
 
-            $this->command->info("    ✓ {$config['academia']['nome']}: " . count($config['clientes']) . " clientes criados");
+            $this->command->info("    - {$config['academia']['nome']}: " . count($config['clientes']) . " clientes criados");
         }
 
-        $this->command->info('  ✓ Todas as academias criadas com sucesso!');
+        $this->command->info('  - Todas as academias criadas com sucesso!');
     }
 
     private function criarDadosEstaticosAcademia(Academia $academia, User $funcionario): array
@@ -381,7 +381,7 @@ class SimulationSeeder extends Seeder
 
     private function simularOperacaoDiaria(): void
     {
-        $this->command->info('📅 Simulando operações diárias (120 dias) para cada academia...');
+        $this->command->info('Simulando operacoes diarias (120 dias) para cada academia...');
 
         $dataInicio = Carbon::now()->subDays(120);
         $dataFim = Carbon::now();
@@ -402,7 +402,7 @@ class SimulationSeeder extends Seeder
 
         $progressBar->finish();
         $this->command->newLine();
-        $this->command->info('  ✓ Operações diárias simuladas para todas as academias');
+        $this->command->info('  - Operacoes diarias simuladas para todas as academias');
     }
 
     private function carregarContextoAcademia(array $dados): void

@@ -54,6 +54,18 @@ class CompraController extends Controller
                 'valorImpostos' => 'nullable|numeric|min:0',
                 'dataVencimento' => 'nullable|date',
                 'observacoes' => 'nullable|string',
+            ], [
+                'idFornecedor.required' => 'O fornecedor é obrigatório.',
+                'idFornecedor.exists' => 'O fornecedor selecionado não existe.',
+                'itens.required' => 'Adicione pelo menos um item à compra.',
+                'itens.min' => 'Adicione pelo menos um item à compra.',
+                'itens.*.idProduto.required' => 'O produto é obrigatório.',
+                'itens.*.quantidade.required' => 'A quantidade é obrigatória.',
+                'itens.*.quantidade.min' => 'A quantidade deve ser pelo menos 1.',
+                'itens.*.precoUnitario.required' => 'O preço unitário é obrigatório.',
+                'valorFrete.numeric' => 'O valor do frete deve ser um número.',
+                'valorDesconto.numeric' => 'O valor do desconto deve ser um número.',
+                'dataVencimento.date' => 'A data de vencimento deve ser uma data válida.',
             ]);
 
             DB::beginTransaction();

@@ -44,6 +44,10 @@ class FornecedorController extends Controller
                 'endereco' => 'nullable|string|max:255',
                 'condicaoPagamentoPadrao' => 'nullable|string|max:100',
                 'ativo' => 'nullable|boolean',
+            ], [
+                'razaoSocial.required' => 'A razão social é obrigatória.',
+                'razaoSocial.max' => 'A razão social não pode ter mais de 255 caracteres.',
+                'email.email' => 'O e-mail deve ser válido.',
             ]);
 
             $validated['idAcademia'] = Auth::user()->idAcademia ?? config('app.academia_atual');
@@ -82,6 +86,10 @@ class FornecedorController extends Controller
                 'endereco' => 'nullable|string|max:255',
                 'condicaoPagamentoPadrao' => 'nullable|string|max:100',
                 'ativo' => 'nullable|boolean',
+            ], [
+                'razaoSocial.required' => 'A razão social é obrigatória.',
+                'razaoSocial.max' => 'A razão social não pode ter mais de 255 caracteres.',
+                'email.email' => 'O e-mail deve ser válido.',
             ]);
 
             $fornecedor->update($validated);
