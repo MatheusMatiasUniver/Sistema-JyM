@@ -4,9 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule; 
+use App\Http\Requests\UpdateUserRequest; 
 
 class UserController extends Controller
 {    
@@ -49,29 +50,8 @@ class UserController extends Controller
         return view('users.edit', compact('user'));
     }
 
-    public function update(Request $request, User $user)
+    public function update(UpdateUserRequest $request, User $user)
     {
-        $request->validate([
-            'nome' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'string', 'email', 'max:150', Rule::unique('users')->ignore($user->idUsuario, 'idUsuario')],
-            'usuario' => ['required', 'string', 'max:50', Rule::unique('users')->ignore($user->idUsuario, 'idUsuario')],
-            'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
-            'senha' => ['nullable', 'string', 'min:8', 'confirmed'],
-            'salarioMensal' => ['nullable', 'numeric', 'min:0'],
-        ], [
-            'nome.required' => 'O nome é obrigatório.',
-            'email.email' => 'O e-mail deve ser válido.',
-            'email.unique' => 'Este e-mail já está em uso.',
-            'usuario.required' => 'O usuário é obrigatório.',
-            'usuario.unique' => 'Usuário já existente. Escolha outro nome de usuário.',
-            'nivelAcesso.required' => 'O nível de acesso é obrigatório.',
-            'nivelAcesso.in' => 'O nível de acesso deve ser Administrador ou Funcionário.',
-            'senha.min' => 'A senha deve ter no mínimo 8 caracteres.',
-            'senha.confirmed' => 'A confirmação da senha não confere.',
-            'salarioMensal.numeric' => 'O salário deve ser um número.',
-            'salarioMensal.min' => 'O salário não pode ser negativo.',
-        ]);
-
         $user->nome = $request->nome;
         $user->email = $request->email;
         $user->usuario = $request->usuario;
@@ -84,13 +64,16 @@ class UserController extends Controller
 
         $user->save();
 
-        \App\Models\ActivityLog::create([
-            'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
-            'modulo' => 'Administrativo',
-            'acao' => 'update_user',
+        ActivityLog::create([
+            'usuarioId' => Auth::id(),
+            'modulo' => 'Usuários',
+            'acao' => 'atualizar',
             'entidade' => 'User',
             'entidadeId' => $user->idUsuario,
             'dados' => [
+                'nome' => $user->nome,
+                'email' => $user->email,
+                'usuario' => $user->usuario,
                 'nivelAcesso' => $user->nivelAcesso,
                 'salarioMensal' => $user->salarioMensal,
             ],
@@ -110,16 +93,19 @@ class UserController extends Controller
         }
 
         try {
+            $nomeUsuario = $user->nome;
             $user->delete();
-            \App\Models\ActivityLog::create([
-                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
-                'modulo' => 'Administrativo',
-                'acao' => 'delete_user',
+            
+            ActivityLog::create([
+                'usuarioId' => Auth::id(),
+                'modulo' => 'Usuários',
+                'acao' => 'excluir',
                 'entidade' => 'User',
                 'entidadeId' => $user->idUsuario,
-                'dados' => null,
+                'dados' => ['nome' => $nomeUsuario],
             ]);
-            return redirect()->route('users.index')->with('success', 'Usuário ' . $user->nome . ' excluído com sucesso!');
+            
+            return redirect()->route('users.index')->with('success', 'Usuário ' . $nomeUsuario . ' excluído com sucesso!');
         } catch (\Exception $e) {
             return back()->with('error', 'Falha ao excluir usuário.');
         }

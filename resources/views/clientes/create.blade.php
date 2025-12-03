@@ -29,6 +29,13 @@
 
             <div class="mb-4">
                 <label for="cpf" class="block text-gray-700 text-sm font-bold mb-2">CPF:</label>
+                
+                {{-- 
+                    [GATILHO DA MÁSCARA]
+                    O JavaScript (formatters.js) procura por inputs com id="cpf" ou name="cpf".
+                    Ao encontrar este input, ele adiciona automaticamente o evento 'input' que aplica a máscara de CPF.
+                    O usuário digita apenas números, e o JS formata visualmente para 000.000.000-00.
+                --}}
                 <input type="text" id="cpf" name="cpf" value="{{ old('cpf') }}" required
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline @error('cpf') border-red-500 @enderror"
                        placeholder="000.000.000-00">

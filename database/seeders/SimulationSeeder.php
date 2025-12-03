@@ -47,7 +47,7 @@ class SimulationSeeder extends Seeder
 
     public function run(): void
     {
-        $this->command->info('Iniciando simulacao de 120 dias de operacao para DUAS academias...');
+        $this->command->info('Iniciando operacao...');
         
         DB::statement('SET FOREIGN_KEY_CHECKS=0;');
         $this->truncateTables();
@@ -93,7 +93,7 @@ class SimulationSeeder extends Seeder
 
     private function criarTodasAcademias(): void
     {
-        $this->command->info('Criando dados estaticos para DUAS academias...');
+        $this->command->info('Criando dados estaticos...');
 
         $academiasConfig = [
             [
@@ -381,7 +381,7 @@ class SimulationSeeder extends Seeder
 
     private function simularOperacaoDiaria(): void
     {
-        $this->command->info('Simulando operacoes diarias (120 dias) para cada academia...');
+        $this->command->info('Gerando operacoes para cada academia...');
 
         $dataInicio = Carbon::now()->subDays(120);
         $dataFim = Carbon::now();

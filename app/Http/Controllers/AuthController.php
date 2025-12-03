@@ -11,6 +11,8 @@ use App\Models\User;
 use App\Models\ContaPagar;
 use App\Models\ContaPagarCategoria;
 use App\Models\AjusteSistema;
+use App\Models\ActivityLog;
+use App\Http\Requests\StoreUserRequest;
 
 class AuthController extends Controller
 {
@@ -50,31 +52,11 @@ class AuthController extends Controller
     /**
      * Processa o cadastro de novo usuário
      */
-    public function register(Request $request)
+    public function register(StoreUserRequest $request)
     {
         if (!Auth::check() || Auth::user()->nivelAcesso !== 'Administrador') {
             return redirect()->route('dashboard')->with('error', 'Acesso negado. Apenas administradores podem cadastrar novos usuários.');
         }
-
-        $validationRules = [
-            'nome' => ['required', 'string', 'max:255'],
-            'email' => ['nullable', 'string', 'email', 'max:150', 'unique:users,email'],
-            'usuario' => ['required', 'string', 'max:50', 'unique:users,usuario'],
-            'senha' => ['required', 'string', 'min:8'],
-            'nivelAcesso' => ['required', 'in:Administrador,Funcionário'],
-        ];
-
-        if ($request->nivelAcesso === 'Funcionário') {
-            $validationRules['idAcademia'] = ['required', 'exists:academias,idAcademia'];
-            $validationRules['salarioMensal'] = ['nullable', 'numeric', 'min:0'];
-        }
-
-        $request->validate($validationRules, [
-            'usuario.unique' => 'Usuário já existente. Escolha outro nome de usuário.',
-            'email.unique' => 'Este e-mail já está em uso.',
-            'senha.min' => 'A senha deve ter no mínimo 8 caracteres.',
-            'senha.required' => 'A senha é obrigatória.',
-        ]);
 
         DB::beginTransaction();
         
@@ -144,6 +126,20 @@ class AuthController extends Controller
                     Log::info("Conta a pagar de salário criada para funcionário {$user->idUsuario}");
                 }
             }
+
+            ActivityLog::create([
+                'usuarioId' => Auth::id(),
+                'modulo' => 'Usuários',
+                'acao' => 'criar',
+                'entidade' => 'User',
+                'entidadeId' => $user->idUsuario,
+                'dados' => [
+                    'nome' => $user->nome,
+                    'email' => $user->email,
+                    'usuario' => $user->usuario,
+                    'nivelAcesso' => $user->nivelAcesso,
+                ],
+            ]);
 
             DB::commit();
 

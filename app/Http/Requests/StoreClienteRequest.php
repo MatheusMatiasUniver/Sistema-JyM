@@ -7,21 +7,21 @@ use Illuminate\Validation\Rule;
 
 class StoreClienteRequest extends FormRequest
 {
-    /**
-     * Determine if the user is authorized to make this request.
-     */
     public function authorize(): bool
     {
         return true;
     }
 
-    /**
-     * Prepare the data for validation.
-     */
     protected function prepareForValidation()
     {
+        // [LIMPEZA DE DADOS - PRÉ-VALIDAÇÃO]
+        // Este método é executado AUTOMATICAMENTE pelo Laravel ANTES das regras de validação (rules()).
+        // Aqui removemos a máscara (pontos e traços) para que o banco receba apenas os números.
+        
         if ($this->has('cpf')) {
             $this->merge([
+                // preg_replace remove tudo que NÃO for número (0-9).
+                // Ex: Transforma "123.456.789-00" em "12345678900"
                 'cpf' => preg_replace('/[^0-9]/', '', $this->cpf)
             ]);
         }
