@@ -128,7 +128,7 @@ CREATE TABLE `clientes` (
   `idCliente` int unsigned NOT NULL AUTO_INCREMENT,
   `idAcademia` int unsigned DEFAULT NULL,
   `nome` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
-  `cpf` varchar(14) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `cpf` varchar(11) COLLATE utf8mb4_unicode_ci NOT NULL,
   `dataNascimento` date NOT NULL,
   `email` varchar(150) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `telefone` varchar(20) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -146,7 +146,7 @@ CREATE TABLE `clientes` (
   CONSTRAINT `clientes_idacademia_foreign` FOREIGN KEY (`idAcademia`) REFERENCES `academias` (`idAcademia`) ON DELETE CASCADE,
   CONSTRAINT `clientes_idplano_foreign` FOREIGN KEY (`idPlano`) REFERENCES `plano_assinaturas` (`idPlano`) ON DELETE SET NULL,
   CONSTRAINT `clientes_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `users` (`idUsuario`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -173,7 +173,7 @@ CREATE TABLE `compras` (
   KEY `compras_idfornecedor_index` (`idFornecedor`),
   CONSTRAINT `compras_idacademia_foreign` FOREIGN KEY (`idAcademia`) REFERENCES `academias` (`idAcademia`) ON DELETE CASCADE,
   CONSTRAINT `compras_idfornecedor_foreign` FOREIGN KEY (`idFornecedor`) REFERENCES `fornecedores` (`idFornecedor`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=78 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -205,7 +205,7 @@ CREATE TABLE `contas_pagar` (
   CONSTRAINT `contas_pagar_idcategoriacontapagar_foreign` FOREIGN KEY (`idCategoriaContaPagar`) REFERENCES `categorias_contas_pagar` (`idCategoriaContaPagar`) ON DELETE SET NULL,
   CONSTRAINT `contas_pagar_idfornecedor_foreign` FOREIGN KEY (`idFornecedor`) REFERENCES `fornecedores` (`idFornecedor`) ON DELETE RESTRICT,
   CONSTRAINT `contas_pagar_idfuncionario_foreign` FOREIGN KEY (`idFuncionario`) REFERENCES `users` (`idUsuario`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=126 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=112 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -231,7 +231,7 @@ CREATE TABLE `contas_receber` (
   KEY `contas_receber_idcliente_index` (`idCliente`),
   CONSTRAINT `contas_receber_idacademia_foreign` FOREIGN KEY (`idAcademia`) REFERENCES `academias` (`idAcademia`) ON DELETE CASCADE,
   CONSTRAINT `contas_receber_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idCliente`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=276 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=262 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -253,7 +253,7 @@ CREATE TABLE `entradas` (
   KEY `entradas_idcliente_foreign` (`idCliente`),
   CONSTRAINT `entradas_idacademia_foreign` FOREIGN KEY (`idAcademia`) REFERENCES `academias` (`idAcademia`) ON DELETE CASCADE,
   CONSTRAINT `entradas_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idCliente`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=3261 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3237 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -345,7 +345,7 @@ CREATE TABLE `itens_compras` (
   KEY `itens_compras_idproduto_index` (`idProduto`),
   CONSTRAINT `itens_compras_idcompra_foreign` FOREIGN KEY (`idCompra`) REFERENCES `compras` (`idCompra`) ON DELETE CASCADE,
   CONSTRAINT `itens_compras_idproduto_foreign` FOREIGN KEY (`idProduto`) REFERENCES `produtos` (`idProduto`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=238 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=226 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -366,7 +366,7 @@ CREATE TABLE `itens_vendas` (
   KEY `itens_vendas_idproduto_foreign` (`idProduto`),
   CONSTRAINT `itens_vendas_idproduto_foreign` FOREIGN KEY (`idProduto`) REFERENCES `produtos` (`idProduto`) ON DELETE CASCADE,
   CONSTRAINT `itens_vendas_idvenda_foreign` FOREIGN KEY (`idVenda`) REFERENCES `venda_produtos` (`idVenda`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2703 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2673 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -432,7 +432,7 @@ CREATE TABLE `manutencoes_equipamento` (
   KEY `manutencoes_equipamento_fornecedorid_foreign` (`fornecedorId`),
   CONSTRAINT `manutencoes_equipamento_fornecedorid_foreign` FOREIGN KEY (`fornecedorId`) REFERENCES `fornecedores` (`idFornecedor`) ON DELETE SET NULL,
   CONSTRAINT `manutencoes_equipamento_idequipamento_foreign` FOREIGN KEY (`idEquipamento`) REFERENCES `equipamentos` (`idEquipamento`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=30 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -502,7 +502,7 @@ CREATE TABLE `mensalidades` (
   CONSTRAINT `mensalidades_idacademia_foreign` FOREIGN KEY (`idAcademia`) REFERENCES `academias` (`idAcademia`) ON DELETE CASCADE,
   CONSTRAINT `mensalidades_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idCliente`) ON DELETE SET NULL,
   CONSTRAINT `mensalidades_idplano_foreign` FOREIGN KEY (`idPlano`) REFERENCES `plano_assinaturas` (`idPlano`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=354 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=336 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -545,7 +545,7 @@ CREATE TABLE `movimentacoes_estoque` (
   KEY `movimentacoes_estoque_idproduto_index` (`idProduto`),
   CONSTRAINT `movimentacoes_estoque_idacademia_foreign` FOREIGN KEY (`idAcademia`) REFERENCES `academias` (`idAcademia`) ON DELETE CASCADE,
   CONSTRAINT `movimentacoes_estoque_idproduto_foreign` FOREIGN KEY (`idProduto`) REFERENCES `produtos` (`idProduto`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2940 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2898 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -649,7 +649,7 @@ CREATE TABLE `pulse_aggregates` (
   KEY `pulse_aggregates_period_bucket_index` (`period`,`bucket`),
   KEY `pulse_aggregates_type_index` (`type`),
   KEY `pulse_aggregates_period_type_aggregate_bucket_index` (`period`,`type`,`aggregate`,`bucket`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=49 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -671,7 +671,7 @@ CREATE TABLE `pulse_entries` (
   KEY `pulse_entries_type_index` (`type`),
   KEY `pulse_entries_key_hash_index` (`key_hash`),
   KEY `pulse_entries_timestamp_type_key_hash_value_index` (`timestamp`,`type`,`key_hash`,`value`)
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -804,7 +804,7 @@ CREATE TABLE `venda_produtos` (
   CONSTRAINT `venda_produtos_idacademia_foreign` FOREIGN KEY (`idAcademia`) REFERENCES `academias` (`idAcademia`) ON DELETE CASCADE,
   CONSTRAINT `venda_produtos_idcliente_foreign` FOREIGN KEY (`idCliente`) REFERENCES `clientes` (`idCliente`) ON DELETE SET NULL,
   CONSTRAINT `venda_produtos_idusuario_foreign` FOREIGN KEY (`idUsuario`) REFERENCES `users` (`idUsuario`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=1098 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1105 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -816,4 +816,4 @@ CREATE TABLE `venda_produtos` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-12-03 18:37:03
+-- Dump completed on 2025-12-03 20:40:56

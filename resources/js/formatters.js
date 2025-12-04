@@ -174,5 +174,3 @@ export function initFormatters() {
 export function applyFormatting() {
     initFormatters();
 }
-
-document.addEventListener('DOMContentLoaded', initFormatters);
