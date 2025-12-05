@@ -355,9 +355,6 @@ class ProdutoController extends Controller
                 'dataMovimentacao' => now(),
                 'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
             ]);
-                'entidadeId' => $produto->idProduto,
-                'dados' => ['quantidade' => $validated['quantidade']],
-            ]);
         }
 
         return back()->with('success', $mensagem);

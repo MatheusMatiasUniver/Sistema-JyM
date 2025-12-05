@@ -51,9 +51,6 @@ class AjusteSistemaController extends Controller
         $ajuste->permitirEdicaoManualEstoque = $request->boolean('permitirEdicaoManualEstoque');
         $ajuste->formasPagamentoAceitas = array_values($dados['formasPagamentoAceitas']);
         $ajuste->save();
-                'formasPagamentoAceitas' => $ajuste->formasPagamentoAtivas,
-            ],
-        ]);
 
         return redirect()->route('ajustes.index')->with('success', 'Ajustes atualizados');
     }
