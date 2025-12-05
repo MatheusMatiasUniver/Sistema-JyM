@@ -21,7 +21,6 @@ class ContaPagar extends Model
         'idAcademia',
         'idFornecedor',
         'idFuncionario',
-        'idCategoriaContaPagar',
         'documentoRef',
         'descricao',
         'valorTotal',
@@ -40,11 +39,6 @@ class ContaPagar extends Model
     public function fornecedor(): BelongsTo
     {
         return $this->belongsTo(Fornecedor::class, 'idFornecedor', 'idFornecedor');
-    }
-
-    public function categoria(): BelongsTo
-    {
-        return $this->belongsTo(ContaPagarCategoria::class, 'idCategoriaContaPagar', 'idCategoriaContaPagar');
     }
 
     public function funcionario(): BelongsTo

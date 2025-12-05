@@ -128,17 +128,29 @@ class PlanoAssinaturaService
 
     /**
      * Verifica se um cliente pode ter seu status alterado para Ativo
+     * Considera apenas a mensalidade mais recente do cliente
      * @param Cliente $cliente
      * @return bool
      */
     public function podeAtivarCliente(Cliente $cliente): bool
     {
-        $mensalidadeVencida = Mensalidade::where('idCliente', $cliente->idCliente)
-            ->where('status', 'Pendente')
-            ->where('dataVencimento', '<', Carbon::today())
-            ->exists();
+        $mensalidadeMaisRecente = Mensalidade::where('idCliente', $cliente->idCliente)
+            ->orderBy('dataVencimento', 'desc')
+            ->first();
         
-        return !$mensalidadeVencida;
+        if (!$mensalidadeMaisRecente) {
+            return true;
+        }
+
+        if ($mensalidadeMaisRecente->status === 'Paga') {
+            return true;
+        }
+
+        if ($mensalidadeMaisRecente->status === 'Pendente' && $mensalidadeMaisRecente->dataVencimento >= Carbon::today()) {
+            return true;
+        }
+
+        return false;
     }
 
     /**

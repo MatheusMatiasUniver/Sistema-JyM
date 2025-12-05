@@ -195,19 +195,6 @@ class VendaController extends Controller
 
         event(new \App\Events\DashboardUpdated('sale'));
 
-        \App\Models\ActivityLog::create([
-            'usuarioId' => Auth::id(),
-            'modulo' => 'Vendas',
-            'acao' => 'criar',
-            'entidade' => 'VendaProduto',
-            'entidadeId' => $vendaId,
-            'dados' => [
-                'valorTotal' => $valorTotal,
-                'idCliente' => $dadosValidados['idCliente'] ?? null,
-                'formaPagamento' => $dadosValidados['formaPagamento'],
-            ],
-        ]);
-
         return redirect()->route('vendas.index')
                         ->with('success', 'Venda realizada com sucesso!');
 
@@ -247,7 +234,7 @@ class VendaController extends Controller
                     'custoTotal' => $custoUnitario * $item->quantidade,
                     'origem' => 'devolucao',
                     'referenciaId' => $venda->idVenda,
-                    'motivo' => 'cancelamento_venda',
+                    'motivo' => 'estorno_venda',
                     'dataMovimentacao' => now(),
                     'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
                 ]);
@@ -255,25 +242,14 @@ class VendaController extends Controller
 
             $venda->delete();
 
-            \App\Models\ActivityLog::create([
-                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
-                'modulo' => 'Vendas',
-                'acao' => 'cancelar',
-                'entidade' => 'VendaProduto',
-                'entidadeId' => $venda->idVenda,
-                'dados' => [
-                    'motivo' => 'cancelamento_venda',
-                ],
-            ]);
-
             DB::commit();
 
             return redirect()->route('vendas.index')
-                             ->with('success', 'Venda cancelada com sucesso!');
+                             ->with('success', 'Venda estornada com sucesso!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            return back()->with('error', 'Falha ao cancelar venda.');
+            return back()->with('error', 'Falha ao estornar venda.');
         }
     }
 }

@@ -19,6 +19,7 @@ return new class extends Migration {
             $table->string('endereco')->nullable();
             $table->string('condicaoPagamentoPadrao', 100)->nullable();
             $table->boolean('ativo')->default(true);
+            $table->timestamps();
         });
 
         Schema::table('fornecedores', function (Blueprint $table) {

@@ -130,7 +130,6 @@
             <a href="{{ route('relatorios.inadimplencia') }}" class="sidebar-nav-link"><i class="fas fa-user-times mr-2"></i>Inadimplência de Mensalidades</a>
             <a href="{{ route('relatorios.frequencia') }}" class="sidebar-nav-link"><i class="fas fa-user-clock mr-2"></i>Frequência de Clientes</a>
             <a href="{{ route('relatorios.vendas') }}" class="sidebar-nav-link"><i class="fas fa-shopping-bag mr-2"></i>Vendas de Produtos</a>
-            <a href="{{ route('relatorios.porFuncionario') }}" class="sidebar-nav-link"><i class="fas fa-id-badge mr-2"></i>Vendas e Despesas por Funcionário</a>
         </div>
 
     @auth

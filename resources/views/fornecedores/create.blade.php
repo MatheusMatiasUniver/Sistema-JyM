@@ -47,11 +47,6 @@
                 <input type="text" id="endereco" name="endereco" value="{{ old('endereco') }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline">
             </div>
 
-            <div class="mb-4">
-                <label for="condicaoPagamentoPadrao" class="block text-gray-700 text-sm font-bold mb-2">Condição de Pagamento Padrão:</label>
-                <input type="text" id="condicaoPagamentoPadrao" name="condicaoPagamentoPadrao" value="{{ old('condicaoPagamentoPadrao') }}" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 text-black leading-tight focus:outline-none focus:shadow-outline">
-            </div>
-
             <div class="mb-6">
                 <label class="inline-flex items-center">
                     <input type="checkbox" name="ativo" value="1" {{ old('ativo', true) ? 'checked' : '' }} class="form-checkbox h-5 w-5 text-green-600 text-black">

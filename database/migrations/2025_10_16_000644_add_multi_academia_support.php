@@ -9,10 +9,7 @@ class AddMultiAcademiaSupport extends Migration
 {
     public function up(): void
     {
-        echo "Iniciando a migração para suporte multi-academia...\n";
-
         if (!Schema::hasColumn('users', 'idAcademia')) {
-            echo "Adicionando 'idAcademia' à tabela 'users'...\n";
             Schema::table('users', function (Blueprint $table) {
                 $table->unsignedInteger('idAcademia')
                       ->nullable()
@@ -26,7 +23,6 @@ class AddMultiAcademiaSupport extends Migration
                 
                 $table->index('idAcademia');
             });
-            echo "✅ Coluna 'idAcademia' adicionada à tabela 'users'.\n";
         }
 
         $tabelas = [
@@ -39,8 +35,6 @@ class AddMultiAcademiaSupport extends Migration
 
         foreach ($tabelas as $tabela => $primaryKey) {
             if (Schema::hasTable($tabela) && !Schema::hasColumn($tabela, 'idAcademia')) {
-                echo "Adicionando 'idAcademia' à tabela '{$tabela}'...\n";
-                
                 Schema::table($tabela, function (Blueprint $table) use ($primaryKey) {
                     $table->unsignedInteger('idAcademia')
                           ->nullable()
@@ -53,13 +47,10 @@ class AddMultiAcademiaSupport extends Migration
                     
                     $table->index('idAcademia');
                 });
-                
-                echo "✅ Coluna 'idAcademia' adicionada à tabela '{$tabela}'.\n";
             }
         }
 
         if (!Schema::hasTable('usuario_academia')) {
-            echo "Criando tabela pivot 'usuario_academia'...\n";
             Schema::create('usuario_academia', function (Blueprint $table) {
                 $table->unsignedInteger('idUsuario');
                 $table->unsignedInteger('idAcademia');
@@ -77,14 +68,11 @@ class AddMultiAcademiaSupport extends Migration
                 $table->primary(['idUsuario', 'idAcademia']);
                 $table->timestamps();
             });
-            echo "Tabela 'usuario_academia' criada.\n";
         }
 
         $primeiraAcademia = DB::table('academias')->first();
         
         if ($primeiraAcademia) {
-            echo "Migrando dados existentes para academia '{$primeiraAcademia->nome}'...\n";
-            
             DB::table('users')
               ->where('nivelAcesso', 'Funcionário')
               ->whereNull('idAcademia')
@@ -112,20 +100,11 @@ class AddMultiAcademiaSupport extends Migration
                   ->whereNull('idAcademia')
                   ->update(['idAcademia' => $primeiraAcademia->idAcademia]);
             }
-            
-            echo "✅ Dados migrados com sucesso!\n";
-        } else {
-            echo "⚠️ Nenhuma academia encontrada. Os dados serão migrados quando academias forem criadas.\n";
         }
-
-        echo "✅ Suporte multi-academia adicionado com sucesso!\n";
     }
 
     public function down(): void
-    {
-        echo "Revertendo suporte multi-academia...\n";
-
-        Schema::dropIfExists('usuario_academia');
+    {        Schema::dropIfExists('usuario_academia');
 
         $tabelas = ['users', 'clientes', 'plano_assinaturas', 'produtos', 'entradas', 'venda_produtos'];
         

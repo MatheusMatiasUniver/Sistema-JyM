@@ -67,21 +67,7 @@ event(new KioskStatusChanged($status, $msg)); // Canal: kiosk-status
 | `Inadimplente` | Job `VerificarMensalidadesVencidas` atualiza diariamente |
 | `Inativo` | Definido manualmente |
 
-**Acesso no Kiosk:** Permitido para `Ativo` e `Inadimplente`. `Inativo` = acesso negado.
-
-## Auditoria (ActivityLog)
-
-Registrar ações críticas:
-```php
-ActivityLog::create([
-    'usuarioId' => Auth::id(),
-    'modulo' => 'Vendas',
-    'acao' => 'criar',
-    'entidade' => 'VendaProduto',
-    'entidadeId' => $id,
-    'dados' => ['valorTotal' => $valor],
-]);
-```
+**Acesso no Kiosk:** Permitido apenas para `Ativo`. `Inadimplente` e `Inativo` = acesso negado.
 
 ## Relatórios PDF
 

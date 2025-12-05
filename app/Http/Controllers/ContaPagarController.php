@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\ContaPagar;
 use App\Models\AjusteSistema;
 use App\Models\User;
-use App\Models\ContaPagarCategoria;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -18,11 +17,6 @@ class ContaPagarController extends Controller
         $ajuste = $academiaId ? AjusteSistema::obterOuCriarParaAcademia((int) $academiaId) : null;
         $formasPagamentoAtivas = $ajuste ? $ajuste->formasPagamentoAtivas : AjusteSistema::FORMAS_PAGAMENTO_PADRAO;
         if ($ajuste) {
-            $categoriaSalarios = ContaPagarCategoria::firstOrCreate([
-                'idAcademia' => $academiaId,
-                'nome' => 'Salários',
-            ], ['ativa' => true]);
-
             $hoje = now();
             $anoMes = $hoje->format('Y-m');
             $dia = min(max((int)$ajuste->diaVencimentoSalarios, 1), 31);
@@ -46,7 +40,6 @@ class ContaPagarController extends Controller
                         'idAcademia' => $academiaId,
                         'idFornecedor' => null,
                         'idFuncionario' => $func->idUsuario,
-                        'idCategoriaContaPagar' => $categoriaSalarios->idCategoriaContaPagar,
                         'documentoRef' => null,
                         'descricao' => $descricao,
                         'valorTotal' => $func->salarioMensal,
@@ -59,13 +52,10 @@ class ContaPagarController extends Controller
             }
         }
 
-        $query = ContaPagar::with(['fornecedor', 'categoria']);
+        $query = ContaPagar::with(['fornecedor']);
         
         if ($request->filled('status')) {
             $query->where('status', $request->status);
-        }
-        if ($request->filled('categoria')) {
-            $query->where('idCategoriaContaPagar', $request->categoria);
         }
         if ($request->filled('data_inicial')) {
             $query->whereDate('dataVencimento', '>=', $request->data_inicial);
@@ -76,12 +66,7 @@ class ContaPagarController extends Controller
         
         $contas = $query->orderBy('dataVencimento', 'desc')->paginate(20)->withQueryString();
         
-        $categorias = ContaPagarCategoria::where('idAcademia', $academiaId)
-            ->where('ativa', true)
-            ->orderBy('nome')
-            ->get();
-        
-        return view('financeiro.contas_pagar.index', compact('contas', 'formasPagamentoAtivas', 'categorias'));
+        return view('financeiro.contas_pagar.index', compact('contas', 'formasPagamentoAtivas'));
     }
 
     public function pagar(Request $request, ContaPagar $conta)
@@ -106,19 +91,6 @@ class ContaPagarController extends Controller
         $conta->dataPagamento = $dados['dataPagamento'] ?? now();
         $conta->status = 'paga';
         $conta->save();
-
-        \App\Models\ActivityLog::create([
-            'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
-            'modulo' => 'Financeiro',
-            'acao' => 'pagar_conta',
-            'entidade' => 'ContaPagar',
-            'entidadeId' => $conta->idContaPagar,
-            'dados' => [
-                'formaPagamento' => $conta->formaPagamento,
-                'dataPagamento' => $conta->dataPagamento,
-                'valorTotal' => $conta->valorTotal,
-            ],
-        ]);
 
         return back()->with('success', 'Conta faturada com sucesso');
     }

@@ -24,6 +24,11 @@ class VerificarMensalidadesVencidas implements ShouldQueue
 
     /**
      * Execute the job.
+     * 
+     * Critério de Inadimplência:
+     * - Verifica a MENSALIDADE MAIS RECENTE de cada cliente
+     * - Se a mensalidade mais recente está Pendente E vencida → Inadimplente
+     * - Se a mensalidade mais recente está Paga OU (Pendente e não vencida) → Ativo
      */
     public function handle(): void
     {
@@ -35,12 +40,14 @@ class VerificarMensalidadesVencidas implements ShouldQueue
             $clientesAtualizados = 0;
             
             foreach ($clientesAtivos as $cliente) {
-                $mensalidadeVencida = Mensalidade::where('idCliente', $cliente->idCliente)
-                    ->where('status', 'Pendente')
-                    ->where('dataVencimento', '<', Carbon::today())
-                    ->exists();
+                $mensalidadeMaisRecente = Mensalidade::where('idCliente', $cliente->idCliente)
+                    ->orderBy('dataVencimento', 'desc')
+                    ->first();
                 
-                if ($mensalidadeVencida) {
+                if ($mensalidadeMaisRecente && 
+                    $mensalidadeMaisRecente->status === 'Pendente' && 
+                    $mensalidadeMaisRecente->dataVencimento < Carbon::today()) {
+                    
                     $cliente->update(['status' => 'Inadimplente']);
                     $clientesAtualizados++;
                     

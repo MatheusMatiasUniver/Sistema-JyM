@@ -160,6 +160,7 @@
                                     <button type="button" data-action="{{ route('clientes.renew', $cliente->idCliente) }}" class="text-green-600 hover:text-green-900 text-sm btn-renovar-cliente">Renovar</button>
                                 @endif
 
+                                @if(auth()->user()->nivel === 'admin')
                                     <form action="{{ route('clientes.destroy', $cliente->idCliente) }}" method="POST" autocomplete="off"
                                           data-confirm="Tem certeza que deseja excluir este cliente?"
                                           data-confirm-title="Excluir Cliente"
@@ -170,6 +171,7 @@
                                         @method('DELETE')
                                         <button type="submit" class="text-red-600 hover:text-red-900">Excluir</button>
                                     </form>
+                                @endif
                             </div>
                         </td>
                     </tr>

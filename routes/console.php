@@ -14,6 +14,11 @@ Schedule::command('mensalidades:verificar')
     ->withoutOverlapping()
     ->appendOutputTo(storage_path('logs/scheduler.log'));
 
+Schedule::job(new \App\Jobs\GerarSalariosMensais)
+    ->dailyAt('01:00')
+    ->withoutOverlapping()
+    ->appendOutputTo(storage_path('logs/salarios.log'));
+
 Artisan::command('verify:cliente-soft-delete', function () {
     $cpf = (string) random_int(10000000000, 99999999999);
     $cliente = Cliente::create([

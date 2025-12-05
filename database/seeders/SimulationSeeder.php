@@ -23,7 +23,6 @@ use App\Models\Compra;
 use App\Models\ItemCompra;
 use App\Models\Mensalidade;
 use App\Models\ContaPagar;
-use App\Models\ContaPagarCategoria;
 use App\Models\ContaReceber;
 use App\Models\ManutencaoEquipamento;
 use App\Models\MovimentacaoEstoque;
@@ -38,7 +37,6 @@ class SimulationSeeder extends Seeder
     private $planosAtual;
     private $fornecedoresAtual;
     private $equipamentosAtual;
-    private $categoriasContaPagarAtual;
 
     private $academias;
     private $dadosPorAcademia = [];
@@ -78,7 +76,6 @@ class SimulationSeeder extends Seeder
             'categorias',
             'marcas',
             'fornecedores',
-            'categorias_contas_pagar',
             'clientes',
             'plano_assinaturas',
             'usuario_academia',
@@ -193,7 +190,6 @@ class SimulationSeeder extends Seeder
                 'planos' => $dadosAcademia['planos'],
                 'fornecedores' => $dadosAcademia['fornecedores'],
                 'equipamentos' => $dadosAcademia['equipamentos'],
-                'categoriasContaPagar' => $dadosAcademia['categoriasContaPagar'],
             ];
 
             $this->command->info("    - {$config['academia']['nome']}: " . count($config['clientes']) . " clientes criados");
@@ -251,9 +247,9 @@ class SimulationSeeder extends Seeder
         }
 
         $fornecedoresData = [
-            ['razaoSocial' => 'Distribuidora de Suplementos Ltda', 'cnpjCpf' => '11222333000144', 'contato' => 'João Silva', 'telefone' => '(11) 3333-4444', 'email' => 'vendas@distsuplementos.com.br', 'endereco' => 'São Paulo - SP', 'condicaoPagamentoPadrao' => '30 dias'],
-            ['razaoSocial' => 'Bebidas & Cia ME', 'cnpjCpf' => '22333444000155', 'contato' => 'Ana Paula', 'telefone' => '(44) 3232-5555', 'email' => 'contato@bebidasecia.com.br', 'endereco' => 'Maringá - PR', 'condicaoPagamentoPadrao' => '15 dias'],
-            ['razaoSocial' => 'Artigos Esportivos Brasil', 'cnpjCpf' => '33444555000166', 'contato' => 'Roberto Carlos', 'telefone' => '(21) 2222-6666', 'email' => 'comercial@artigosbr.com.br', 'endereco' => 'Rio de Janeiro - RJ', 'condicaoPagamentoPadrao' => '28 dias'],
+            ['razaoSocial' => 'Distribuidora de Suplementos Ltda', 'cnpjCpf' => '11222333000144', 'contato' => 'João Silva', 'telefone' => '(11) 3333-4444', 'email' => 'vendas@distsuplementos.com.br', 'endereco' => 'São Paulo - SP'],
+            ['razaoSocial' => 'Bebidas & Cia ME', 'cnpjCpf' => '22333444000155', 'contato' => 'Ana Paula', 'telefone' => '(44) 3232-5555', 'email' => 'contato@bebidasecia.com.br', 'endereco' => 'Maringá - PR'],
+            ['razaoSocial' => 'Artigos Esportivos Brasil', 'cnpjCpf' => '33444555000166', 'contato' => 'Roberto Carlos', 'telefone' => '(21) 2222-6666', 'email' => 'comercial@artigosbr.com.br', 'endereco' => 'Rio de Janeiro - RJ'],
         ];
 
         $fornecedores = collect();
@@ -328,20 +324,6 @@ class SimulationSeeder extends Seeder
             ]));
         }
 
-        $categoriasContaPagarData = [
-            'Aluguel', 'Energia Elétrica', 'Água', 'Internet', 'Telefone',
-            'Manutenção', 'Fornecedores', 'Salários', 'Impostos', 'Outros'
-        ];
-
-        $categoriasContaPagar = collect();
-        foreach ($categoriasContaPagarData as $nome) {
-            $categoriasContaPagar->push(ContaPagarCategoria::create([
-                'idAcademia' => $academia->idAcademia,
-                'nome' => $nome,
-                'ativa' => true,
-            ]));
-        }
-
         return [
             'planos' => $planos,
             'categorias' => $categorias,
@@ -349,7 +331,6 @@ class SimulationSeeder extends Seeder
             'fornecedores' => $fornecedores,
             'produtos' => $produtos,
             'equipamentos' => $equipamentos,
-            'categoriasContaPagar' => $categoriasContaPagar,
         ];
     }
 
@@ -415,7 +396,6 @@ class SimulationSeeder extends Seeder
         $this->planosAtual = $dados['planos'];
         $this->fornecedoresAtual = $dados['fornecedores'];
         $this->equipamentosAtual = $dados['equipamentos'];
-        $this->categoriasContaPagarAtual = $dados['categoriasContaPagar'];
     }
 
     private function processarDia(Carbon $data): void
@@ -467,7 +447,7 @@ class SimulationSeeder extends Seeder
                 'idCliente' => $cliente->idCliente,
                 'idAcademia' => $this->academiaAtual->idAcademia,
                 'dataHora' => $dataHora,
-                'metodo' => fake()->randomElement(['Reconhecimento Facial', 'Reconhecimento Facial', 'CPF/Senha', 'Manual']),
+                'metodo' => fake()->randomElement(['Reconhecimento Facial', 'Reconhecimento Facial', 'Reconhecimento Facial', 'Codigo de Acesso']),
             ]);
         }
     }
@@ -620,13 +600,11 @@ class SimulationSeeder extends Seeder
             ]);
         }
 
-        $categoriaFornecedor = $this->categoriasContaPagarAtual->firstWhere('nome', 'Fornecedores');
         $dataVencimento = $data->copy()->addDays(30);
 
         ContaPagar::create([
             'idAcademia' => $this->academiaAtual->idAcademia,
             'idFornecedor' => $fornecedor->idFornecedor,
-            'idCategoriaContaPagar' => $categoriaFornecedor->idCategoriaContaPagar,
             'documentoRef' => $compra->idCompra,
             'descricao' => 'Compra de produtos',
             'valorTotal' => $valorTotal,
@@ -716,15 +694,14 @@ class SimulationSeeder extends Seeder
     private function gerarContasFixasMensais(Carbon $data): void
     {
         $contasFixas = [
-            ['categoria' => 'Aluguel', 'descricao' => 'Aluguel do imóvel', 'valor' => 5000.00, 'diaVenc' => 5],
-            ['categoria' => 'Energia Elétrica', 'descricao' => 'Conta de energia', 'valor' => rand(800, 1500), 'diaVenc' => 15],
-            ['categoria' => 'Água', 'descricao' => 'Conta de água', 'valor' => rand(200, 400), 'diaVenc' => 15],
-            ['categoria' => 'Internet', 'descricao' => 'Serviço de internet', 'valor' => 299.90, 'diaVenc' => 10],
-            ['categoria' => 'Telefone', 'descricao' => 'Telefone fixo', 'valor' => 89.90, 'diaVenc' => 10],
+            ['descricao' => 'Aluguel do imóvel', 'valor' => 5000.00, 'diaVenc' => 5],
+            ['descricao' => 'Conta de energia', 'valor' => rand(800, 1500), 'diaVenc' => 15],
+            ['descricao' => 'Conta de água', 'valor' => rand(200, 400), 'diaVenc' => 15],
+            ['descricao' => 'Serviço de internet', 'valor' => 299.90, 'diaVenc' => 10],
+            ['descricao' => 'Telefone fixo', 'valor' => 89.90, 'diaVenc' => 10],
         ];
 
         foreach ($contasFixas as $conta) {
-            $categoria = $this->categoriasContaPagarAtual->firstWhere('nome', $conta['categoria']);
             $dataVencimento = $data->copy()->day($conta['diaVenc']);
             
             $isPaga = $dataVencimento->lt(Carbon::now());
@@ -732,7 +709,6 @@ class SimulationSeeder extends Seeder
             ContaPagar::create([
                 'idAcademia' => $this->academiaAtual->idAcademia,
                 'idFornecedor' => null,
-                'idCategoriaContaPagar' => $categoria ? $categoria->idCategoriaContaPagar : null,
                 'descricao' => $conta['descricao'] . ' - ' . $data->format('m/Y'),
                 'valorTotal' => $conta['valor'],
                 'status' => $isPaga ? 'paga' : 'aberta',
@@ -743,7 +719,6 @@ class SimulationSeeder extends Seeder
         }
 
         if ($data->day == 1) {
-            $categoriaSalario = $this->categoriasContaPagarAtual->firstWhere('nome', 'Salários');
             $dataVencimento = $data->copy()->day(5);
             $isPaga = $dataVencimento->lt(Carbon::now());
 
@@ -751,7 +726,6 @@ class SimulationSeeder extends Seeder
                 'idAcademia' => $this->academiaAtual->idAcademia,
                 'idFornecedor' => null,
                 'idFuncionario' => $this->funcionarioAtual->idUsuario,
-                'idCategoriaContaPagar' => $categoriaSalario ? $categoriaSalario->idCategoriaContaPagar : null,
                 'descricao' => 'Salário funcionário - ' . $this->funcionarioAtual->nome,
                 'valorTotal' => $this->funcionarioAtual->salarioMensal,
                 'status' => $isPaga ? 'paga' : 'aberta',

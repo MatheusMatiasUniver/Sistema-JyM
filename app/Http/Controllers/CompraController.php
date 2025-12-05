@@ -9,7 +9,6 @@ use App\Models\Produto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\ContaPagarCategoria;
 
 class CompraController extends Controller
 {
@@ -99,17 +98,9 @@ class CompraController extends Controller
             $valorTotal = $valorProdutos + $compra->valorFrete + $compra->valorImpostos - $compra->valorDesconto;
             $compra->update(['valorProdutos' => $valorProdutos, 'valorTotal' => $valorTotal]);
 
-            $categoria = ContaPagarCategoria::firstOrCreate([
-                'idAcademia' => $academiaId,
-                'nome' => 'Compra de produtos',
-            ], [
-                'ativa' => true,
-            ]);
-
             DB::table('contas_pagar')->insert([
                 'idAcademia' => $academiaId,
                 'idFornecedor' => $compra->idFornecedor,
-                'idCategoriaContaPagar' => $categoria->idCategoriaContaPagar,
                 'documentoRef' => $compra->idCompra,
                 'descricao' => 'Compra #'.$compra->idCompra,
                 'valorTotal' => $valorTotal,

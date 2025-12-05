@@ -22,18 +22,6 @@
             </div>
 
             <div>
-                <label for="categoria" class="block text-gray-700 text-sm font-bold mb-2">Categoria:</label>
-                <select id="categoria" name="categoria" class="select">
-                    <option value="">Todas</option>
-                    @foreach ($categorias as $categoria)
-                        <option value="{{ $categoria->idCategoriaContaPagar }}" {{ request('categoria') == $categoria->idCategoriaContaPagar ? 'selected' : '' }}>
-                            {{ $categoria->nome }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div>
                 <label for="data_inicial" class="block text-gray-700 text-sm font-bold mb-2">Vencimento Inicial:</label>
                 <input type="date" id="data_inicial" name="data_inicial" value="{{ request('data_inicial') }}"
                        class="shadow appearance-none border rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
@@ -79,7 +67,6 @@
         <table class="min-w-full leading-normal">
             <thead>
                 <tr>
-                    <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Categoria</th>
                     <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Fornecedor</th>
                     <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Descrição</th>
                     <th class="px-5 py-3 border-b-2 bg-gray-100 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">Valor</th>
@@ -91,11 +78,6 @@
             <tbody>
                 @forelse($contas as $c)
                     <tr>
-                        <td class="px-5 py-5 border-b bg-white text-sm">
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
-                                {{ optional($c->categoria)->nome ?? '—' }}
-                            </span>
-                        </td>
                         <td class="px-5 py-5 border-b bg-white text-sm">{{ optional($c->fornecedor)->razaoSocial ?? '—' }}</td>
                         <td class="px-5 py-5 border-b bg-white text-sm">{{ $c->descricao }}</td>
                         <td class="px-5 py-5 border-b bg-white text-sm font-medium">R$ {{ number_format($c->valorTotal,2,',','.') }}</td>
@@ -134,7 +116,7 @@
                         </td>
                     </tr>
                 @empty
-                    <tr><td colspan="7" class="px-5 py-5 border-b bg-white text-sm text-center text-gray-500">Nenhuma conta encontrada.</td></tr>
+                    <tr><td colspan="6" class="px-5 py-5 border-b bg-white text-sm text-center text-gray-500">Nenhuma conta encontrada.</td></tr>
                 @endforelse
             </tbody>
         </table>

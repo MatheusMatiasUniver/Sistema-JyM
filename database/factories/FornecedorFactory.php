@@ -36,7 +36,6 @@ class FornecedorFactory extends Factory
             'telefone' => sprintf('(%02d) %04d-%04d', fake()->numberBetween(11, 99), fake()->numberBetween(3000, 3999), fake()->numberBetween(1000, 9999)),
             'email' => fake('pt_BR')->companyEmail(),
             'endereco' => fake('pt_BR')->city() . ' - ' . fake('pt_BR')->stateAbbr(),
-            'condicaoPagamentoPadrao' => fake()->randomElement(['15 dias', '21 dias', '28 dias', '30 dias', '45 dias']),
             'ativo' => true,
             'idAcademia' => Academia::factory(),
         ];
