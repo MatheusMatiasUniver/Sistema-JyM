@@ -51,18 +51,6 @@ class AjusteSistemaController extends Controller
         $ajuste->permitirEdicaoManualEstoque = $request->boolean('permitirEdicaoManualEstoque');
         $ajuste->formasPagamentoAceitas = array_values($dados['formasPagamentoAceitas']);
         $ajuste->save();
-
-        \App\Models\ActivityLog::create([
-            'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
-            'modulo' => 'AjustesSistema',
-            'acao' => 'update',
-            'entidade' => 'AjusteSistema',
-            'entidadeId' => null,
-            'dados' => [
-                'idAcademia' => $academiaId,
-                'diaVencimentoSalarios' => $ajuste->diaVencimentoSalarios,
-                'clienteOpcionalVenda' => $ajuste->clienteOpcionalVenda,
-                'permitirEdicaoManualEstoque' => $ajuste->permitirEdicaoManualEstoque,
                 'formasPagamentoAceitas' => $ajuste->formasPagamentoAtivas,
             ],
         ]);

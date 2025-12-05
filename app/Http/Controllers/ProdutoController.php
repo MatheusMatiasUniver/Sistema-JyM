@@ -337,14 +337,6 @@ class ProdutoController extends Controller
                 'dataMovimentacao' => now(),
                 'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
             ]);
-            \App\Models\ActivityLog::create([
-                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
-                'modulo' => 'Estoque',
-                'acao' => 'ajuste_adicionar',
-                'entidade' => 'Produto',
-                'entidadeId' => $produto->idProduto,
-                'dados' => ['quantidade' => $validated['quantidade']],
-            ]);
         } else {
             if (!$produto->baixarEstoque($validated['quantidade'])) {
                 return back()->with('error', 'Estoque insuficiente!');
@@ -363,11 +355,6 @@ class ProdutoController extends Controller
                 'dataMovimentacao' => now(),
                 'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
             ]);
-            \App\Models\ActivityLog::create([
-                'usuarioId' => \Illuminate\Support\Facades\Auth::id(),
-                'modulo' => 'Estoque',
-                'acao' => 'ajuste_remover',
-                'entidade' => 'Produto',
                 'entidadeId' => $produto->idProduto,
                 'dados' => ['quantidade' => $validated['quantidade']],
             ]);

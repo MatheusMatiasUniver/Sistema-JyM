@@ -20,7 +20,7 @@ class StoreUserRequest extends FormRequest
             'email' => ['required', 'string', 'email', 'max:150', 'unique:users,email'],
             'senha' => ['required', 'string', 'min:6'],
             'nivelAcesso' => ['required', 'in:Administrador,Funcionario'],
-            'idAcademia' => ['required', 'exists:academias,idAcademia'],
+            'idAcademia' => [$this->input('nivelAcesso') === 'Funcionario' ? 'required' : 'nullable', 'nullable', 'exists:academias,idAcademia'],
             'salarioMensal' => ['nullable', 'numeric', 'min:0'],
         ];
     }
@@ -38,7 +38,7 @@ class StoreUserRequest extends FormRequest
             'senha.min' => 'A senha deve ter no mínimo 6 caracteres.',
             'nivelAcesso.required' => 'O nível de acesso é obrigatório.',
             'nivelAcesso.in' => 'Nível de acesso inválido.',
-            'idAcademia.required' => 'A academia é obrigatória.',
+            'idAcademia.required' => 'A academia é obrigatória para funcionários.',
             'idAcademia.exists' => 'Academia não encontrada.',
             'salarioMensal.numeric' => 'O salário deve ser um número.',
             'salarioMensal.min' => 'O salário não pode ser negativo.',

@@ -78,20 +78,6 @@ class ManutencaoEquipamentoController extends Controller
 
             $equipamento->update(['status' => StatusEquipamento::EM_MANUTENCAO->value]);
 
-            \App\Models\ActivityLog::create([
-                'usuarioId' => Auth::id(),
-                'modulo' => 'Equipamentos',
-                'acao' => 'registrar_manutencao',
-                'entidade' => 'ManutencaoEquipamento',
-                'entidadeId' => $manutencao->idManutencao,
-                'dados' => [
-                    'idEquipamento' => $equipamento->idEquipamento,
-                    'equipamento' => $equipamento->descricao,
-                    'tipo' => $dados['tipo'],
-                    'descricao' => $dados['descricao'],
-                ],
-            ]);
-
             return redirect()
                 ->route('manutencoes.index')
                 ->with('success', 'Manutenção registrada com sucesso! Status do equipamento alterado para "Em Manutenção".');
@@ -127,21 +113,6 @@ class ManutencaoEquipamentoController extends Controller
             $dados = $request->validated();
 
             $manutencao->finalizarManutencao($dados);
-
-            \App\Models\ActivityLog::create([
-                'usuarioId' => Auth::id(),
-                'modulo' => 'Equipamentos',
-                'acao' => 'finalizar_manutencao',
-                'entidade' => 'ManutencaoEquipamento',
-                'entidadeId' => $manutencao->idManutencao,
-                'dados' => [
-                    'idEquipamento' => $manutencao->idEquipamento,
-                    'equipamento' => $manutencao->equipamento?->descricao ?? 'N/A',
-                    'servicoRealizado' => $dados['servicoRealizado'],
-                    'custo' => $dados['custo'] ?? null,
-                    'responsavel' => $dados['responsavel'],
-                ],
-            ]);
 
             return redirect()
                 ->route('manutencoes.index')
@@ -185,21 +156,6 @@ class ManutencaoEquipamentoController extends Controller
             }
 
             $manutencao->finalizarManutencao($dados);
-
-            \App\Models\ActivityLog::create([
-                'usuarioId' => Auth::id(),
-                'modulo' => 'Equipamentos',
-                'acao' => 'finalizar_manutencao',
-                'entidade' => 'ManutencaoEquipamento',
-                'entidadeId' => $manutencao->idManutencao,
-                'dados' => [
-                    'idEquipamento' => $manutencao->idEquipamento,
-                    'equipamento' => $manutencao->equipamento?->descricao ?? 'N/A',
-                    'servicoRealizado' => $dados['servicoRealizado'],
-                    'custo' => $dados['custo'] ?? null,
-                    'responsavel' => $dados['responsavel'],
-                ],
-            ]);
 
             return redirect()
                 ->route('manutencoes.index')

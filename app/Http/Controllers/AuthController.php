@@ -9,9 +9,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\ContaPagar;
-use App\Models\ContaPagarCategoria;
 use App\Models\AjusteSistema;
-use App\Models\ActivityLog;
 use App\Http\Requests\StoreUserRequest;
 
 class AuthController extends Controller
@@ -92,11 +90,6 @@ class AuthController extends Controller
                 Log::info("Funcionário {$user->idUsuario} vinculado à academia {$academiaId}");
 
                 if ($request->salarioMensal && $request->salarioMensal > 0) {
-                    $categoriaSalarios = ContaPagarCategoria::firstOrCreate([
-                        'idAcademia' => $academiaId,
-                        'nome' => 'Salários',
-                    ], ['ativa' => true]);
-
                     $ajuste = AjusteSistema::obterOuCriarParaAcademia($academiaId);
                     $hoje = now();
                     $anoMes = $hoje->format('Y-m');
@@ -113,7 +106,6 @@ class AuthController extends Controller
                         'idAcademia' => $academiaId,
                         'idFornecedor' => null,
                         'idFuncionario' => $user->idUsuario,
-                        'idCategoriaContaPagar' => $categoriaSalarios->idCategoriaContaPagar,
                         'documentoRef' => null,
                         'descricao' => $descricao,
                         'valorTotal' => $request->salarioMensal,
@@ -126,20 +118,6 @@ class AuthController extends Controller
                     Log::info("Conta a pagar de salário criada para funcionário {$user->idUsuario}");
                 }
             }
-
-            ActivityLog::create([
-                'usuarioId' => Auth::id(),
-                'modulo' => 'Usuários',
-                'acao' => 'criar',
-                'entidade' => 'User',
-                'entidadeId' => $user->idUsuario,
-                'dados' => [
-                    'nome' => $user->nome,
-                    'email' => $user->email,
-                    'usuario' => $user->usuario,
-                    'nivelAcesso' => $user->nivelAcesso,
-                ],
-            ]);
 
             DB::commit();
 

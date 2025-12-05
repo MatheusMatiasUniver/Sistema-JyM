@@ -266,14 +266,16 @@ class ClienteController extends Controller
             $entradasCount = \App\Models\Entrada::where('idCliente', $cliente->idCliente)->count();
             $vendasCount = \App\Models\VendaProduto::where('idCliente', $cliente->idCliente)->count();
 
-            if (!request()->has('confirm') || request('confirm') !== 'yes') {
+            $totalVinculos = $mensalidadesCount + $entradasCount + $vendasCount;
+            if ($totalVinculos > 0) {
                 return redirect()->route('clientes.confirmForceDelete', ['id' => $id])
-                    ->with('warning', 'Excluir definitivamente pode tornar históricos inconsistentes. Confirme para prosseguir.');
+                    ->with('error', "Não é possível excluir permanentemente este cliente. Existem {$totalVinculos} registro(s) vinculado(s): {$mensalidadesCount} mensalidade(s), {$entradasCount} entrada(s), {$vendasCount} venda(s). Utilize a exclusão lógica (soft delete) para manter o histórico.");
             }
 
-            \App\Models\Mensalidade::where('idCliente', $cliente->idCliente)->update(['idCliente' => null]);
-            \App\Models\Entrada::where('idCliente', $cliente->idCliente)->update(['idCliente' => null]);
-            \App\Models\VendaProduto::where('idCliente', $cliente->idCliente)->update(['idCliente' => null]);
+            if (!request()->has('confirm') || request('confirm') !== 'yes') {
+                return redirect()->route('clientes.confirmForceDelete', ['id' => $id])
+                    ->with('warning', 'Confirme a exclusão permanente deste cliente.');
+            }
 
             if ($cliente->foto && Storage::disk('public')->exists($cliente->foto)) {
                 Storage::disk('public')->delete($cliente->foto);
@@ -281,7 +283,7 @@ class ClienteController extends Controller
 
             $cliente->forceDelete();
 
-            return redirect()->route('clientes.excluidos.index')->with('success', 'Cliente excluído definitivamente. Histórico preservado como "Cliente Deletado".');
+            return redirect()->route('clientes.excluidos.index')->with('success', 'Cliente excluído permanentemente.');
         } catch (\Exception $e) {
             return back()->withErrors(['error' => 'Erro ao excluir definitivamente: ' . $e->getMessage()]);
         }
@@ -319,6 +321,12 @@ class ClienteController extends Controller
                     $novaMensalidade->dataPagamento = now();
                     $novaMensalidade->formaPagamento = $formaPagamento;
                     $novaMensalidade->save();
+
+                    $cliente->refresh();
+                    if ($planoService->podeAtivarCliente($cliente)) {
+                        $cliente->status = 'Ativo';
+                        $cliente->save();
+                    }
 
                     $recebimentoData = $novaMensalidade->dataPagamento ?? now();
                     $updated = DB::table('contas_receber')

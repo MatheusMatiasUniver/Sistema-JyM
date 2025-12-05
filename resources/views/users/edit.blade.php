@@ -66,11 +66,18 @@
 
             <div class="mb-6">
                 <label for="nivelAcesso" class="block text-gray-700 text-sm font-bold mb-2">Nível de Acesso:</label>
-                <select id="nivelAcesso" name="nivelAcesso" required
-                        class="select @error('nivelAcesso') border-red-500 @enderror">
-                    <option value="Administrador" {{ old('nivelAcesso', $user->nivelAcesso) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
-                    <option value="Funcionário" {{ old('nivelAcesso', $user->nivelAcesso) == 'Funcionário' ? 'selected' : '' }}>Funcionário</option>
-                </select>
+                @if($user->nivelAcesso === 'Administrador')
+                    <input type="hidden" name="nivelAcesso" value="Administrador">
+                    <input type="text" value="Administrador" disabled
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-500 bg-gray-100 leading-tight cursor-not-allowed">
+                    <p class="text-gray-500 text-xs italic mt-1">Administradores não podem ter o nível de acesso alterado pois não possuem academia vinculada.</p>
+                @else
+                    <select id="nivelAcesso" name="nivelAcesso" required
+                            class="select @error('nivelAcesso') border-red-500 @enderror">
+                        <option value="Administrador" {{ old('nivelAcesso', $user->nivelAcesso) == 'Administrador' ? 'selected' : '' }}>Administrador</option>
+                        <option value="Funcionario" {{ old('nivelAcesso', $user->nivelAcesso) == 'Funcionario' ? 'selected' : '' }}>Funcionário</option>
+                    </select>
+                @endif
                 @error('nivelAcesso')
                     <p class="text-red-500 text-xs italic">{{ $message }}</p>
                 @enderror

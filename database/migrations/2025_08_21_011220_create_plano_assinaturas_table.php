@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('valor', 10, 2)->nullable();
             $table->integer('duracaoDias')->nullable();
             $table->unsignedInteger('idAcademia')->nullable(); 
+            $table->timestamps();
 
             $table->foreign('idAcademia')
                   ->references('idAcademia')

@@ -15,14 +15,21 @@ class UpdateUserRequest extends FormRequest
     public function rules(): array
     {
         $userId = $this->route('user')->idUsuario;
+        $user = $this->route('user');
+        $isCurrentlyAdmin = $user->nivelAcesso === 'Administrador';
+
+        $nivelAcessoRules = ['required', 'in:Administrador,Funcionario'];
+        if ($isCurrentlyAdmin) {
+            $nivelAcessoRules[] = Rule::in(['Administrador']);
+        }
 
         return [
             'nome' => ['required', 'string', 'max:100'],
             'usuario' => ['required', 'string', 'max:50', Rule::unique('users', 'usuario')->ignore($userId, 'idUsuario')],
             'email' => ['required', 'string', 'email', 'max:150', Rule::unique('users', 'email')->ignore($userId, 'idUsuario')],
             'senha' => ['nullable', 'string', 'min:6'],
-            'nivelAcesso' => ['required', 'in:Administrador,Funcionario'],
-            'idAcademia' => ['required', 'exists:academias,idAcademia'],
+            'nivelAcesso' => $nivelAcessoRules,
+            'idAcademia' => [$this->input('nivelAcesso') === 'Funcionario' ? 'required' : 'nullable', 'nullable', 'exists:academias,idAcademia'],
             'salarioMensal' => ['nullable', 'numeric', 'min:0'],
         ];
     }
@@ -38,8 +45,8 @@ class UpdateUserRequest extends FormRequest
             'email.unique' => 'Este email já está cadastrado.',
             'senha.min' => 'A senha deve ter no mínimo 6 caracteres.',
             'nivelAcesso.required' => 'O nível de acesso é obrigatório.',
-            'nivelAcesso.in' => 'Nível de acesso inválido.',
-            'idAcademia.required' => 'A academia é obrigatória.',
+            'nivelAcesso.in' => 'Não é possível alterar o nível de acesso de um Administrador para Funcionário pois ele não possui academia vinculada.',
+            'idAcademia.required' => 'A academia é obrigatória para funcionários.',
             'idAcademia.exists' => 'Academia não encontrada.',
             'salarioMensal.numeric' => 'O salário deve ser um número.',
             'salarioMensal.min' => 'O salário não pode ser negativo.',

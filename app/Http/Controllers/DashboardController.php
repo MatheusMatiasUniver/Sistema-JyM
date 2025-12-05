@@ -34,12 +34,24 @@ class DashboardController extends Controller
         $mensalidadesAtrasadas = Mensalidade::where('dataVencimento', '<', Carbon::today())
                                             ->where('status', 'Pendente')
                                             ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+                                            ->whereIn('idMensalidade', function($query) use ($academiaId) {
+                                                $query->select(DB::raw('MAX(idMensalidade)'))
+                                                      ->from('mensalidades')
+                                                      ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+                                                      ->groupBy('idCliente');
+                                            })
                                             ->with('cliente')
                                             ->get();
 
         $mensalidadesProximas = Mensalidade::whereBetween('dataVencimento', [Carbon::today(), Carbon::today()->addDays(7)])
                                             ->where('status', 'Pendente')
                                             ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+                                            ->whereIn('idMensalidade', function($query) use ($academiaId) {
+                                                $query->select(DB::raw('MAX(idMensalidade)'))
+                                                      ->from('mensalidades')
+                                                      ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+                                                      ->groupBy('idCliente');
+                                            })
                                             ->with('cliente')
                                             ->get();
 
@@ -199,6 +211,12 @@ class DashboardController extends Controller
         $mensalidadesAtrasadasCount = Mensalidade::where('dataVencimento', '<', Carbon::today())
             ->where('status', 'Pendente')
             ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+            ->whereIn('idMensalidade', function($query) use ($academiaId) {
+                $query->select(DB::raw('MAX(idMensalidade)'))
+                      ->from('mensalidades')
+                      ->when($academiaId, fn($q) => $q->where('idAcademia', $academiaId))
+                      ->groupBy('idCliente');
+            })
             ->count();
 
         $faturamentoMes = VendaProduto::whereBetween('dataVenda', [Carbon::now()->startOfMonth(), Carbon::now()->endOfMonth()])

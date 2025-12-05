@@ -67,17 +67,6 @@ class FaceRecognitionController extends Controller
             event(new ClientRegistrationCompleted($request->cliente_id, $cliente->nome, true, $message));
             event(new KioskStatusChanged(false, null));
 
-            \App\Models\ActivityLog::create([
-                'usuarioId' => null,
-                'modulo' => 'ReconhecimentoFacial',
-                'acao' => 'registrar_descritor',
-                'entidade' => 'Cliente',
-                'entidadeId' => $request->cliente_id,
-                'dados' => [
-                    'status' => 'sucesso',
-                ],
-            ]);
-
             return response()->json(['success' => true, 'message' => $message, 'user_name' => $cliente->nome]);
         } catch (\Exception $e) {
             DB::rollBack();
@@ -121,14 +110,25 @@ class FaceRecognitionController extends Controller
             $cliente = Cliente::find($bestMatch->cliente_id);
 
             if ($cliente) {
-                if ($cliente->status !== 'Ativo') {
-                    Log::warning("Acesso negado por reconhecimento para cliente ID {$cliente->idCliente}: Status {$cliente->status}.");
+                if ($cliente->status === 'Inativo') {
+                    Log::warning("Acesso negado por reconhecimento para cliente ID {$cliente->idCliente}: Cadastro Inativo.");
                     return response()->json([
                         'authenticated' => false,
                         'client_id' => $cliente->idCliente,
                         'user_name' => $cliente->nome,
                         'status' => $cliente->status,
-                        'message' => 'ACESSO NEGADO! Status: ' . $cliente->status . '.',
+                        'message' => 'ACESSO NEGADO! Cadastro Inativo - Procure a recepção.',
+                    ], 403);
+                }
+
+                if ($cliente->status === 'Inadimplente') {
+                    Log::warning("Acesso negado por reconhecimento para cliente ID {$cliente->idCliente}: Mensalidade vencida.");
+                    return response()->json([
+                        'authenticated' => false,
+                        'client_id' => $cliente->idCliente,
+                        'user_name' => $cliente->nome,
+                        'status' => $cliente->status,
+                        'message' => 'ACESSO NEGADO! Sua mensalidade está vencida - Procure a recepção para regularizar.',
                     ], 403);
                 }
 
@@ -168,9 +168,14 @@ class FaceRecognitionController extends Controller
             return response()->json(['authenticated' => false, 'message' => 'Código de acesso inválido.'], 401);
         }
 
-        if ($cliente->status !== 'Ativo') {
-            Log::warning("Acesso negado por código para cliente ID {$cliente->idCliente}: Status Inativo.");
-            return response()->json(['authenticated' => false, 'message' => 'ACESSO NEGADO! Status: ' . $cliente->status . '.'], 403);
+        if ($cliente->status === 'Inativo') {
+            Log::warning("Acesso negado por código para cliente ID {$cliente->idCliente}: Cadastro Inativo.");
+            return response()->json(['authenticated' => false, 'message' => 'ACESSO NEGADO! Cadastro Inativo - Procure a recepção.'], 403);
+        }
+
+        if ($cliente->status === 'Inadimplente') {
+            Log::warning("Acesso negado por código para cliente ID {$cliente->idCliente}: Mensalidade vencida.");
+            return response()->json(['authenticated' => false, 'message' => 'ACESSO NEGADO! Sua mensalidade está vencida - Procure a recepção para regularizar.'], 403);
         }
 
         try {

@@ -32,10 +32,6 @@
                 <dd class="font-medium">{{ $fornecedor->endereco ?? '-' }}</dd>
             </div>
             <div>
-                <dt class="text-gray-600">Condição de Pagamento</dt>
-                <dd class="font-medium">{{ $fornecedor->condicaoPagamentoPadrao ?? '-' }}</dd>
-            </div>
-            <div>
                 <dt class="text-gray-600">Status</dt>
                 <dd class="font-medium">{{ $fornecedor->ativo ? 'Ativo' : 'Inativo' }}</dd>
             </div>

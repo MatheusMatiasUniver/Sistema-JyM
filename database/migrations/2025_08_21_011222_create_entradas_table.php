@@ -15,7 +15,7 @@ return new class extends Migration
             $table->increments('idEntrada');
             $table->unsignedInteger('idCliente')->nullable(false);
             $table->dateTime('dataHora')->nullable(false);
-            $table->enum('metodo', ['Reconhecimento Facial', 'CPF/Senha', 'Manual'])->nullable(false);
+            $table->enum('metodo', ['Reconhecimento Facial', 'Codigo de Acesso'])->nullable(false);
 
             $table->foreign('idCliente')
                   ->references('idCliente')

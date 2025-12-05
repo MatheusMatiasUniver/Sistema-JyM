@@ -167,7 +167,6 @@ class RelatorioController extends Controller
             'dataFinal' => ['nullable', 'date_format:Y-m-d'],
             'idFuncionario' => ['nullable', 'integer'],
             'idFornecedor' => ['nullable', 'integer'],
-            'idCategoria' => ['nullable', 'integer'],
             'status' => ['nullable', 'in:Aberta,Paga,Cancelada']
         ]);
         if ($validator->fails()) {
@@ -176,8 +175,7 @@ class RelatorioController extends Controller
         $query = DB::table('contas_pagar')
             ->leftJoin('fornecedores', 'contas_pagar.idFornecedor', '=', 'fornecedores.idFornecedor')
             ->leftJoin('users', 'contas_pagar.idFuncionario', '=', 'users.idUsuario')
-            ->leftJoin('categorias_contas_pagar', 'contas_pagar.idCategoriaContaPagar', '=', 'categorias_contas_pagar.idCategoriaContaPagar')
-            ->select('contas_pagar.*', 'fornecedores.razaoSocial', 'users.nome as funcionarioNome', 'categorias_contas_pagar.nome as categoriaNome');
+            ->select('contas_pagar.*', 'fornecedores.razaoSocial', 'users.nome as funcionarioNome');
         if ($request->filled('dataInicial')) {
             $query->whereDate('dataVencimento', '>=', $request->dataInicial);
         }
@@ -190,23 +188,14 @@ class RelatorioController extends Controller
         if ($request->filled('idFornecedor')) {
             $query->where('contas_pagar.idFornecedor', $request->idFornecedor);
         }
-        if ($request->filled('idCategoria')) {
-            $query->where('contas_pagar.idCategoriaContaPagar', $request->idCategoria);
-        }
         if ($request->filled('status')) {
             $query->where('contas_pagar.status', $request->status);
         }
         $contas = $query->orderByDesc('dataVencimento')->paginate(20);
 
-        $totaisPorCategoria = DB::table('contas_pagar')
-            ->leftJoin('categorias_contas_pagar', 'contas_pagar.idCategoriaContaPagar', '=', 'categorias_contas_pagar.idCategoriaContaPagar')
-            ->select('categorias_contas_pagar.nome as categoria', DB::raw('COALESCE(SUM(contas_pagar.valorTotal),0) as total'))
-            ->groupBy('categorias_contas_pagar.nome')
-            ->orderBy('categoria')
-            ->get();
-        $totalGeral = $totaisPorCategoria->sum('total');
+        $totalGeral = $contas->sum('valorTotal');
 
-        return view('relatorios.gastos', compact('contas', 'totaisPorCategoria', 'totalGeral'));
+        return view('relatorios.gastos', compact('contas', 'totalGeral'));
     }
 
     public function inadimplencia(Request $request)
@@ -220,8 +209,9 @@ class RelatorioController extends Controller
         }
         $baseQuery = DB::table('mensalidades')
             ->join('clientes', 'mensalidades.idCliente', '=', 'clientes.idCliente')
-            ->select('mensalidades.*', 'clientes.nome');
-        $baseQuery->where('mensalidades.status', 'Pendente');
+            ->select('mensalidades.*', 'clientes.nome', 'clientes.status as clienteStatus')
+            ->where('clientes.status', 'Inadimplente')
+            ->where('mensalidades.status', 'Pendente');
         if ($request->filled('dataInicial')) {
             $baseQuery->whereDate('mensalidades.dataVencimento', '>=', $request->dataInicial);
         }
@@ -231,11 +221,12 @@ class RelatorioController extends Controller
         $mensalidades = $baseQuery->orderBy('mensalidades.dataVencimento')->paginate(20);
 
         $hoje = now();
-        $bucket030 = DB::table('mensalidades')->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(30), $hoje])->sum('valor');
-        $bucket3160 = DB::table('mensalidades')->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(60), $hoje->copy()->subDays(31)])->sum('valor');
-        $bucket6190 = DB::table('mensalidades')->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(90), $hoje->copy()->subDays(61)])->sum('valor');
-        $bucket90p = DB::table('mensalidades')->where('status', 'Pendente')->where('dataVencimento', '<', $hoje->copy()->subDays(90))->sum('valor');
-        $totalAberto = DB::table('mensalidades')->where('status', 'Pendente')->sum('valor');
+        $clientesInadimplentes = DB::table('clientes')->where('status', 'Inadimplente')->pluck('idCliente');
+        $bucket030 = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(30), $hoje])->sum('valor');
+        $bucket3160 = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(60), $hoje->copy()->subDays(31)])->sum('valor');
+        $bucket6190 = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(90), $hoje->copy()->subDays(61)])->sum('valor');
+        $bucket90p = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->where('dataVencimento', '<', $hoje->copy()->subDays(90))->sum('valor');
+        $totalAberto = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->sum('valor');
 
         return view('relatorios.inadimplencia', compact('mensalidades', 'bucket030', 'bucket3160', 'bucket6190', 'bucket90p', 'totalAberto'));
     }
@@ -308,51 +299,6 @@ class RelatorioController extends Controller
         return view('relatorios.vendas', compact('vendas', 'topProdutos', 'ticketMedio'));
     }
 
-    public function porFuncionario(Request $request)
-    {
-        $validator = Validator::make($request->all(), [
-            'idFuncionario' => ['nullable', 'integer'],
-            'dataInicial' => ['nullable', 'date_format:Y-m-d'],
-            'dataFinal' => ['nullable', 'date_format:Y-m-d']
-        ]);
-        if ($validator->fails()) {
-            abort(400, 'Entrada inválida');
-        }
-        $idFuncionario = $request->input('idFuncionario');
-        $vendasQuery = DB::table('venda_produtos')
-            ->leftJoin('users', 'venda_produtos.idUsuario', '=', 'users.idUsuario')
-            ->select('venda_produtos.*', 'users.nome as funcionarioNome');
-        if ($idFuncionario) {
-            $vendasQuery->where('venda_produtos.idUsuario', $idFuncionario);
-        }
-        if ($request->filled('dataInicial')) {
-            $vendasQuery->whereDate('venda_produtos.dataVenda', '>=', $request->dataInicial);
-        }
-        if ($request->filled('dataFinal')) {
-            $vendasQuery->whereDate('venda_produtos.dataVenda', '<=', $request->dataFinal);
-        }
-        $vendas = $vendasQuery->orderByDesc('venda_produtos.dataVenda')->paginate(20);
-
-        $despesasQuery = DB::table('contas_pagar')->leftJoin('users', 'contas_pagar.idFuncionario', '=', 'users.idUsuario')
-            ->select('contas_pagar.*', 'users.nome as funcionarioNome');
-        if ($idFuncionario) {
-            $despesasQuery->where('contas_pagar.idFuncionario', $idFuncionario);
-        }
-        if ($request->filled('dataInicial')) {
-            $despesasQuery->whereDate('contas_pagar.dataPagamento', '>=', $request->dataInicial);
-        }
-        if ($request->filled('dataFinal')) {
-            $despesasQuery->whereDate('contas_pagar.dataPagamento', '<=', $request->dataFinal);
-        }
-        $despesas = $despesasQuery->orderByDesc('contas_pagar.dataPagamento')->paginate(20);
-
-        $totalVendas = DB::table('venda_produtos')->when($idFuncionario, function ($q) use ($idFuncionario) { return $q->where('idUsuario', $idFuncionario); })->sum('valorTotal');
-        $totalDespesas = DB::table('contas_pagar')->when($idFuncionario, function ($q) use ($idFuncionario) { return $q->where('idFuncionario', $idFuncionario); })->sum('valorTotal');
-        $qtdVendas = DB::table('venda_produtos')->when($idFuncionario, function ($q) use ($idFuncionario) { return $q->where('idUsuario', $idFuncionario); })->count();
-
-        return view('relatorios.por_funcionario', compact('vendas', 'despesas', 'totalVendas', 'totalDespesas', 'qtdVendas', 'idFuncionario'));
-    }
-
     public function faturamentoLucroPdf(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -402,31 +348,22 @@ class RelatorioController extends Controller
             'dataFinal' => ['nullable', 'date_format:Y-m-d'],
             'idFuncionario' => ['nullable', 'integer'],
             'idFornecedor' => ['nullable', 'integer'],
-            'idCategoria' => ['nullable', 'integer'],
             'status' => ['nullable', 'in:Aberta,Paga,Cancelada']
         ]);
         if ($validator->fails()) { abort(400, 'Entrada inválida'); }
         $query = DB::table('contas_pagar')
             ->leftJoin('fornecedores', 'contas_pagar.idFornecedor', '=', 'fornecedores.idFornecedor')
             ->leftJoin('users', 'contas_pagar.idFuncionario', '=', 'users.idUsuario')
-            ->leftJoin('categorias_contas_pagar', 'contas_pagar.idCategoriaContaPagar', '=', 'categorias_contas_pagar.idCategoriaContaPagar')
-            ->select('contas_pagar.*', 'fornecedores.razaoSocial', 'users.nome as funcionarioNome', 'categorias_contas_pagar.nome as categoriaNome');
+            ->select('contas_pagar.*', 'fornecedores.razaoSocial', 'users.nome as funcionarioNome');
         if ($request->filled('dataInicial')) { $query->whereDate('dataVencimento', '>=', $request->dataInicial); }
         if ($request->filled('dataFinal')) { $query->whereDate('dataVencimento', '<=', $request->dataFinal); }
         if ($request->filled('idFuncionario')) { $query->where('contas_pagar.idFuncionario', $request->idFuncionario); }
         if ($request->filled('idFornecedor')) { $query->where('contas_pagar.idFornecedor', $request->idFornecedor); }
-        if ($request->filled('idCategoria')) { $query->where('contas_pagar.idCategoriaContaPagar', $request->idCategoria); }
         if ($request->filled('status')) { $query->where('contas_pagar.status', $request->status); }
         $contas = $query->orderByDesc('dataVencimento')->get();
-        $totaisPorCategoria = DB::table('contas_pagar')
-            ->leftJoin('categorias_contas_pagar', 'contas_pagar.idCategoriaContaPagar', '=', 'categorias_contas_pagar.idCategoriaContaPagar')
-            ->select('categorias_contas_pagar.nome as categoria', DB::raw('COALESCE(SUM(contas_pagar.valorTotal),0) as total'))
-            ->groupBy('categorias_contas_pagar.nome')
-            ->orderBy('categoria')
-            ->get();
-        $totalGeral = $totaisPorCategoria->sum('total');
+        $totalGeral = $contas->sum('valorTotal');
         $headerData = $this->getPdfHeaderData();
-        return Pdf::loadView('relatorios.pdf.gastos', array_merge(compact('contas','totaisPorCategoria','totalGeral'), $headerData))->download('relatorio-gastos.pdf');
+        return Pdf::loadView('relatorios.pdf.gastos', array_merge(compact('contas','totalGeral'), $headerData))->download('relatorio-gastos.pdf');
     }
 
     public function inadimplenciaPdf(Request $request)
@@ -438,17 +375,19 @@ class RelatorioController extends Controller
         if ($validator->fails()) { abort(400, 'Entrada inválida'); }
         $baseQuery = DB::table('mensalidades')
             ->join('clientes', 'mensalidades.idCliente', '=', 'clientes.idCliente')
-            ->select('mensalidades.*', 'clientes.nome')
+            ->select('mensalidades.*', 'clientes.nome', 'clientes.status as clienteStatus')
+            ->where('clientes.status', 'Inadimplente')
             ->where('mensalidades.status', 'Pendente');
         if ($request->filled('dataInicial')) { $baseQuery->whereDate('mensalidades.dataVencimento', '>=', $request->dataInicial); }
         if ($request->filled('dataFinal')) { $baseQuery->whereDate('mensalidades.dataVencimento', '<=', $request->dataFinal); }
         $mensalidades = $baseQuery->orderBy('mensalidades.dataVencimento')->get();
         $hoje = now();
-        $bucket030 = DB::table('mensalidades')->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(30), $hoje])->sum('valor');
-        $bucket3160 = DB::table('mensalidades')->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(60), $hoje->copy()->subDays(31)])->sum('valor');
-        $bucket6190 = DB::table('mensalidades')->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(90), $hoje->copy()->subDays(61)])->sum('valor');
-        $bucket90p = DB::table('mensalidades')->where('status', 'Pendente')->where('dataVencimento', '<', $hoje->copy()->subDays(90))->sum('valor');
-        $totalAberto = DB::table('mensalidades')->where('status', 'Pendente')->sum('valor');
+        $clientesInadimplentes = DB::table('clientes')->where('status', 'Inadimplente')->pluck('idCliente');
+        $bucket030 = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(30), $hoje])->sum('valor');
+        $bucket3160 = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(60), $hoje->copy()->subDays(31)])->sum('valor');
+        $bucket6190 = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->whereBetween('dataVencimento', [$hoje->copy()->subDays(90), $hoje->copy()->subDays(61)])->sum('valor');
+        $bucket90p = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->where('dataVencimento', '<', $hoje->copy()->subDays(90))->sum('valor');
+        $totalAberto = DB::table('mensalidades')->whereIn('idCliente', $clientesInadimplentes)->where('status', 'Pendente')->sum('valor');
         $headerData = $this->getPdfHeaderData();
         return Pdf::loadView('relatorios.pdf.inadimplencia', array_merge(compact('mensalidades','bucket030','bucket3160','bucket6190','bucket90p','totalAberto'), $headerData))->download('relatorio-inadimplencia.pdf');
     }
@@ -489,33 +428,6 @@ class RelatorioController extends Controller
         $topProdutos = DB::table('itens_vendas')->join('produtos', 'itens_vendas.idProduto', '=', 'produtos.idProduto')->select('produtos.nome', DB::raw('SUM(itens_vendas.quantidade) as quantidade'), DB::raw('SUM(itens_vendas.quantidade * itens_vendas.precoUnitario) as receita'))->groupBy('produtos.nome')->orderByDesc('receita')->limit(10)->get();
         $headerData = $this->getPdfHeaderData();
         return Pdf::loadView('relatorios.pdf.vendas', array_merge(compact('vendas','topProdutos'), $headerData))->download('relatorio-vendas.pdf');
-    }
-
-    public function porFuncionarioPdf(Request $request)
-    {
-        $this->configurePdfLimits();
-        $validator = Validator::make($request->all(), [
-            'idFuncionario' => ['nullable', 'integer'],
-            'dataInicial' => ['nullable', 'date_format:Y-m-d'],
-            'dataFinal' => ['nullable', 'date_format:Y-m-d']
-        ]);
-        if ($validator->fails()) { abort(400, 'Entrada inválida'); }
-        $idFuncionario = $request->input('idFuncionario');
-        $vendasQuery = DB::table('venda_produtos')->leftJoin('users', 'venda_produtos.idUsuario', '=', 'users.idUsuario')->select('venda_produtos.*', 'users.nome as funcionarioNome');
-        if ($idFuncionario) { $vendasQuery->where('venda_produtos.idUsuario', $idFuncionario); }
-        if ($request->filled('dataInicial')) { $vendasQuery->whereDate('venda_produtos.dataVenda', '>=', $request->dataInicial); }
-        if ($request->filled('dataFinal')) { $vendasQuery->whereDate('venda_produtos.dataVenda', '<=', $request->dataFinal); }
-        $vendas = $vendasQuery->orderByDesc('venda_produtos.dataVenda')->limit(500)->get();
-        $despesasQuery = DB::table('contas_pagar')->leftJoin('users', 'contas_pagar.idFuncionario', '=', 'users.idUsuario')->select('contas_pagar.*', 'users.nome as funcionarioNome');
-        if ($idFuncionario) { $despesasQuery->where('contas_pagar.idFuncionario', $idFuncionario); }
-        if ($request->filled('dataInicial')) { $despesasQuery->whereDate('contas_pagar.dataPagamento', '>=', $request->dataInicial); }
-        if ($request->filled('dataFinal')) { $despesasQuery->whereDate('contas_pagar.dataPagamento', '<=', $request->dataFinal); }
-        $despesas = $despesasQuery->orderByDesc('contas_pagar.dataPagamento')->limit(500)->get();
-        $totalVendas = DB::table('venda_produtos')->when($idFuncionario, function ($q) use ($idFuncionario) { return $q->where('idUsuario', $idFuncionario); })->sum('valorTotal');
-        $totalDespesas = DB::table('contas_pagar')->when($idFuncionario, function ($q) use ($idFuncionario) { return $q->where('idFuncionario', $idFuncionario); })->sum('valorTotal');
-        $qtdVendas = DB::table('venda_produtos')->when($idFuncionario, function ($q) use ($idFuncionario) { return $q->where('idUsuario', $idFuncionario); })->count();
-        $headerData = $this->getPdfHeaderData();
-        return Pdf::loadView('relatorios.pdf.por_funcionario', array_merge(compact('vendas','despesas','totalVendas','totalDespesas','qtdVendas','idFuncionario'), $headerData))->download('relatorio-por-funcionario.pdf');
     }
 
     public function comprasPdf(Request $request)

@@ -5,6 +5,22 @@
 @section('content')
     <h1 class="text-3xl font-bold mb-6 text-grip-6">Materiais de Consumo</h1>
 
+    @php
+        $materiaisAbaixoMinimo = $materiais->filter(fn($m) => $m->estoqueMinimo > 0 && $m->estoque <= $m->estoqueMinimo);
+    @endphp
+
+    @if($materiaisAbaixoMinimo->isNotEmpty())
+        <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+            <p class="font-bold">⚠️ Alerta de Estoque Baixo</p>
+            <p>{{ $materiaisAbaixoMinimo->count() }} material(is) com estoque abaixo ou igual ao mínimo:</p>
+            <ul class="list-disc ml-6 mt-2">
+                @foreach($materiaisAbaixoMinimo as $m)
+                    <li><strong>{{ $m->descricao }}</strong>: {{ $m->estoque }} {{ $m->unidadeMedida ?? 'un' }} (mínimo: {{ $m->estoqueMinimo }})</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
     <div class="mb-4 flex space-x-2">
         <a href="{{ route('materiais.create') }}" class="bg-grip-1 hover:bg-grip-2 text-white font-bold py-2 px-4 rounded">Novo Material</a>
         <a href="{{ route('materiais.requisicoes.index') }}" class="bg-gray-200 text-gray-800 font-bold py-2 px-4 rounded">Requisições</a>
@@ -23,12 +39,20 @@
             </thead>
             <tbody>
                 @forelse($materiais as $m)
-                    <tr>
-                        <td class="px-5 py-5 border-b bg-white text-sm">{{ $m->descricao }}</td>
-                        <td class="px-5 py-5 border-b bg-white text-sm">{{ $m->estoque }}</td>
-                        <td class="px-5 py-5 border-b bg-white text-sm">{{ $m->unidadeMedida ?? '-' }}</td>
-                        <td class="px-5 py-5 border-b bg-white text-sm">{{ $m->estoqueMinimo }}</td>
-                        <td class="px-5 py-5 border-b bg-white text-sm">
+                    @php
+                        $abaixoMinimo = $m->estoqueMinimo > 0 && $m->estoque <= $m->estoqueMinimo;
+                    @endphp
+                    <tr class="{{ $abaixoMinimo ? 'bg-yellow-50' : '' }}">
+                        <td class="px-5 py-5 border-b {{ $abaixoMinimo ? 'bg-yellow-50' : 'bg-white' }} text-sm">
+                            {{ $m->descricao }}
+                            @if($abaixoMinimo)
+                                <span class="ml-2 text-yellow-600 font-bold" title="Estoque abaixo do mínimo">⚠️</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-5 border-b {{ $abaixoMinimo ? 'bg-yellow-50 text-yellow-700 font-bold' : 'bg-white' }} text-sm">{{ $m->estoque }}</td>
+                        <td class="px-5 py-5 border-b {{ $abaixoMinimo ? 'bg-yellow-50' : 'bg-white' }} text-sm">{{ $m->unidadeMedida ?? '-' }}</td>
+                        <td class="px-5 py-5 border-b {{ $abaixoMinimo ? 'bg-yellow-50' : 'bg-white' }} text-sm">{{ $m->estoqueMinimo }}</td>
+                        <td class="px-5 py-5 border-b {{ $abaixoMinimo ? 'bg-yellow-50' : 'bg-white' }} text-sm">
                             <a href="{{ route('materiais.edit', $m->idMaterial) }}" class="text-yellow-600">Editar</a>
                             <form action="{{ route('materiais.destroy', $m->idMaterial) }}" method="POST" class="inline" autocomplete="off"
                                   data-confirm="Tem certeza que deseja excluir este material?"

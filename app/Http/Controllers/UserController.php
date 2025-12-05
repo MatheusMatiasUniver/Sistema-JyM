@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\User;
-use App\Models\ActivityLog;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Http\Requests\UpdateUserRequest; 
@@ -64,21 +63,6 @@ class UserController extends Controller
 
         $user->save();
 
-        ActivityLog::create([
-            'usuarioId' => Auth::id(),
-            'modulo' => 'Usuários',
-            'acao' => 'atualizar',
-            'entidade' => 'User',
-            'entidadeId' => $user->idUsuario,
-            'dados' => [
-                'nome' => $user->nome,
-                'email' => $user->email,
-                'usuario' => $user->usuario,
-                'nivelAcesso' => $user->nivelAcesso,
-                'salarioMensal' => $user->salarioMensal,
-            ],
-        ]);
-
         return redirect()->route('users.index')->with('success', 'Usuário ' . $user->nome . ' atualizado com sucesso!');
     }
 
@@ -95,15 +79,6 @@ class UserController extends Controller
         try {
             $nomeUsuario = $user->nome;
             $user->delete();
-            
-            ActivityLog::create([
-                'usuarioId' => Auth::id(),
-                'modulo' => 'Usuários',
-                'acao' => 'excluir',
-                'entidade' => 'User',
-                'entidadeId' => $user->idUsuario,
-                'dados' => ['nome' => $nomeUsuario],
-            ]);
             
             return redirect()->route('users.index')->with('success', 'Usuário ' . $nomeUsuario . ' excluído com sucesso!');
         } catch (\Exception $e) {

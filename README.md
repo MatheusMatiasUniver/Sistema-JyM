@@ -89,7 +89,97 @@ php-gd (para geracao de PDF)
 
 ---
 
-## Manual de Instalacao
+## 📚 Documentação
+
+Toda a documentação está organizada na pasta **[documentacao/](documentacao/)**
+
+| Documento | Descrição | Tempo |
+|-----------|-----------|-------|
+| **[documentacao/RESUMO.md](documentacao/RESUMO.md)** | 📋 Resumo executivo - visão geral completa | 5 min |
+| **[documentacao/INSTALACAO.md](documentacao/INSTALACAO.md)** | 📖 Guia completo de instalação passo a passo | 15 min |
+| **[documentacao/GUIA-RAPIDO.md](documentacao/GUIA-RAPIDO.md)** | ⚡ Referência rápida para desenvolvedores | 5 min |
+| **[documentacao/DADOS-TESTE.md](documentacao/DADOS-TESTE.md)** | 📊 Informações sobre dados de teste e credenciais | 10 min |
+| **[database/schema/README.md](database/schema/README.md)** | 💾 Documentação dos scripts SQL | 10 min |
+| **[docs/Documentação - Sistema JyM.md](docs/Documentação%20-%20Sistema%20JyM.md)** | 📄 Documentação técnica completa | 30 min |
+| **[documentacao/INDICE-DOCUMENTACAO.md](documentacao/INDICE-DOCUMENTACAO.md)** | 🗂️ Índice navegável de toda documentação | 5 min |
+
+---
+
+## 🚀 Instalação Rápida
+
+### 🎯 Opção 1: Instalação Automatizada (Recomendado)
+
+#### Windows
+```bash
+# Execute o instalador automático
+documentacao\instalar.bat
+```
+
+#### Linux/Mac
+```bash
+# Torne o script executável e execute
+chmod +x documentacao/instalar.sh
+./documentacao/instalar.sh
+```
+
+O instalador automático verifica todos os requisitos, instala dependências e configura o banco de dados.
+
+---
+
+### 🔧 Opção 2: Instalação Manual
+
+### **📖 Guia Completo: [documentacao/INSTALACAO.md](documentacao/INSTALACAO.md)**
+
+### Resumo da Instalação
+
+```bash
+# 1. Clonar repositório
+git clone https://github.com/MatheusMatiasUniver/Sistema-JyM.git
+cd Sistema-JyM
+
+# 2. Instalar dependências
+composer install
+npm install
+
+# 3. Configurar ambiente
+copy .env.example .env
+php artisan key:generate
+
+# 4. Configurar banco no .env
+# DB_DATABASE=jym
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# 5. Criar banco e importar estrutura
+mysql -u root -p
+CREATE DATABASE jym CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+exit;
+
+# 6A. Opção 1: Via Scripts SQL (Recomendado)
+mysql -u root -p jym < database/schema/estrutura_banco.sql
+mysql -u root -p jym < database/schema/dados_seeders.sql
+
+# 6B. Opção 2: Via Migrations e Seeders
+php artisan migrate
+php artisan db:seed --class=SimulationSeeder
+
+# 7. Iniciar servidores
+composer dev
+```
+
+**Acesse:** http://localhost:8000
+
+### 🔑 Credenciais de Acesso
+
+| Tipo | Usuário | Senha | Academia |
+|------|---------|-------|----------|
+| **Admin** | `admin` | `admin123` | Todas |
+| **Funcionário 1** | `maria.souza` | `func123` | Iron Fitness |
+| **Funcionário 2** | `pedro.lima` | `func123` | Power House Gym |
+
+---
+
+## Manual de Instalacao (Detalhado)
 
 ### Passo 1: Clonar o Repositorio
 

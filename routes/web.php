@@ -21,7 +21,6 @@ use App\Http\Controllers\ManutencaoEquipamentoController;
 use App\Http\Controllers\MaterialController;
 use App\Http\Controllers\RequisicaoMaterialController;
 use App\Http\Controllers\AjusteSistemaController;
-use App\Http\Controllers\CategoriaContaPagarController;
 use App\Http\Controllers\ContaReceberController;
 
 /*
@@ -72,7 +71,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/clientes/{id}/confirm-force-delete', [ClienteController::class, 'confirmForceDelete'])->name('clientes.confirmForceDelete')->middleware('admin');
     Route::delete('/clientes/{id}/force-delete', [ClienteController::class, 'forceDelete'])->name('clientes.forceDelete')->middleware('admin');
 
-    Route::resource('clientes', ClienteController::class)->middleware('funcionario');
+    Route::resource('clientes', ClienteController::class)->except(['destroy'])->middleware('funcionario');
+    Route::delete('/clientes/{cliente}', [ClienteController::class, 'destroy'])->name('clientes.destroy')->middleware('admin');
 
     Route::resource('produtos', ProdutoController::class)->middleware('funcionario');
 
@@ -91,9 +91,6 @@ Route::middleware('auth')->group(function () {
     Route::get('/financeiro/contas-pagar', [ContaPagarController::class, 'index'])->name('financeiro.contas_pagar.index')->middleware('funcionario');
     Route::post('/financeiro/contas-pagar/{conta}/pagar', [ContaPagarController::class, 'pagar'])->name('financeiro.contas_pagar.pagar')->middleware('funcionario');
     Route::get('/financeiro/contas-receber', [ContaReceberController::class, 'index'])->name('financeiro.contas_receber.index')->middleware('funcionario');
-    Route::get('/financeiro/categorias-contas-pagar', [CategoriaContaPagarController::class, 'index'])->name('financeiro.categorias_contas_pagar.index')->middleware('funcionario');
-    Route::get('/financeiro/categorias-contas-pagar/create', [CategoriaContaPagarController::class, 'create'])->name('financeiro.categorias_contas_pagar.create')->middleware('funcionario');
-    Route::post('/financeiro/categorias-contas-pagar', [CategoriaContaPagarController::class, 'store'])->name('financeiro.categorias_contas_pagar.store')->middleware('funcionario');
 
     Route::get('/relatorios/compras', [RelatorioController::class, 'compras'])->name('relatorios.compras')->middleware('funcionario');
     Route::get('/relatorios/margem', [RelatorioController::class, 'margemProdutos'])->name('relatorios.margem')->middleware('funcionario');
@@ -104,14 +101,12 @@ Route::middleware('auth')->group(function () {
     Route::get('/relatorios/inadimplencia', [RelatorioController::class, 'inadimplencia'])->name('relatorios.inadimplencia')->middleware('funcionario');
     Route::get('/relatorios/frequencia', [RelatorioController::class, 'frequencia'])->name('relatorios.frequencia')->middleware('funcionario');
     Route::get('/relatorios/vendas', [RelatorioController::class, 'vendas'])->name('relatorios.vendas')->middleware('funcionario');
-    Route::get('/relatorios/por-funcionario', [RelatorioController::class, 'porFuncionario'])->name('relatorios.porFuncionario')->middleware('funcionario');
 
     Route::get('/relatorios/faturamento/pdf', [RelatorioController::class, 'faturamentoLucroPdf'])->name('relatorios.faturamento.pdf')->middleware('funcionario');
     Route::get('/relatorios/gastos/pdf', [RelatorioController::class, 'gastosPdf'])->name('relatorios.gastos.pdf')->middleware('funcionario');
     Route::get('/relatorios/inadimplencia/pdf', [RelatorioController::class, 'inadimplenciaPdf'])->name('relatorios.inadimplencia.pdf')->middleware('funcionario');
     Route::get('/relatorios/frequencia/pdf', [RelatorioController::class, 'frequenciaPdf'])->name('relatorios.frequencia.pdf')->middleware('funcionario');
     Route::get('/relatorios/vendas/pdf', [RelatorioController::class, 'vendasPdf'])->name('relatorios.vendas.pdf')->middleware('funcionario');
-    Route::get('/relatorios/por-funcionario/pdf', [RelatorioController::class, 'porFuncionarioPdf'])->name('relatorios.porFuncionario.pdf')->middleware('funcionario');
     Route::get('/relatorios/compras/pdf', [RelatorioController::class, 'comprasPdf'])->name('relatorios.compras.pdf')->middleware('funcionario');
     Route::get('/relatorios/margem/pdf', [RelatorioController::class, 'margemProdutosPdf'])->name('relatorios.margem.pdf')->middleware('funcionario');
     Route::get('/relatorios/ruptura/pdf', [RelatorioController::class, 'rupturaPdf'])->name('relatorios.ruptura.pdf')->middleware('funcionario');

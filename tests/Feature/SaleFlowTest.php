@@ -136,7 +136,7 @@ class SaleFlowTest extends TestCase
         $this->assertNotNull($mov);
         $this->assertEquals('entrada', $mov->tipo);
 
-        $log = DB::table('activity_logs')->where(['modulo' => 'Vendas', 'acao' => 'cancelar', 'entidadeId' => $vendaId])->first();
+        $log = DB::table('activity_logs')->where(['modulo' => 'Vendas', 'acao' => 'estornar', 'entidadeId' => $vendaId])->first();
         $this->assertNotNull($log);
     }
 }

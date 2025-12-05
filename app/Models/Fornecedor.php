@@ -26,7 +26,6 @@ class Fornecedor extends Model
         'telefone',
         'email',
         'endereco',
-        'condicaoPagamentoPadrao',
         'ativo',
     ];
 
