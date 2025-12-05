@@ -42,7 +42,6 @@ class FornecedorController extends Controller
                 'telefone' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',
                 'endereco' => 'nullable|string|max:255',
-                'condicaoPagamentoPadrao' => 'nullable|string|max:100',
                 'ativo' => 'nullable|boolean',
             ], [
                 'razaoSocial.required' => 'A razão social é obrigatória.',
@@ -84,7 +83,6 @@ class FornecedorController extends Controller
                 'telefone' => 'nullable|string|max:20',
                 'email' => 'nullable|email|max:255',
                 'endereco' => 'nullable|string|max:255',
-                'condicaoPagamentoPadrao' => 'nullable|string|max:100',
                 'ativo' => 'nullable|boolean',
             ], [
                 'razaoSocial.required' => 'A razão social é obrigatória.',

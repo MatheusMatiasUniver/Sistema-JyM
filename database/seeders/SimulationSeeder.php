@@ -247,9 +247,9 @@ class SimulationSeeder extends Seeder
         }
 
         $fornecedoresData = [
-            ['razaoSocial' => 'Distribuidora de Suplementos Ltda', 'cnpjCpf' => '11222333000144', 'contato' => 'João Silva', 'telefone' => '(11) 3333-4444', 'email' => 'vendas@distsuplementos.com.br', 'endereco' => 'São Paulo - SP', 'condicaoPagamentoPadrao' => '30 dias'],
-            ['razaoSocial' => 'Bebidas & Cia ME', 'cnpjCpf' => '22333444000155', 'contato' => 'Ana Paula', 'telefone' => '(44) 3232-5555', 'email' => 'contato@bebidasecia.com.br', 'endereco' => 'Maringá - PR', 'condicaoPagamentoPadrao' => '15 dias'],
-            ['razaoSocial' => 'Artigos Esportivos Brasil', 'cnpjCpf' => '33444555000166', 'contato' => 'Roberto Carlos', 'telefone' => '(21) 2222-6666', 'email' => 'comercial@artigosbr.com.br', 'endereco' => 'Rio de Janeiro - RJ', 'condicaoPagamentoPadrao' => '28 dias'],
+            ['razaoSocial' => 'Distribuidora de Suplementos Ltda', 'cnpjCpf' => '11222333000144', 'contato' => 'João Silva', 'telefone' => '(11) 3333-4444', 'email' => 'vendas@distsuplementos.com.br', 'endereco' => 'São Paulo - SP'],
+            ['razaoSocial' => 'Bebidas & Cia ME', 'cnpjCpf' => '22333444000155', 'contato' => 'Ana Paula', 'telefone' => '(44) 3232-5555', 'email' => 'contato@bebidasecia.com.br', 'endereco' => 'Maringá - PR'],
+            ['razaoSocial' => 'Artigos Esportivos Brasil', 'cnpjCpf' => '33444555000166', 'contato' => 'Roberto Carlos', 'telefone' => '(21) 2222-6666', 'email' => 'comercial@artigosbr.com.br', 'endereco' => 'Rio de Janeiro - RJ'],
         ];
 
         $fornecedores = collect();
@@ -447,7 +447,7 @@ class SimulationSeeder extends Seeder
                 'idCliente' => $cliente->idCliente,
                 'idAcademia' => $this->academiaAtual->idAcademia,
                 'dataHora' => $dataHora,
-                'metodo' => fake()->randomElement(['Reconhecimento Facial', 'Reconhecimento Facial', 'CPF/Senha', 'Manual']),
+                'metodo' => fake()->randomElement(['Reconhecimento Facial', 'Reconhecimento Facial', 'Reconhecimento Facial', 'Codigo de Acesso']),
             ]);
         }
     }
